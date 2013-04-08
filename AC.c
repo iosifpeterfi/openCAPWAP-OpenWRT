@@ -259,7 +259,7 @@ void CWACDestroy()
 	CWLog("AC Destroyed");
 }
 
-__inline__ unsigned int CWGetSeqNum()
+unsigned int CWGetSeqNum()
 {
 
 	static unsigned int seqNum = 0;
@@ -281,7 +281,7 @@ __inline__ unsigned int CWGetSeqNum()
 	return r;
 }
 
-__inline__ int CWGetFragmentID()
+int CWGetFragmentID()
 {
 
 	static int fragID = 0;

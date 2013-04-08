@@ -55,7 +55,7 @@ void CWLogInitFile(char *fileName)
 #endif
 }
 
-CWBool checkResetFile()
+static CWBool checkResetFile()
 {
 	long fileSize = 0;
 
@@ -73,7 +73,7 @@ CWBool checkResetFile()
 	return 1;
 }
 
-void CWLogCloseFile()
+static void CWLogCloseFile()
 {
 #ifndef CW_SINGLE_THREAD
 	CWDestroyThreadMutex(&gFileMutex);
@@ -82,7 +82,7 @@ void CWLogCloseFile()
 	fclose(gLogFile);
 }
 
-__inline__ void CWVLog(const char *format, va_list args)
+void CWVLog(const char *format, va_list args)
 {
 	char *logStr = NULL;
 	time_t now;
@@ -132,7 +132,7 @@ __inline__ void CWVLog(const char *format, va_list args)
 	CW_FREE_OBJECT(logStr);
 }
 
-__inline__ void CWLog(const char *format, ...)
+void CWLog(const char *format, ...)
 {
 	va_list args;
 
@@ -143,7 +143,7 @@ __inline__ void CWLog(const char *format, ...)
 	va_end(args);
 }
 
-__inline__ void CWDebugLog(const char *format, ...)
+void CWDebugLog(const char *format, ...)
 {
 #ifdef CW_DEBUGGING
 	char *logStr = NULL;

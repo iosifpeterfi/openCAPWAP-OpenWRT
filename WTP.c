@@ -507,7 +507,7 @@ int main(int argc, const char *argv[])
 	}
 }
 
-__inline__ unsigned int CWGetSeqNum()
+unsigned int CWGetSeqNum()
 {
 	static unsigned int seqNum = 0;
 
@@ -518,7 +518,7 @@ __inline__ unsigned int CWGetSeqNum()
 	return seqNum;
 }
 
-__inline__ int CWGetFragmentID()
+int CWGetFragmentID()
 {
 	static int fragID = 0;
 	return fragID++;

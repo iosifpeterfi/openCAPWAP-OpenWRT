@@ -319,7 +319,7 @@ CWBool CWThreadSemGetValue(CWThreadSem * semPtr, int *valuePtr)
 	return CW_TRUE;
 }
 
-__inline__ sem_t *CWThreadGetSemT(CWThreadSem * semPtr)
+sem_t *CWThreadGetSemT(CWThreadSem * semPtr)
 {
 #ifdef CW_USE_NAMED_SEMAPHORES
 	return (semPtr->semPtr);

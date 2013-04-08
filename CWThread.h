@@ -78,7 +78,7 @@ typedef void *CWTimerArg;
 #define CW_THREAD_ONCE_INIT         PTHREAD_ONCE_INIT
 #define CWThreadCallOnce            pthread_once
 
-__inline__ sem_t *CWThreadGetSemT(CWThreadSem * semPtr);
+sem_t *CWThreadGetSemT(CWThreadSem * semPtr);
 
 CWBool CWThreadInitLib(void);
 

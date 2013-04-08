@@ -42,7 +42,7 @@
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
 
-__inline__ void CWNetworkDeleteMHInterface(void *intPtr)
+void CWNetworkDeleteMHInterface(void *intPtr)
 {
 
 	CW_FREE_OBJECT(intPtr);

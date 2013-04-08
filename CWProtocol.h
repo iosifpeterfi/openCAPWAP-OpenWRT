@@ -638,8 +638,8 @@ typedef struct {
 /*__________________________________________________________*/
 /*  *******************___PROTOTYPES___*******************  */
 
-__inline__ unsigned int CWGetSeqNum();	// provided by the user of CWProtocol lib
-__inline__ int CWGetFragmentID();	// provided by the user of CWProtocol lib
+unsigned int CWGetSeqNum();	// provided by the user of CWProtocol lib
+int CWGetFragmentID();		// provided by the user of CWProtocol lib
 
 void CWWTPResetRadioStatistics(WTPRadioStatisticsInfo * radioStatistics);
 
