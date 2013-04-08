@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	       *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -25,19 +25,19 @@
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
-
-
 #include "CWCommon.h"
 
 #ifdef DMALLOC
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
 
-__inline__ void CWRandomInitLib() {
+__inline__ void CWRandomInitLib()
+{
 	// set seed
-    srand( (unsigned)time( NULL ) );
+	srand((unsigned)time(NULL));
 }
 
-__inline__ int CWRandomIntInRange(int min, int max) {
-	return min + (rand() % (max-min));
+__inline__ int CWRandomIntInRange(int min, int max)
+{
+	return min + (rand() % (max - min));
 }

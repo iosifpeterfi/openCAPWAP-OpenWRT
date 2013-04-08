@@ -22,8 +22,8 @@
 #define WTP_CANCEL_UPDATE_REQUEST       9
 #define WTP_CANCEL_UPDATE_RESPONSE       10
 
-#define SUCCESS	0
-#define ERROR	1
+#define SUCCESS 0
+#define ERROR   1
 
 #define FRAGMENT_SIZE 4000
 
@@ -48,4 +48,3 @@ int WUMGetWTPVersion(int acserver, int wtpId, struct version_info *);
 int WUMReadCupVersion(char *cup_pathname, struct version_info *update_v);
 int WUMUpdate(int acserver, int wtpId, void *cup_buf, struct version_info update_v);
 int WUMSendCancelRequest(int acserver, int wtpId);
-

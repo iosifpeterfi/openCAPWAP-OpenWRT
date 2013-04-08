@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	   *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -25,7 +25,6 @@
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
-
 #include "CWCommon.h"
 #include "CWAC.h"
 #include <openssl/pkcs12.h>
@@ -35,66 +34,61 @@
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
 
-#define	CW_DTLS_CERT_VERIFY_DEPTH	1
-
+#define CW_DTLS_CERT_VERIFY_DEPTH   1
 
 #if (OPENSSL_VERSION_NUMBER < 0x000908000)
-	#error "Must use CAPWAP Hacked OpenSSL 0.9.8a or later"
+#error "Must use CAPWAP Hacked OpenSSL 0.9.8a or later"
 #endif
 
-static char 	*gSecurityPassword;
-static CWBool 	useCertificate;
+static char *gSecurityPassword;
+static CWBool useCertificate;
 
 static CWThreadMutex *mutexOpensslBuf = NULL;
 
-CWBool CWSecurityVerifyPeerCertificateForCAPWAP(SSL *ssl, CWBool isClient);
+CWBool CWSecurityVerifyPeerCertificateForCAPWAP(SSL * ssl, CWBool isClient);
 static int CWDTLSPasswordCB(char *buf, int num, int rwflag, void *userdata);
-int CWSecurityVerifyCB(int ok, X509_STORE_CTX *ctx);
+int CWSecurityVerifyCB(int ok, X509_STORE_CTX * ctx);
 
-unsigned int CWSecurityPSKClientCB(SSL *ssl,
+unsigned int CWSecurityPSKClientCB(SSL * ssl,
 				   const char *hint,
 				   char *identity,
-				   unsigned int max_identity_len,
-				   unsigned char *psk,
-				   unsigned int max_psk_len);
+				   unsigned int max_identity_len, unsigned char *psk, unsigned int max_psk_len);
 
-unsigned int CWSecurityPSKServerCB(SSL *ssl,
-				   const char *identity,
-				   unsigned char *psk,
-				   unsigned int max_psk_len);
+unsigned int CWSecurityPSKServerCB(SSL * ssl, const char *identity, unsigned char *psk, unsigned int max_psk_len);
 
 int psk_key2bn(const char *psk_key, unsigned char *psk, unsigned int max_psk_len);
 
-#define CWSecurityGetErrorStr()				((const char *) ERR_error_string(ERR_get_error(), NULL))
-#define CWDTLSGetError()				"Err"
+#define CWSecurityGetErrorStr()             ((const char *) ERR_error_string(ERR_get_error(), NULL))
+#define CWDTLSGetError()                "Err"
 
-#define CWSecurityRaiseError(error)			{						\
-								char buf[256];				\
-								ERR_error_string(ERR_get_error(), buf);	\
-								CWErrorRaise(error, buf);		\
-								return CW_FALSE;			\
-							}
+#define CWSecurityRaiseError(error)         {                       \
+                                char buf[256];              \
+                                ERR_error_string(ERR_get_error(), buf); \
+                                CWErrorRaise(error, buf);       \
+                                return CW_FALSE;            \
+                            }
 
-#define CWSecurityRaiseSystemError(error)		{						\
-								char buf[256];				\
-								strerror_r(errno, buf, 256);		\
-								CWErrorRaise(error, buf);		\
-								return CW_FALSE;			\
-							}
+#define CWSecurityRaiseSystemError(error)       {                       \
+                                char buf[256];              \
+                                strerror_r(errno, buf, 256);        \
+                                CWErrorRaise(error, buf);       \
+                                return CW_FALSE;            \
+                            }
 
-#define CWSecurityManageSSLError(arg, session, stuff)	{						\
-								char ___buf[256];			\
-								int r;					\
-													\
-								if((r=(arg)) <= 0) {			\
-									{stuff}				\
-									ERR_error_string(/*SSL_get_error((session),r)*/ ERR_get_error(), ___buf);	\
-									CWDebugLog(strerror(errno));CWErrorRaise(CW_ERROR_GENERAL, ___buf);		\
-									return CW_FALSE;		\
-								}					\
-							}
+#define CWSecurityManageSSLError(arg, session, stuff)   {                       \
+                                char ___buf[256];           \
+                                int r;                  \
+                                                    \
+                                if((r=(arg)) <= 0) {            \
+                                    {stuff}             \
+                                    ERR_error_string(/*SSL_get_error((session),r)*/ ERR_get_error(), ___buf);   \
+                                    CWDebugLog(strerror(errno));CWErrorRaise(CW_ERROR_GENERAL, ___buf);     \
+                                    return CW_FALSE;        \
+                                }                   \
+                            }
 
-static void CWSslLockingFunc(int mode, int n, const char *file, int line) {
+static void CWSslLockingFunc(int mode, int n, const char *file, int line)
+{
 
 	if (mode & CRYPTO_LOCK)
 		CWThreadMutexLock(&mutexOpensslBuf[n]);
@@ -104,18 +98,21 @@ static void CWSslLockingFunc(int mode, int n, const char *file, int line) {
 	return;
 }
 
-static unsigned long CWSslIdFunction() {
+static unsigned long CWSslIdFunction()
+{
 
 	return (unsigned long)pthread_self();
 }
 
-void CWSslCleanUp() {
+void CWSslCleanUp()
+{
 
 	int i;
 
-	if (mutexOpensslBuf == NULL) return;
+	if (mutexOpensslBuf == NULL)
+		return;
 
-	for(i = 0; i < CRYPTO_num_locks(); i++) {
+	for (i = 0; i < CRYPTO_num_locks(); i++) {
 
 		CWDestroyThreadMutex(&mutexOpensslBuf[i]);
 	}
@@ -126,7 +123,8 @@ void CWSslCleanUp() {
 	return;
 }
 
-CWBool CWSecurityInitLib() {
+CWBool CWSecurityInitLib()
+{
 
 	int i;
 
@@ -136,21 +134,19 @@ CWBool CWSecurityInitLib() {
 	/* setup mutexes for openssl internal locking */
 	CW_CREATE_ARRAY_ERR(mutexOpensslBuf,
 			    CRYPTO_num_locks() * sizeof(CWThreadMutex),
-			    CWThreadMutex,
-			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY,
-				    		"Cannot create openssl mutexes");)
+			    CWThreadMutex, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, "Cannot create openssl mutexes");
+	    )
 
-	CW_ZERO_MEMORY(mutexOpensslBuf, CRYPTO_num_locks() * sizeof(CWThreadMutex));
+	    CW_ZERO_MEMORY(mutexOpensslBuf, CRYPTO_num_locks() * sizeof(CWThreadMutex));
 
-	for(i = 0; i < CRYPTO_num_locks(); i++) {
+	for (i = 0; i < CRYPTO_num_locks(); i++) {
 
 		CWBool rv;
 		rv = CWCreateThreadMutex(&mutexOpensslBuf[i]);
 		if (rv != CW_TRUE) {
 
 			CWSslCleanUp();
-			return CWErrorRaise(CW_ERROR_CREATING,
-				    	    "Cannot create openssl mutexes");
+			return CWErrorRaise(CW_ERROR_CREATING, "Cannot create openssl mutexes");
 		}
 	}
 
@@ -160,37 +156,35 @@ CWBool CWSecurityInitLib() {
 	return CW_TRUE;
 }
 
-CWBool CWSecurityInitSessionClient(CWSocket 		sock,
-				   CWNetworkLev4Address *addrPtr,
-				   CWSafeList 		packetReceiveList,
-				   CWSecurityContext 	ctx,
-				   CWSecuritySession 	*sessionPtr,
-				   int 			*PMTUPtr) {
+CWBool CWSecurityInitSessionClient(CWSocket sock,
+				   CWNetworkLev4Address * addrPtr,
+				   CWSafeList packetReceiveList,
+				   CWSecurityContext ctx, CWSecuritySession * sessionPtr, int *PMTUPtr)
+{
 
 	BIO *sbio = NULL;
 	CWNetworkLev4Address peer;
 	int peerlen = sizeof(peer);
 	int i;
 
-	if(ctx == NULL || sessionPtr == NULL || PMTUPtr == NULL)
+	if (ctx == NULL || sessionPtr == NULL || PMTUPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
-	if((*sessionPtr = SSL_new(ctx)) == NULL) {
+	if ((*sessionPtr = SSL_new(ctx)) == NULL) {
 		CWSecurityRaiseError(CW_ERROR_CREATING);
 	}
+#ifdef CW_DEBUGGING
+	CWDebugLog("My Certificate");
+	PEM_write_X509(stdout, SSL_get_certificate(*sessionPtr));
+#endif
 
-	#ifdef CW_DEBUGGING
-		CWDebugLog("My Certificate");
-		PEM_write_X509(stdout, SSL_get_certificate(*sessionPtr));
-	#endif
-
-	if((sbio = BIO_new_memory(sock, addrPtr, packetReceiveList)) == NULL) {
+	if ((sbio = BIO_new_memory(sock, addrPtr, packetReceiveList)) == NULL) {
 
 		SSL_free(*sessionPtr);
 		CWSecurityRaiseError(CW_ERROR_CREATING);
 	}
 
-	if (getsockname(sock, (struct sockaddr*)&peer, (void *)&peerlen) < 0) {
+	if (getsockname(sock, (struct sockaddr *)&peer, (void *)&peerlen) < 0) {
 
 		SSL_free(*sessionPtr);
 		CWSecurityRaiseSystemError(CW_ERROR_GENERAL);
@@ -212,14 +206,13 @@ CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 	SSL_set_verify_depth((*sessionPtr), CW_DTLS_CERT_VERIFY_DEPTH + 1);
 
 	/* required by DTLS implementation to avoid data loss */
-	SSL_set_read_ahead( (*sessionPtr), 1);
+	SSL_set_read_ahead((*sessionPtr), 1);
 	SSL_set_bio((*sessionPtr), sbio, sbio);
 	SSL_set_connect_state((*sessionPtr));
 
 	CWDebugLog("Before HS");
-	CWSecurityManageSSLError(SSL_do_handshake(*sessionPtr),
-				 *sessionPtr,
-				 SSL_free(*sessionPtr););
+	CWSecurityManageSSLError(SSL_do_handshake(*sessionPtr), *sessionPtr, SSL_free(*sessionPtr);
+	    );
 	CWDebugLog("After HS");
 
 	if (SSL_get_verify_result(*sessionPtr) == X509_V_OK) {
@@ -227,17 +220,16 @@ CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 		CWDebugLog("Certificate Verified");
 	} else {
 
-		CWDebugLog("Certificate Error (%d)",
-			   SSL_get_verify_result(*sessionPtr));
+		CWDebugLog("Certificate Error (%d)", SSL_get_verify_result(*sessionPtr));
 	}
 
 	*PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_QUERY_MTU, 0, NULL);
 
 	CWDebugLog("PMTU: %d", *PMTUPtr);
 
-	if(useCertificate) {
+	if (useCertificate) {
 
-		if(CWSecurityVerifyPeerCertificateForCAPWAP((*sessionPtr), CW_TRUE)) {
+		if (CWSecurityVerifyPeerCertificateForCAPWAP((*sessionPtr), CW_TRUE)) {
 
 			CWDebugLog("Certificate Ok for CAPWAP");
 		} else {
@@ -247,64 +239,62 @@ CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 #endif
 		}
 	}
-    return CW_TRUE;
+	return CW_TRUE;
 
 }
 
-void CWSecurityCloseSession(CWSecuritySession *sPtr) {
+void CWSecurityCloseSession(CWSecuritySession * sPtr)
+{
 
 	SSL_free(*sPtr);
 }
 
+CWBool CWSecurityReceive(CWSecuritySession session, char *buf, int len, int *readBytesPtr)
+{
 
-CWBool CWSecurityReceive(CWSecuritySession session,
-			 char *buf,
-			 int len,
-			 int *readBytesPtr) {
-
-
-	CWSecurityManageSSLError((*readBytesPtr=SSL_read(session, buf, len)), session, ;);
+	CWSecurityManageSSLError((*readBytesPtr = SSL_read(session, buf, len)), session,;
+	    );
 
 	CWDebugLog("Received packet\n");
 	/*
-	if(SSL_read(session, buf, len) <= 0) {
-		if((SSL_get_shutdown(session) & SSL_RECEIVED_SHUTDOWN) == SSL_RECEIVED_SHUTDOWN) { // session aborted by peer
-			CWDebugLog("Connection Aborted by Peer");
-			SSL_shutdown(session); // respond
-			return CW_ABORTED;
-		}
+	   if(SSL_read(session, buf, len) <= 0) {
+	   if((SSL_get_shutdown(session) & SSL_RECEIVED_SHUTDOWN) == SSL_RECEIVED_SHUTDOWN) { // session aborted by peer
+	   CWDebugLog("Connection Aborted by Peer");
+	   SSL_shutdown(session); // respond
+	   return CW_ABORTED;
+	   }
 
-		// error...
-	}
-	*/
+	   // error...
+	   }
+	 */
 	return CW_TRUE;
 }
 
-CWBool CWSecuritySend(CWSecuritySession session, const char *buf, int len) {
+CWBool CWSecuritySend(CWSecuritySession session, const char *buf, int len)
+{
 
-	if(buf == NULL)
+	if (buf == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
-	CWSecurityManageSSLError(SSL_write(session, buf, len), session, ;);
+	CWSecurityManageSSLError(SSL_write(session, buf, len), session,;
+	    );
 	CWDebugLog("Packet Sent\n");
 	return CW_TRUE;
 }
 
-CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
-				   CWSocket sock,
-				   CWSecurityContext ctx,
-				   CWSecuritySession *sessionPtr,
-				   int *PMTUPtr) {
+CWBool CWSecurityInitSessionServer(CWWTPManager * pWtp,
+				   CWSocket sock, CWSecurityContext ctx, CWSecuritySession * sessionPtr, int *PMTUPtr)
+{
 	BIO *sbio = NULL;
 
-	if(ctx == NULL || sessionPtr == NULL || PMTUPtr == NULL)
+	if (ctx == NULL || sessionPtr == NULL || PMTUPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
-	if((*sessionPtr = SSL_new(ctx)) == NULL) {
+	if ((*sessionPtr = SSL_new(ctx)) == NULL) {
 		CWSecurityRaiseError(CW_ERROR_CREATING);
 	}
 
-	if((sbio = BIO_new_memory(sock, &pWtp->address, pWtp->packetReceiveList)) == NULL) {
+	if ((sbio = BIO_new_memory(sock, &pWtp->address, pWtp->packetReceiveList)) == NULL) {
 
 		SSL_free(*sessionPtr);
 		CWSecurityRaiseError(CW_ERROR_CREATING);
@@ -323,7 +313,7 @@ CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 	 */
 	SSL_set_verify_depth((*sessionPtr), CW_DTLS_CERT_VERIFY_DEPTH + 1);
 	/* required by DTLS implementation to avoid data loss */
-	SSL_set_read_ahead( (*sessionPtr), 1);
+	SSL_set_read_ahead((*sessionPtr), 1);
 	/* turn on cookie exchange */
 	SSL_set_options((*sessionPtr), SSL_OP_COOKIE_EXCHANGE);
 	/* set the same bio for reading and writing */
@@ -332,9 +322,8 @@ CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 	SSL_set_accept_state((*sessionPtr));
 
 	CWDebugLog("Before HS");
-	CWSecurityManageSSLError(SSL_do_handshake(*sessionPtr),
-				 *sessionPtr,
-				 SSL_free(*sessionPtr););
+	CWSecurityManageSSLError(SSL_do_handshake(*sessionPtr), *sessionPtr, SSL_free(*sessionPtr);
+	    );
 	CWDebugLog("After HS");
 
 	if (SSL_get_verify_result(*sessionPtr) == X509_V_OK) {
@@ -344,9 +333,9 @@ CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 		CWDebugLog("Certificate Error (%d)", SSL_get_verify_result(*sessionPtr));
 	}
 
-	if(useCertificate) {
+	if (useCertificate) {
 
-		if(CWSecurityVerifyPeerCertificateForCAPWAP((*sessionPtr), CW_FALSE)) {
+		if (CWSecurityVerifyPeerCertificateForCAPWAP((*sessionPtr), CW_FALSE)) {
 
 			CWDebugLog("Certificate Ok for CAPWAP");
 		} else {
@@ -363,41 +352,38 @@ CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 	return CW_TRUE;
 }
 
-
 /*
  *  NULL caList means that we want pre-shared keys
  */
-CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
+CWBool CWSecurityInitContext(CWSecurityContext * ctxPtr,
 			     const char *caList,
-			     const char *keyfile,
-			     const char *passw,
-			     CWBool isClient,
-			     int (*hackPtr)(void *)) {
+			     const char *keyfile, const char *passw, CWBool isClient, int (*hackPtr) (void *))
+{
 
-	if(ctxPtr == NULL || (caList != NULL && (keyfile == NULL || passw == NULL))) {
+	if (ctxPtr == NULL || (caList != NULL && (keyfile == NULL || passw == NULL))) {
 
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 	}
 
-	if(((*ctxPtr) = SSL_CTX_new((isClient) ? DTLSv1_client_method() : DTLSv1_server_method())) == NULL) {
+	if (((*ctxPtr) = SSL_CTX_new((isClient) ? DTLSv1_client_method() : DTLSv1_server_method())) == NULL) {
 
 		CWSecurityRaiseError(CW_ERROR_CREATING);
 	}
 
 	/* certificates */
-	if(caList != NULL) {
+	if (caList != NULL) {
 		useCertificate = CW_TRUE;
 		/* load keys and certificates */
-		if(!(SSL_CTX_use_certificate_file((*ctxPtr), keyfile, SSL_FILETYPE_PEM))) {
+		if (!(SSL_CTX_use_certificate_file((*ctxPtr), keyfile, SSL_FILETYPE_PEM))) {
 			SSL_CTX_free((*ctxPtr));
 			CWSecurityRaiseError(CW_ERROR_GENERAL);
 		}
 
 		/* store password */
-		gSecurityPassword = (char*)passw;
+		gSecurityPassword = (char *)passw;
 		SSL_CTX_set_default_passwd_cb((*ctxPtr), CWDTLSPasswordCB);
 
-		if(!(SSL_CTX_use_PrivateKey_file((*ctxPtr), keyfile, SSL_FILETYPE_PEM))) {
+		if (!(SSL_CTX_use_PrivateKey_file((*ctxPtr), keyfile, SSL_FILETYPE_PEM))) {
 
 			SSL_CTX_free((*ctxPtr));
 			CWSecurityRaiseError(CW_ERROR_GENERAL);
@@ -410,22 +396,19 @@ CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
 		}
 
 		/* load the CAs we trust */
-		if(!(SSL_CTX_load_verify_locations((*ctxPtr), caList,0))) {
+		if (!(SSL_CTX_load_verify_locations((*ctxPtr), caList, 0))) {
 			SSL_CTX_free((*ctxPtr));
 			CWSecurityRaiseError(CW_ERROR_GENERAL);
 		}
 
 		SSL_CTX_set_default_verify_paths((*ctxPtr));
 
-		if(!isClient) {
+		if (!isClient) {
 			/* require client authentication */
 			SSL_CTX_set_verify((*ctxPtr),
-					   SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
-					   CWSecurityVerifyCB);
+					   SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, CWSecurityVerifyCB);
 		} else {
-			SSL_CTX_set_verify((*ctxPtr),
-					   SSL_VERIFY_PEER,
-					   CWSecurityVerifyCB);
+			SSL_CTX_set_verify((*ctxPtr), SSL_VERIFY_PEER, CWSecurityVerifyCB);
 		}
 
 		/*
@@ -436,25 +419,24 @@ CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
 		 *    CAPWAP says: SHOULD be supported
 		 */
 		/* set the ciphers supported by CAPWAP */
-		SSL_CTX_set_cipher_list((*ctxPtr),
-					"AES128-SHA:DES-CBC3-SHA:DH-RSA-AES128-SHA");
+		SSL_CTX_set_cipher_list((*ctxPtr), "AES128-SHA:DES-CBC3-SHA:DH-RSA-AES128-SHA");
 	} else {
 		/* pre-shared keys */
 		printf("OpenSSL PrivateSharedKey not ready\n");
 		exit(0);
 		/*
-		useCertificate = CW_FALSE;
-		SSL_CTX_set_cipher_list( (*ctxPtr), "TLSv1");	// current implementation of PSK for OpenSSL doesn't support CAPWAP's cipher.
-														// Better than nothing.
+		   useCertificate = CW_FALSE;
+		   SSL_CTX_set_cipher_list( (*ctxPtr), "TLSv1");   // current implementation of PSK for OpenSSL doesn't support CAPWAP's cipher.
+		   // Better than nothing.
 
-		if(isClient) {
-			CWDebugLog("Client PSK");
-			SSL_CTX_set_psk_client_callback( (*ctxPtr), CWSecurityPSKClientCB);
-		} else {
-			CWDebugLog("Server PSK");
-			SSL_CTX_set_psk_server_callback( (*ctxPtr), CWSecurityPSKServerCB);
-		}
-		*/
+		   if(isClient) {
+		   CWDebugLog("Client PSK");
+		   SSL_CTX_set_psk_client_callback( (*ctxPtr), CWSecurityPSKClientCB);
+		   } else {
+		   CWDebugLog("Server PSK");
+		   SSL_CTX_set_psk_server_callback( (*ctxPtr), CWSecurityPSKServerCB);
+		   }
+		 */
 	}
 
 	/* needed for DTLS */
@@ -463,48 +445,52 @@ CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
 	return CW_TRUE;
 }
 
-void CWSecurityDestroyContext(CWSecurityContext ctx) {
+void CWSecurityDestroyContext(CWSecurityContext ctx)
+{
 
-	if(ctx != NULL) SSL_CTX_free(ctx);
+	if (ctx != NULL)
+		SSL_CTX_free(ctx);
 }
 
-void CWSecurityDestroySession(CWSecuritySession s) {
+void CWSecurityDestroySession(CWSecuritySession s)
+{
 
-	if(s != NULL) {
+	if (s != NULL) {
 		//if(s->rbio != NULL) BIO_free(s->rbio);
 		SSL_free(s);
 	}
 }
 
-CWBool CWSecurityVerifyCertEKU(X509 *x509, const char * const expected_oid) {
+CWBool CWSecurityVerifyCertEKU(X509 * x509, const char *const expected_oid)
+{
 
 	EXTENDED_KEY_USAGE *eku = NULL;
 	CWBool fFound = CW_FALSE;
 
 	/* LE-03-02-2010.02 */
-	if (x509 == NULL) return CW_FALSE;
+	if (x509 == NULL)
+		return CW_FALSE;
 
-	if ((eku = (EXTENDED_KEY_USAGE *)X509_get_ext_d2i(x509, NID_ext_key_usage, NULL, NULL)) == NULL) {
+	if ((eku = (EXTENDED_KEY_USAGE *) X509_get_ext_d2i(x509, NID_ext_key_usage, NULL, NULL)) == NULL) {
 
-		CWDebugLog ("Certificate does not have extended key usage extension");
-	}
-	else {
+		CWDebugLog("Certificate does not have extended key usage extension");
+	} else {
 		int i;
 
 		CWDebugLog("Validating certificate extended key usage");
-		for(i = 0; !fFound && i < sk_ASN1_OBJECT_num (eku); i++) {
-			ASN1_OBJECT *oid = sk_ASN1_OBJECT_value (eku, i);
+		for (i = 0; !fFound && i < sk_ASN1_OBJECT_num(eku); i++) {
+			ASN1_OBJECT *oid = sk_ASN1_OBJECT_value(eku, i);
 			char szOid[1024];
 
-			if (!fFound && OBJ_obj2txt (szOid, sizeof (szOid), oid, 0) != -1) {
+			if (!fFound && OBJ_obj2txt(szOid, sizeof(szOid), oid, 0) != -1) {
 				CWDebugLog("Certificate has EKU (str) %s, expects %s", szOid, expected_oid);
-				if (!strcmp (expected_oid, szOid)) {
+				if (!strcmp(expected_oid, szOid)) {
 					fFound = CW_TRUE;
 				}
 			}
-			if (!fFound && OBJ_obj2txt (szOid, sizeof (szOid), oid, 1) != -1) {
+			if (!fFound && OBJ_obj2txt(szOid, sizeof(szOid), oid, 1) != -1) {
 				CWDebugLog("Certificate has EKU (oid) %s, expects %s", szOid, expected_oid);
-				if (!strcmp (expected_oid, szOid)) {
+				if (!strcmp(expected_oid, szOid)) {
 					fFound = CW_TRUE;
 				}
 			}
@@ -512,7 +498,7 @@ CWBool CWSecurityVerifyCertEKU(X509 *x509, const char * const expected_oid) {
 	}
 
 	if (eku != NULL) {
-		sk_ASN1_OBJECT_pop_free (eku, ASN1_OBJECT_free);
+		sk_ASN1_OBJECT_pop_free(eku, ASN1_OBJECT_free);
 	}
 
 	return fFound;
@@ -521,37 +507,38 @@ CWBool CWSecurityVerifyCertEKU(X509 *x509, const char * const expected_oid) {
 /*
  * modificare questa funzione
  */
-CWBool CWSecurityVerifyPeerCertificateForCAPWAP(SSL *ssl, CWBool isClient) {
-	if(ssl == NULL) return CW_FALSE;
+CWBool CWSecurityVerifyPeerCertificateForCAPWAP(SSL * ssl, CWBool isClient)
+{
+	if (ssl == NULL)
+		return CW_FALSE;
 
-	if(!isClient) {
-		return CWSecurityVerifyCertEKU (SSL_get_peer_certificate(ssl),
-				"1.3.6.1.5.5.7.3.19"); /* value expected for WTP */
+	if (!isClient) {
+		return CWSecurityVerifyCertEKU(SSL_get_peer_certificate(ssl), "1.3.6.1.5.5.7.3.19");	/* value expected for WTP */
 	} else {
-		return CWSecurityVerifyCertEKU (SSL_get_peer_certificate(ssl),
-				"1.3.6.1.5.5.7.3.18"); /* value expected for AC */
+		return CWSecurityVerifyCertEKU(SSL_get_peer_certificate(ssl), "1.3.6.1.5.5.7.3.18");	/* value expected for AC */
 	}
 }
-
 
 /*
  * callbacks
  */
-static int CWDTLSPasswordCB(char *buf, int num, int rwflag, void *userdata) {
+static int CWDTLSPasswordCB(char *buf, int num, int rwflag, void *userdata)
+{
 
-	if(buf == NULL || num < strlen(gSecurityPassword)+1) return 0;
+	if (buf == NULL || num < strlen(gSecurityPassword) + 1)
+		return 0;
 
 	strcpy(buf, gSecurityPassword);
 
 	return strlen(gSecurityPassword);
 }
 
+int CWSecurityVerifyCB(int ok, X509_STORE_CTX * ctx)
+{
 
-int CWSecurityVerifyCB(int ok, X509_STORE_CTX *ctx) {
-
-	char    buf[256];
-	X509   *err_cert;
-	int     err, depth;
+	char buf[256];
+	X509 *err_cert;
+	int err, depth;
 	int preverify_ok = 1;
 
 	err_cert = X509_STORE_CTX_get_current_cert(ctx);
@@ -575,20 +562,18 @@ int CWSecurityVerifyCB(int ok, X509_STORE_CTX *ctx) {
 	 * We must do it here, because the CHAIN_TOO_LONG error would not
 	 * be found explicitly; only errors introduced by cutting off the
 	 * additional certificates would be logged.
- 	 */
+	 */
 
 	if (depth > CW_DTLS_CERT_VERIFY_DEPTH) {
-        	preverify_ok = 0;
-	        err = X509_V_ERR_CERT_CHAIN_TOO_LONG;
-        	X509_STORE_CTX_set_error(ctx, err);
-	    }
+		preverify_ok = 0;
+		err = X509_V_ERR_CERT_CHAIN_TOO_LONG;
+		X509_STORE_CTX_set_error(ctx, err);
+	}
 
 	if (!preverify_ok) {
 
-		CWDebugLog("verify error:num=%d:%s:depth=%d:%s\n", err,
-		X509_verify_cert_error_string(err), depth, buf);
-	}
-	else {
+		CWDebugLog("verify error:num=%d:%s:depth=%d:%s\n", err, X509_verify_cert_error_string(err), depth, buf);
+	} else {
 		CWDebugLog("depth=%d:%s\n", depth, buf);
 	}
 
@@ -604,23 +589,21 @@ int CWSecurityVerifyCB(int ok, X509_STORE_CTX *ctx) {
 	return preverify_ok;
 }
 
-unsigned int CWSecurityPSKClientCB(SSL *ssl,
+unsigned int CWSecurityPSKClientCB(SSL * ssl,
 				   const char *hint,
 				   char *identity,
-				   unsigned int max_identity_len,
-				   unsigned char *psk,
-				   unsigned int max_psk_len) {
+				   unsigned int max_identity_len, unsigned char *psk, unsigned int max_psk_len)
+{
 
-	if(snprintf(identity, max_identity_len, "CLient_identity") < 0) return 0;
+	if (snprintf(identity, max_identity_len, "CLient_identity") < 0)
+		return 0;
 
 	/* TO-DO load keys from... Plain-text config file? Leave them hard-coded? */
 	return psk_key2bn("1a2b3c", psk, max_psk_len);
 }
 
-unsigned int CWSecurityPSKServerCB(SSL *ssl,
-				   const char *identity,
-				   unsigned char *psk,
-				   unsigned int max_psk_len) {
+unsigned int CWSecurityPSKServerCB(SSL * ssl, const char *identity, unsigned char *psk, unsigned int max_psk_len)
+{
 
 	CWDebugLog("Identity: %s, PSK: %s", identity, psk);
 	/* TO-DO load keys from... Plain-text config file? Leave them hard-coded? */
@@ -630,7 +613,8 @@ unsigned int CWSecurityPSKServerCB(SSL *ssl,
 /*
  * Convert the PSK key (psk_key) in ascii to binary (psk).
  */
-int psk_key2bn(const char *psk_key, unsigned char *psk, unsigned int max_psk_len) {
+int psk_key2bn(const char *psk_key, unsigned char *psk, unsigned int max_psk_len)
+{
 
 	unsigned int psk_len = 0;
 	int ret;
@@ -641,22 +625,22 @@ int psk_key2bn(const char *psk_key, unsigned char *psk, unsigned int max_psk_len
 
 		printf("Could not convert PSK key '%s' to BIGNUM\n", psk_key);
 		if (bn)
-            		BN_free(bn);
-        	return 0;
-        }
+			BN_free(bn);
+		return 0;
+	}
 
 	if (BN_num_bytes(bn) > max_psk_len) {
 
-		printf("psk buffer of callback is too small (%d) for key (%d)\n",
-			max_psk_len, BN_num_bytes(bn));
+		printf("psk buffer of callback is too small (%d) for key (%d)\n", max_psk_len, BN_num_bytes(bn));
 		BN_free(bn);
 		return 0;
 	}
 	psk_len = BN_bn2bin(bn, psk);
 	BN_free(bn);
 
-	if (psk_len < 0)	goto out_err;
+	if (psk_len < 0)
+		goto out_err;
 	return psk_len;
-out_err:
-    return 0;
+ out_err:
+	return 0;
 }

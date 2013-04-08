@@ -41,11 +41,11 @@ typedef struct {
 int Read32(int fd, int *ptr);
 int Write32(int fd, void *ptr);
 int WUMSendMessage(int acserver, wum_req_t msg);
-int WUMReceiveMessage(int acserver, wum_resp_t *msg);
-char WUMPayloadRetrieve8(wum_resp_t *resp);
-void WUMPayloadStore8(wum_req_t *req, char c);
-void WUMPayloadStore32(wum_req_t *req, int i);
-void WUMPayloadStoreRawBytes(wum_req_t *req, void *buf, int size);
+int WUMReceiveMessage(int acserver, wum_resp_t * msg);
+char WUMPayloadRetrieve8(wum_resp_t * resp);
+void WUMPayloadStore8(wum_req_t * req, char c);
+void WUMPayloadStore32(wum_req_t * req, int i);
+void WUMPayloadStoreRawBytes(wum_req_t * req, void *buf, int size);
 
 #define MIN(a,b) (a < b) ? (a) : (b)
 
@@ -59,12 +59,12 @@ int ACServerConnect(char *address, int port)
 		exit(1);
 	}
 
-	bzero(&servaddr, sizeof (struct sockaddr_in));
+	bzero(&servaddr, sizeof(struct sockaddr_in));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_port = htons(port);
 	inet_pton(AF_INET, address, &servaddr.sin_addr);
 
-	if (connect(sockfd, (SA*) &servaddr, sizeof(servaddr)) < 0) {
+	if (connect(sockfd, (SA *) & servaddr, sizeof(servaddr)) < 0) {
 		perror("connect error:");
 		exit(1);
 	}
@@ -112,7 +112,7 @@ struct WTPInfo *ACServerWTPList(int acserver, int *nWTPs)
 		return NULL;
 	}
 
-	if ((WTPList = malloc(activeWTPs*sizeof(struct WTPInfo))) == NULL) {
+	if ((WTPList = malloc(activeWTPs * sizeof(struct WTPInfo))) == NULL) {
 		perror("malloc error");
 		return NULL;
 	}
@@ -140,7 +140,7 @@ void readWTPInfo(int acserver, struct WTPInfo *WTPInfo, int pos)
 		goto err;
 	}
 
-	if ((WTPInfo[pos].name = malloc(nameLen+1)) == NULL) {
+	if ((WTPInfo[pos].name = malloc(nameLen + 1)) == NULL) {
 		fprintf(stderr, "Malloc error\n");
 		goto err;
 	}
@@ -153,7 +153,7 @@ void readWTPInfo(int acserver, struct WTPInfo *WTPInfo, int pos)
 	WTPInfo[pos].name[nameLen] = '\0';
 	return;
 
-err:
+ err:
 	ACServerDisconnect(acserver);
 	exit(1);
 }
@@ -204,7 +204,7 @@ int WUMGetWTPVersion(int acserver, int wtpId, struct version_info *v_info)
 
 void StringToLower(char *str)
 {
-	for(; *str != '\0'; str++)
+	for (; *str != '\0'; str++)
 		*str = tolower(*str);
 }
 
@@ -220,7 +220,8 @@ int WUMReadCupVersion(char *cup_pathname, struct version_info *update_v)
 
 	ret = system(buf);
 
-	if (ret != 0) return ERROR;
+	if (ret != 0)
+		return ERROR;
 
 	cud = fopen("/tmp/update.cud", "r");
 	if (cud == NULL) {
@@ -229,22 +230,22 @@ int WUMReadCupVersion(char *cup_pathname, struct version_info *update_v)
 	}
 
 	while (fgets(buf, BUF_SIZE, cud) != NULL) {
-        token = strtok(buf, " ");
+		token = strtok(buf, " ");
 		StringToLower(token);
 		if (strncmp(token, "version", 7) == 0) {
-		    token = strtok(NULL, " ");
-		    if (token == NULL) {
-    	            fprintf(stderr, "Error while parsing update version.");
-    	            return ERROR;
-		    }
+			token = strtok(NULL, " ");
+			if (token == NULL) {
+				fprintf(stderr, "Error while parsing update version.");
+				return ERROR;
+			}
 
-		    token = strtok(token, ".");
-		    update_v->major = atoi(token);
-		   	token = strtok(NULL, ".");
-		    update_v->minor = atoi(token);
-		    token = strtok(NULL, ".");
-		    update_v->revision = atoi(token);
-    	}
+			token = strtok(token, ".");
+			update_v->major = atoi(token);
+			token = strtok(NULL, ".");
+			update_v->minor = atoi(token);
+			token = strtok(NULL, ".");
+			update_v->revision = atoi(token);
+		}
 	}
 
 	fclose(cud);
@@ -290,7 +291,6 @@ int WUMSendCommitRequest(int acserver, int wtpId)
 	return resp.resultCode;
 }
 
-
 int WUMSendCancelRequest(int acserver, int wtpId)
 {
 	wum_req_t msg;
@@ -326,7 +326,7 @@ int WUMSendFragment(int acserver, int wtpId, void *buf, int size, int seq)
 	wum_req_t msg;
 	wum_resp_t resp;
 
-	WUM_INIT_REQ_MSG(msg, size+2*sizeof(int));
+	WUM_INIT_REQ_MSG(msg, size + 2 * sizeof(int));
 	msg.cmd_msg = CONF_UPDATE_MSG;
 	msg.msg_elem = MSG_ELEMENT_TYPE_VENDOR_WUM;
 	msg.wtpId = wtpId;
@@ -414,7 +414,7 @@ int WUMSendUpdateRequest(int acserver, int wtpId, struct version_info update_v)
 	}
 
 	WUM_DESTROY_MSG(msg)
-	return resp.resultCode;
+	    return resp.resultCode;
 
 }
 
@@ -438,7 +438,7 @@ int WUMSendMessage(int acserver, wum_req_t msg)
 	return SUCCESS;
 }
 
-int WUMReceiveMessage(int acserver, wum_resp_t *msg)
+int WUMReceiveMessage(int acserver, wum_resp_t * msg)
 {
 	int len;
 
@@ -472,88 +472,84 @@ int WUMReceiveMessage(int acserver, wum_resp_t *msg)
 	return SUCCESS;
 }
 
-char WUMPayloadRetrieve8(wum_resp_t *resp)
+char WUMPayloadRetrieve8(wum_resp_t * resp)
 {
 	return resp->payload[resp->offset++];
 }
 
-void WUMPayloadStore8(wum_req_t *req, char c)
+void WUMPayloadStore8(wum_req_t * req, char c)
 {
 	req->payload[req->payload_len++] = c;
 }
 
-void WUMPayloadStore32(wum_req_t *req, int i)
+void WUMPayloadStore32(wum_req_t * req, int i)
 {
 	i = htonl(i);
 	memcpy(req->payload + req->payload_len, &i, 4);
 	req->payload_len += 4;
 }
 
-void WUMPayloadStoreRawBytes(wum_req_t *req, void *buf, int size)
+void WUMPayloadStoreRawBytes(wum_req_t * req, void *buf, int size)
 {
 	memcpy(req->payload + req->payload_len, buf, size);
 	req->payload_len += size;
 }
 
-int					/* Read "n" bytes from a descriptor. */
-readn(int fd, void *vptr, size_t n)
+int /* Read "n" bytes from a descriptor. */ readn(int fd, void *vptr, size_t n)
 {
-	size_t	nleft;
-	ssize_t	nread;
-	char	*ptr;
+	size_t nleft;
+	ssize_t nread;
+	char *ptr;
 
 	ptr = vptr;
 	nleft = n;
 	while (nleft > 0) {
-		if ( (nread = recv(fd, ptr, nleft, 0)) < 0) {
+		if ((nread = recv(fd, ptr, nleft, 0)) < 0) {
 			if (errno == EINTR)
-				nread = 0;		/* and call read() again */
+				nread = 0;	/* and call read() again */
 			else
-				return(-1);
+				return (-1);
 		} else if (nread == 0)
-			break;				/* EOF */
+			break;	/* EOF */
 
 		nleft -= nread;
-		ptr   += nread;
+		ptr += nread;
 	}
-	return(n - nleft);		/* return >= 0 */
+	return (n - nleft);	/* return >= 0 */
 }
 
-int
-Readn(int fd, void *ptr, size_t nbytes)
+int Readn(int fd, void *ptr, size_t nbytes)
 {
-	int		n;
+	int n;
 
-	if ( (n = readn(fd, ptr, nbytes)) < 0)
+	if ((n = readn(fd, ptr, nbytes)) < 0)
 		perror("readn error");
-	return(n);
+	return (n);
 }
 
-int						/* Write "n" bytes to a descriptor. */
-writen(int fd, const void *vptr, size_t n)
+int /* Write "n" bytes to a descriptor. */ writen(int fd, const void *vptr, size_t n)
 {
-	size_t		nleft;
-	ssize_t		nwritten;
-	const char	*ptr;
+	size_t nleft;
+	ssize_t nwritten;
+	const char *ptr;
 
 	ptr = vptr;
 	nleft = n;
 	while (nleft > 0) {
-		if ( (nwritten = send(fd, ptr, nleft, 0)) <= 0) {
+		if ((nwritten = send(fd, ptr, nleft, 0)) <= 0) {
 			if (errno == EINTR)
-				nwritten = 0;		/* and call write() again */
+				nwritten = 0;	/* and call write() again */
 			else
-				return(-1);			/* error */
+				return (-1);	/* error */
 		}
 
 		nleft -= nwritten;
-		ptr   += nwritten;
+		ptr += nwritten;
 	}
-	return(n);
+	return (n);
 }
 
-int
-Writen(int fd, void *ptr, size_t nbytes)
+int Writen(int fd, void *ptr, size_t nbytes)
 {
 	int n;
 	while ((n = writen(fd, ptr, nbytes)) < 0)
@@ -573,4 +569,5 @@ int Read32(int fd, int *ptr)
 }
 
 int Write32(int fd, void *ptr)
-{}
+{
+}

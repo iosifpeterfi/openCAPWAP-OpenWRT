@@ -8,7 +8,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A         *
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -60,8 +60,8 @@ void timer_destroy();
  * Note that this fuction can be called inside "hndlr" to create
  * "chain timers".
  */
-int timer_add(long /*sec*/, long /*usec*/, void(* /*hndlr*/)(void *),
-	      void * /*hndlr_arg*/);
+int timer_add(long /*sec */ , long /*usec */ , void (* /*hndlr */ )(void *),
+	      void * /*hndlr_arg */ );
 
 /*
  * Remove from the queue the timer of identifier "id", if it retured
@@ -72,7 +72,7 @@ int timer_add(long /*sec*/, long /*usec*/, void(* /*hndlr*/)(void *),
  *
  * Remarks: if "id" is a value not returned by timer_add() nothing happens.
  */
-void timer_rem(int /*id*/, void(* /*free_arg*/)(void *));
+void timer_rem(int /*id */ , void (* /*free_arg */ )(void *));
 
 /*
  * Prints the content of the timer queue (do not use, it's for debug purpose).

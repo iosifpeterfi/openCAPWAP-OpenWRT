@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	       *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -25,38 +25,35 @@
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
-
 #ifndef __CAPWAP_CWSafeList_HEADER__
 #define __CAPWAP_CWSafeList_HEADER__
 
 #include "CWThread.h"
 
-typedef void* CWSafeList;
+typedef void *CWSafeList;
 
-typedef struct _CWPrivateSafeElement
-{
-	void* pData;
+typedef struct _CWPrivateSafeElement {
+	void *pData;
 	int nSize;
 	CWBool dataFlag;
-	struct _CWPrivateSafeElement* pPrev;
-	struct _CWPrivateSafeElement* pNext;
+	struct _CWPrivateSafeElement *pPrev;
+	struct _CWPrivateSafeElement *pNext;
 } CWPrivateSafeElement;
 
-typedef struct _CWPrivateSafeList
-{
-	CWThreadMutex* pThreadMutex;
-	CWThreadCondition* pThreadCond;
+typedef struct _CWPrivateSafeList {
+	CWThreadMutex *pThreadMutex;
+	CWThreadCondition *pThreadCond;
 
 	unsigned long nCount;
-	CWPrivateSafeElement* pFirstElement;
-	CWPrivateSafeElement* pLastElement;
+	CWPrivateSafeElement *pFirstElement;
+	CWPrivateSafeElement *pLastElement;
 } CWPrivateSafeList;
 
-CWBool CWCreateSafeList(CWSafeList* pSafeList);
+CWBool CWCreateSafeList(CWSafeList * pSafeList);
 void CWDestroySafeList(CWSafeList safeList);
 
-void CWSetMutexSafeList(CWSafeList safeList, CWThreadMutex* pThreadMutex);
-void CWSetConditionSafeList(CWSafeList safeList, CWThreadCondition* pThreadCond);
+void CWSetMutexSafeList(CWSafeList safeList, CWThreadMutex * pThreadMutex);
+void CWSetConditionSafeList(CWSafeList safeList, CWThreadCondition * pThreadCond);
 
 CWBool CWLockSafeList(CWSafeList safeList);
 void CWUnlockSafeList(CWSafeList safeList);
@@ -64,14 +61,13 @@ CWBool CWWaitElementFromSafeList(CWSafeList safeList);
 CWBool CWSignalElementSafeList(CWSafeList safeList);
 
 unsigned long CWGetCountElementFromSafeList(CWSafeList safeList);
-CWBool CWAddElementToSafeListHead(CWSafeList safeList, void* pData, int nSize);
-void* CWGetHeadElementFromSafeList(CWSafeList safeList, int* pSize);
-void* CWRemoveHeadElementFromSafeList(CWSafeList safeList, int* pSize);
-void* CWRemoveHeadElementFromSafeListwithDataFlag(CWSafeList safeList, int* pSize,CWBool * dataFlag);
-CWBool CWAddElementToSafeListTail(CWSafeList safeList, void* pData, int nSize);
-CWBool CWAddElementToSafeListTailwitDataFlag(CWSafeList safeList, void* pData, int nSize,CWBool dataFlag);
-void* CWRemoveTailElementFromSafeList(CWSafeList safeList, int* pSize);
-void CWCleanSafeList(CWSafeList safeList, void (*deleteFunc)(void *));
+CWBool CWAddElementToSafeListHead(CWSafeList safeList, void *pData, int nSize);
+void *CWGetHeadElementFromSafeList(CWSafeList safeList, int *pSize);
+void *CWRemoveHeadElementFromSafeList(CWSafeList safeList, int *pSize);
+void *CWRemoveHeadElementFromSafeListwithDataFlag(CWSafeList safeList, int *pSize, CWBool * dataFlag);
+CWBool CWAddElementToSafeListTail(CWSafeList safeList, void *pData, int nSize);
+CWBool CWAddElementToSafeListTailwitDataFlag(CWSafeList safeList, void *pData, int nSize, CWBool dataFlag);
+void *CWRemoveTailElementFromSafeList(CWSafeList safeList, int *pSize);
+void CWCleanSafeList(CWSafeList safeList, void (*deleteFunc) (void *));
 
 #endif
-

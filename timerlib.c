@@ -8,7 +8,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A         *
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -18,97 +18,100 @@
  * Author(s): Mauro Bisson
  */
 
-#include <stdio.h>	/* printf */
+#include <stdio.h>		/* printf */
 #include <stdlib.h>
 #include <sys/time.h>
 #include <pthread.h>
-#include <errno.h>	/* ETIMEDOUT */
+#include <errno.h>		/* ETIMEDOUT */
 #include <signal.h>
-#include <string.h>	/* memcpy */
+#include <string.h>		/* memcpy */
 #include "timerlib.h"
 
-
 /* time to wait the init of ticker thread in timer_init() function */
-#define INIT_WAIT_TIME	5
+#define INIT_WAIT_TIME  5
 
 /* for conversion purpose */
-#define NANO_PER_MICRO	1000
-#define MICRO_PER_SEC	1000000
+#define NANO_PER_MICRO  1000
+#define MICRO_PER_SEC   1000000
 
 /* max number of microsecond in a timeval struct */
-#define MAX_USEC	999999
+#define MAX_USEC    999999
 
 /* microseconds in a millisecond */
-#define ALMOST_NOW	1000
+#define ALMOST_NOW  1000
 
-#define TIMER_KIND	ITIMER_REAL
-#define SIG_TO_WAIT	SIGALRM
+#define TIMER_KIND  ITIMER_REAL
+#define SIG_TO_WAIT SIGALRM
 
 /*
  * evals true if struct timeval t1 defines a time strictly before t2;
  * false otherwise.
  */
-#define TV_LESS_THAN(t1,t2)	(((t1).tv_sec < (t2).tv_sec) ||\
-				(((t1).tv_sec == (t2).tv_sec) &&\
-				 ((t1).tv_usec < (t2).tv_usec)))
+#define TV_LESS_THAN(t1,t2) (((t1).tv_sec < (t2).tv_sec) ||\
+                (((t1).tv_sec == (t2).tv_sec) &&\
+                 ((t1).tv_usec < (t2).tv_usec)))
 
 /*
  * Assign struct timeval tgt the time interval between the absolute
  * times t1 and t2.
  * IT IS ASSUMED THAT t1 > t2, use TV_LESS_THAN macro to test it.
  */
-#define TV_MINUS(t1,t2,tgt)	if ((t1).tv_usec >= (t2).tv_usec) {\
-					(tgt).tv_sec = (t1).tv_sec -\
-						       (t2).tv_sec;\
-					(tgt).tv_usec = (t1).tv_usec -\
-       						        (t2).tv_usec;\
-				}\
-				else {\
-					(tgt).tv_sec = (t1).tv_sec -\
-						       (t2).tv_sec -1;\
-					(tgt).tv_usec = (t1).tv_usec +\
-						(MAX_USEC - (t2).tv_usec);\
-				}
+#define TV_MINUS(t1,t2,tgt) if ((t1).tv_usec >= (t2).tv_usec) {\
+                    (tgt).tv_sec = (t1).tv_sec -\
+                               (t2).tv_sec;\
+                    (tgt).tv_usec = (t1).tv_usec -\
+                                    (t2).tv_usec;\
+                }\
+                else {\
+                    (tgt).tv_sec = (t1).tv_sec -\
+                               (t2).tv_sec -1;\
+                    (tgt).tv_usec = (t1).tv_usec +\
+                        (MAX_USEC - (t2).tv_usec);\
+                }
 
 typedef struct timer tl_timer_t;
 
-static void timer_free(tl_timer_t * /*t*/);
-static void timer_dequeue(tl_timer_t * /*t*/);
-static void timer_start(struct timeval * /*abs_to*/);
-static void *cronometer(void * /*arg*/);
+static void timer_free(tl_timer_t * /*t */ );
+static void timer_dequeue(tl_timer_t * /*t */ );
+static void timer_start(struct timeval * /*abs_to */ );
+static void *cronometer(void * /*arg */ );
 
 struct timer {
 
-	struct timeval	timeout;
-	void(*handler)(void *);
-	void 		*handler_arg;
-	int 		id;
-	int 		in_use;
-	int 		cancelled;
-	tl_timer_t 	*next;
-	tl_timer_t 	*prev;
+	struct timeval timeout;
+	void (*handler) (void *);
+	void *handler_arg;
+	int id;
+	int in_use;
+	int cancelled;
+	tl_timer_t *next;
+	tl_timer_t *prev;
 };
 
 static struct {
 
-	tl_timer_t 	*first;
-	tl_timer_t 	*last;
+	tl_timer_t *first;
+	tl_timer_t *last;
 	pthread_mutex_t mutex;
-	pthread_cond_t	cond;
-	pthread_t	ticker;
-	int		cur_id;
+	pthread_cond_t cond;
+	pthread_t ticker;
+	int cur_id;
 } timerq;
 
-static void timer_free(tl_timer_t *t) {
+static void timer_free(tl_timer_t * t)
+{
 
-	if (t == NULL) return;
+	if (t == NULL)
+		return;
 	free(t);
 	return;
 }
 
-static void timer_dequeue(tl_timer_t *t) {
+static void timer_dequeue(tl_timer_t * t)
+{
 
-	if (t == NULL) return;
+	if (t == NULL)
+		return;
 
 	if (t->prev == NULL)
 		/* t is the first of the queue */
@@ -134,21 +137,22 @@ static void timer_dequeue(tl_timer_t *t) {
  * expire in 1 millisecond.
  * This function has to be called in a critical section.
  */
-static void timer_start(struct timeval *abs_to) {
+static void timer_start(struct timeval *abs_to)
+{
 
-	struct itimerval	relative = {{0,0},{0,0}};
-	struct timeval		abs_now;
-	int			rv;
+	struct itimerval relative = { {0, 0}, {0, 0} };
+	struct timeval abs_now;
+	int rv;
 
-	if (abs_to == NULL) return;
+	if (abs_to == NULL)
+		return;
 
 	/* absolute to relative time */
 	gettimeofday(&abs_now, NULL);
 	if (TV_LESS_THAN(abs_now, *abs_to)) {
 		/* ok, timeout is in the future */
-		TV_MINUS(*abs_to,abs_now,relative.it_value);
-	}
-	else {
+		TV_MINUS(*abs_to, abs_now, relative.it_value);
+	} else {
 		/*
 		 * ouch, timeout is in the past! Let's set it
 		 * to a very near future value.
@@ -167,13 +171,14 @@ static void timer_start(struct timeval *abs_to) {
 	return;
 }
 
-static void *cronometer(void *arg) {
+static void *cronometer(void *arg)
+{
 
-	void 		(*hdl)(void *);
-	void 		*hdl_arg = arg; /* keep gcc silent */
+	void (*hdl) (void *);
+	void *hdl_arg = arg;	/* keep gcc silent */
 
-	sigset_t	mask;
-	int		sig;
+	sigset_t mask;
+	int sig;
 
 	sigemptyset(&mask);
 	sigaddset(&mask, SIG_TO_WAIT);
@@ -191,11 +196,11 @@ static void *cronometer(void *arg) {
 	/* printf("\tTicker thread: inizializzaione compleata\n"); */
 	pthread_mutex_unlock(&timerq.mutex);
 
-	while(1) {
+	while (1) {
 
 		pthread_mutex_lock(&timerq.mutex);
 
-		while(timerq.first == NULL)
+		while (timerq.first == NULL)
 			pthread_cond_wait(&timerq.cond, &timerq.mutex);
 
 		timer_start(&(timerq.first->timeout));
@@ -252,14 +257,16 @@ static void *cronometer(void *arg) {
  * Initialize the timerq struct, spwan the ticker thread,
  * wait its initialization and return.
  */
-int timer_init() {
+int timer_init()
+{
 
 	int rv;
-	struct timespec	ts;
-	struct timeval	tv;
+	struct timespec ts;
+	struct timeval tv;
 
 	rv = pthread_mutex_init(&timerq.mutex, NULL);
-	if (rv != 0) return 0;
+	if (rv != 0)
+		return 0;
 
 	rv = pthread_cond_init(&timerq.cond, NULL);
 	if (rv != 0) {
@@ -299,22 +306,23 @@ int timer_init() {
 		return 0;
 	}
 
- 	/*
-         * BUG.TRL02
-         * Here we have to detach the thread in oder to avoid memory leakage.
-         *
-         * 16/10/2009 - Donato Capitella
-         */
-        pthread_detach(timerq.ticker);
+	/*
+	 * BUG.TRL02
+	 * Here we have to detach the thread in oder to avoid memory leakage.
+	 *
+	 * 16/10/2009 - Donato Capitella
+	 */
+	pthread_detach(timerq.ticker);
 
 	pthread_mutex_unlock(&timerq.mutex);
 
 	return 1;
 }
 
-void timer_destroy() {
+void timer_destroy()
+{
 
-	tl_timer_t	*t;
+	tl_timer_t *t;
 
 	pthread_cancel(timerq.ticker);
 	pthread_join(timerq.ticker, NULL);
@@ -333,22 +341,25 @@ void timer_destroy() {
 	return;
 }
 
-int timer_add(long sec, long usec, void(*hndlr)(void *), void *hndlr_arg) {
+int timer_add(long sec, long usec, void (*hndlr) (void *), void *hndlr_arg)
+{
 
-	struct timeval	new;
-	tl_timer_t	*tmp = NULL;
-	tl_timer_t	*app = NULL;
-	int		id = 0;
+	struct timeval new;
+	tl_timer_t *tmp = NULL;
+	tl_timer_t *app = NULL;
+	int id = 0;
 
-	if (hndlr == NULL) return -1;
+	if (hndlr == NULL)
+		return -1;
 
 	/* ensure timeout is in the future */
-	if ((sec < 0) || (usec < 0) || ((sec == 0) && (usec ==0))) return -1;
+	if ((sec < 0) || (usec < 0) || ((sec == 0) && (usec == 0)))
+		return -1;
 
 	pthread_mutex_lock(&timerq.mutex);
 
-	app = (tl_timer_t *)malloc(sizeof(tl_timer_t));
-	if ( app == NULL ) {
+	app = (tl_timer_t *) malloc(sizeof(tl_timer_t));
+	if (app == NULL) {
 
 		pthread_mutex_unlock(&timerq.mutex);
 		return -1;
@@ -416,8 +427,7 @@ int timer_add(long sec, long usec, void(*hndlr)(void *), void *hndlr_arg) {
 		app->in_use = 1;
 		tmp->in_use = 0;
 		timer_start(&(timerq.first->timeout));
-	}
-	else {
+	} else {
 		app->prev = tmp->prev;
 		app->next = tmp;
 		tmp->prev->next = app;
@@ -428,9 +438,10 @@ int timer_add(long sec, long usec, void(*hndlr)(void *), void *hndlr_arg) {
 	return id;
 }
 
-void timer_rem(int id, void(* free_arg)(void *)) {
+void timer_rem(int id, void (*free_arg) (void *))
+{
 
-	tl_timer_t	*t;
+	tl_timer_t *t;
 
 	pthread_mutex_lock(&timerq.mutex);
 	t = timerq.first;
@@ -438,7 +449,8 @@ void timer_rem(int id, void(* free_arg)(void *)) {
 	/* look for timer id */
 	while (t != NULL) {
 
-		if (t->id == id) break;
+		if (t->id == id)
+			break;
 		t = t->next;
 	}
 
@@ -468,28 +480,27 @@ void timer_rem(int id, void(* free_arg)(void *)) {
 	}
 
 	/* timer id is in the queue and has not been activated */
-	if (free_arg) free_arg(t->handler_arg);
+	if (free_arg)
+		free_arg(t->handler_arg);
 	timer_dequeue(t);
 
 	pthread_mutex_unlock(&timerq.mutex);
 	return;
 }
 
-void timer_print() {
+void timer_print()
+{
 
 	tl_timer_t *t;
 	int i;
 
 	pthread_mutex_lock(&timerq.mutex);
-	for(t = timerq.first, i = 0; t != NULL; t = t->next, i++) {
+	for (t = timerq.first, i = 0; t != NULL; t = t->next, i++) {
 
 		printf("Timer %d: id=<%d>, expire=<%u,%u>, in_use=<%d>, cancelled=<%d>\n",
-			i, t->id, (unsigned int)t->timeout.tv_sec, (unsigned int)t->timeout.tv_usec,
-			t->in_use, t->cancelled);
+		       i, t->id, (unsigned int)t->timeout.tv_sec, (unsigned int)t->timeout.tv_usec,
+		       t->in_use, t->cancelled);
 	}
 	pthread_mutex_unlock(&timerq.mutex);
 	return;
 }
-
-
-

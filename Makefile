@@ -7,7 +7,7 @@
 # * version 2 of the License, or (at your option) any later version.                        *
 # *                                                                                         *
 # * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
-# * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	    *
+# * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
 # * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
 # *                                                                                         *
 # * You should have received a copy of the GNU General Public License along with this       *
@@ -22,7 +22,7 @@
 # *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
 # *           Giovannini Federica (giovannini.federica@gmail.com)                           *
 # *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
-# *	      Donato Capitella (d.capitella@gmail.com)  	                            *
+# *       Donato Capitella (d.capitella@gmail.com)                                  *
 # *******************************************************************************************
 
 
@@ -56,18 +56,18 @@ RM = /bin/rm -f
 
 # list of generated object files for AC. 
 AC_OBJS = AC.o ACConfigFile.o ACMainLoop.o ACDiscoveryState.o ACJoinState.o \
-	ACConfigureState.o ACDataCheckState.o ACRunState.o ACProtocol_User.o \
-	ACRetransmission.o CWCommon.o CWConfigFile.o CWErrorHandling.o CWList.o \
-	CWLog.o ACMultiHomedSocket.o  ACProtocol.o CWSafeList.o CWNetwork.o CWProtocol.o \
-	CWRandom.o CWSecurity.o CWOpenSSLBio.o CWStevens.o CWThread.o CWBinding.o CWVendorPayloadsAC.o \
-	ACBinding.o ACInterface.o ACSettingsFile.o timerlib.o tap.o ACipcHostapd.o
+    ACConfigureState.o ACDataCheckState.o ACRunState.o ACProtocol_User.o \
+    ACRetransmission.o CWCommon.o CWConfigFile.o CWErrorHandling.o CWList.o \
+    CWLog.o ACMultiHomedSocket.o  ACProtocol.o CWSafeList.o CWNetwork.o CWProtocol.o \
+    CWRandom.o CWSecurity.o CWOpenSSLBio.o CWStevens.o CWThread.o CWBinding.o CWVendorPayloadsAC.o \
+    ACBinding.o ACInterface.o ACSettingsFile.o timerlib.o tap.o ACipcHostapd.o
 
 # list of generated object files for WTP. 
 WTP_OBJS = WTP.o WTPipcHostapd.o WTPmacFrameReceive.o WTPFreqStatsReceive.o WTPStatsReceive.o WTPConfigFile.o WTPProtocol.o WTPProtocol_User.o \
-	WTPDiscoveryState.o WTPJoinState.o WTPConfigureState.o WTPDataCheckState.o WTPRunState.o WTPRunStateCheck.o \
-	WTPRetransmission.o WTPSulkingState.o CWCommon.o CWConfigFile.o CWErrorHandling.o CWSafeList.o CWList.o CWLog.o CWNetwork.o \
-	CWProtocol.o CWRandom.o CWSecurity.o CWOpenSSLBio.o CWStevens.o CWThread.o CWBinding.o CWVendorPayloadsWTP.o WTPBinding.o \
-	WTPmacDriverInteraction.o WTPSettingsFile.o timerlib.o 
+    WTPDiscoveryState.o WTPJoinState.o WTPConfigureState.o WTPDataCheckState.o WTPRunState.o WTPRunStateCheck.o \
+    WTPRetransmission.o WTPSulkingState.o CWCommon.o CWConfigFile.o CWErrorHandling.o CWSafeList.o CWList.o CWLog.o CWNetwork.o \
+    CWProtocol.o CWRandom.o CWSecurity.o CWOpenSSLBio.o CWStevens.o CWThread.o CWBinding.o CWVendorPayloadsWTP.o WTPBinding.o \
+    WTPmacDriverInteraction.o WTPSettingsFile.o timerlib.o 
 
 WUA_OBJS = WUA.o
  
@@ -90,23 +90,23 @@ WUA_NAME = WUA
 all: $(AC_NAME) $(WTP_NAME) $(WUA_NAME)
 
 $(AC_NAME): $(AC_OBJS) 
-	$(CC) $(AC_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE) $(LDFLAGS) -o $(AC_NAME) 
+    $(CC) $(AC_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE) $(LDFLAGS) -o $(AC_NAME) 
 
 $(WTP_NAME): $(WTP_OBJS) 
-	$(CC) -DWRITE_STD_OUTPUT -DSOFTMAC $(WTP_OBJS) $(CC_FLAGS) $(LDFLAGS) -o $(WTP_NAME) 
+    $(CC) -DWRITE_STD_OUTPUT -DSOFTMAC $(WTP_OBJS) $(CC_FLAGS) $(LDFLAGS) -o $(WTP_NAME) 
 
 $(WUA_NAME): $(WUA_OBJS) 
-	$(CC) $(WUA_OBJS) $(CC_FLAGS)  $(LDFLAGS) -o $(WUA_NAME) 
+    $(CC) $(WUA_OBJS) $(CC_FLAGS)  $(LDFLAGS) -o $(WUA_NAME) 
 
 clean: 
-	$(RM) $(AC_NAME) $(WTP_NAME) $(WUA_NAME) $(AC_OBJS) $(WTP_OBJS) $(WUA_OBJS) $(AC_DEPS) $(WTP_DEPS)
+    $(RM) $(AC_NAME) $(WTP_NAME) $(WUA_NAME) $(AC_OBJS) $(WTP_OBJS) $(WUA_OBJS) $(AC_DEPS) $(WTP_DEPS)
 
 clean_deps:
-	$(AC_DEPS) $(WTP_DEPS)
-	
+    $(AC_DEPS) $(WTP_DEPS)
+    
 deps: $(AC_SRC) $(WTP_SRC)
-	$(CC) -MD -E $(AC_SRCS) $(CFLAGS) >/dev/null
-	$(CC) -MD -E -DWRITE_STD_OUTPUT $(WTP_SRCS) $(CFLAGS) >/dev/null
+    $(CC) -MD -E $(AC_SRCS) $(CFLAGS) >/dev/null
+    $(CC) -MD -E -DWRITE_STD_OUTPUT $(WTP_SRCS) $(CFLAGS) >/dev/null
 
 -include $(AC_DEPS)
 -include $(WTP_DEPS)

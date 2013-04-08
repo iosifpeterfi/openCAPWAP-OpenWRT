@@ -20,13 +20,16 @@ char *WTP_id2name(int id);
 void usage(char *name);
 
 #define ACSERVER_ADDRESS "127.0.0.1"
-#define ACSERVER_PORT	1235
+#define ACSERVER_PORT   1235
 
 /* Commands */
 #define CMD_NUM 4
-typedef struct { char id; const char *name; } cmd_t;
+typedef struct {
+	char id;
+	const char *name;
+} cmd_t;
 
-enum {NO_CMD, WTPS_CMD, VERSION_CMD, UPDATE_CMD, CANCEL_CMD};
+enum { NO_CMD, WTPS_CMD, VERSION_CMD, UPDATE_CMD, CANCEL_CMD };
 
 cmd_t CMDs[] = {
 	{WTPS_CMD, "wtps"},
@@ -45,57 +48,54 @@ int main(int argc, char *argv[])
 	int acserver, wtpId, cmd_id;
 	void *cup;
 	struct version_info update_v;
-    char *command = NULL, *cup_path = NULL;
-    char *wtpIds = NULL, *wtpNames = NULL;
-    char *acserver_address = ACSERVER_ADDRESS;
+	char *command = NULL, *cup_path = NULL;
+	char *wtpIds = NULL, *wtpNames = NULL;
+	char *acserver_address = ACSERVER_ADDRESS;
 	int acserver_port = ACSERVER_PORT;;
 	int index;
-    int c;
+	int c;
 
-    opterr = 0;
+	opterr = 0;
 
 	/* Parse options */
-    while ((c = getopt (argc, argv, "ha:p:w:c:f:n:")) != -1)
-        switch (c)
-        {
+	while ((c = getopt(argc, argv, "ha:p:w:c:f:n:")) != -1)
+		switch (c) {
 		case 'a':
 			acserver_address = optarg;
 			break;
 		case 'p':
 			acserver_port = atoi(optarg);
 			break;
-        case 'w':
-            wtpIds = optarg;
-            break;
-        case 'n':
-        	wtpNames = optarg;
-        	break;
-        case 'c':
-            command = optarg;
-            break;
-        case 'f':
-        	cup_path = optarg;
-        	break;
-        case 'h':
-        	usage(argv[0]);
-        	break;
-        case '?':
-            if (optopt == 'w' || optopt == 'c' || optopt == 'f' || optopt == 'n')
-           		fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-            else if (isprint (optopt))
-            	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-            else
-           		fprintf (stderr,
-                    "Unknown option character `\\x%x'.\n",
-                    optopt);
-            exit(EXIT_FAILURE);
-        default:
-    		usage(argv[0]);
-            abort();
+		case 'w':
+			wtpIds = optarg;
+			break;
+		case 'n':
+			wtpNames = optarg;
+			break;
+		case 'c':
+			command = optarg;
+			break;
+		case 'f':
+			cup_path = optarg;
+			break;
+		case 'h':
+			usage(argv[0]);
+			break;
+		case '?':
+			if (optopt == 'w' || optopt == 'c' || optopt == 'f' || optopt == 'n')
+				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+			else if (isprint(optopt))
+				fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+			else
+				fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+			exit(EXIT_FAILURE);
+		default:
+			usage(argv[0]);
+			abort();
 
 		}
 
-    /* Check arguments */
+	/* Check arguments */
 	if (command == NULL) {
 		fprintf(stderr, "No command specified!\n");
 		exit(EXIT_FAILURE);
@@ -110,19 +110,19 @@ int main(int argc, char *argv[])
 	wtpList = ACServerWTPList(acserver, &nWTPs);
 
 	/* Execute command */
-	switch(cmd_id) {
-		case WTPS_CMD:
-			printWTPList(wtpList, nWTPs);
-			break;
-		case VERSION_CMD:
-			do_version_cmd(acserver, wtpIds, wtpNames);
-			break;
-		case UPDATE_CMD:
-			do_update_cmd(acserver, wtpIds, wtpNames, cup_path);
-			break;
-		case CANCEL_CMD:
-			do_cancel_cmd(acserver, wtpIds, wtpNames);
-			break;
+	switch (cmd_id) {
+	case WTPS_CMD:
+		printWTPList(wtpList, nWTPs);
+		break;
+	case VERSION_CMD:
+		do_version_cmd(acserver, wtpIds, wtpNames);
+		break;
+	case UPDATE_CMD:
+		do_update_cmd(acserver, wtpIds, wtpNames, cup_path);
+		break;
+	case CANCEL_CMD:
+		do_cancel_cmd(acserver, wtpIds, wtpNames);
+		break;
 	}
 
 	freeWTPList(wtpList, nWTPs);
@@ -136,10 +136,10 @@ int sanitize_wtp_list(int *work_list, int n)
 	int i, j, z, new_size = n;
 
 	/* Delete unknown wtp ids */
-	for(i = 0; i < new_size; i++) {
+	for (i = 0; i < new_size; i++) {
 		if (WTP_id2name(work_list[i]) == NULL) {
 			for (j = i; j < new_size - 1; j++) {
-				work_list[j] = work_list[j+1];
+				work_list[j] = work_list[j + 1];
 			}
 			i--;
 			new_size--;
@@ -147,12 +147,12 @@ int sanitize_wtp_list(int *work_list, int n)
 	}
 
 	/* Delete duplicates */
-	for(i = 0; i < new_size; i++) {
+	for (i = 0; i < new_size; i++) {
 		for (j = i + 1; j < new_size; j++) {
 			if (work_list[i] == work_list[j]) {
 				for (z = j; z < new_size - 1; z++) {
-		        	work_list[z] = work_list[z+1];
-		        }
+					work_list[z] = work_list[z + 1];
+				}
 				j--;
 				new_size--;
 			}
@@ -166,7 +166,7 @@ int *all_WTPs()
 {
 	int *ret, i;
 
-	ret = malloc(nWTPs*sizeof(int));
+	ret = malloc(nWTPs * sizeof(int));
 
 	for (i = 0; i < nWTPs; i++) {
 		ret[i] = wtpList[i].wtpId;
@@ -203,10 +203,11 @@ int *get_id_list(char *wtpIds, char *wtpNames, int *n)
 
 	*n = count_tokens(wtpIds, wtpNames);
 
-	if (*n <= 0) return NULL;
+	if (*n <= 0)
+		return NULL;
 
 	/* allocate memory */
-	ret = malloc(*n*sizeof(int));
+	ret = malloc(*n * sizeof(int));
 	if (ret == NULL) {
 		perror("malloc error!");
 		return NULL;
@@ -214,14 +215,14 @@ int *get_id_list(char *wtpIds, char *wtpNames, int *n)
 
 	if (wtpIds != NULL) {
 		/* read ids */
-		token = (char*)strtok(wtpIds, ",");
+		token = (char *)strtok(wtpIds, ",");
 		ret[0] = atoi(token);
 
 		if (ret[0] == -1)
 			return all_WTPs();
 
 		for (i = 1; i < *n; i++)
-			ret[i] = atoi( (const char*)strtok(NULL, ",") );
+			ret[i] = atoi((const char *)strtok(NULL, ","));
 
 	} else {
 		/* read names and convert into ids */
@@ -229,12 +230,12 @@ int *get_id_list(char *wtpIds, char *wtpNames, int *n)
 			int id;
 
 			if (i == 0) {
-				token = (char*)strtok(wtpNames, ",");
+				token = (char *)strtok(wtpNames, ",");
 				if (strcmp(token, "all") == 0)
 					return all_WTPs();
 
 			} else {
-				token = (char*)strtok(NULL, ",");
+				token = (char *)strtok(NULL, ",");
 			}
 
 			if ((id = WTP_name2id(token)) == -1) {
@@ -300,7 +301,7 @@ void do_update_cmd(int acserver, char *wtpIds, char *wtpNames, char *cup_path)
 		return;
 	}
 
-	cup = mmap(NULL, update_v.size, PROT_READ, MAP_SHARED , fd, 0);
+	cup = mmap(NULL, update_v.size, PROT_READ, MAP_SHARED, fd, 0);
 	if (cup == NULL) {
 		perror("mmap error");
 		return;
@@ -311,7 +312,8 @@ void do_update_cmd(int acserver, char *wtpIds, char *wtpNames, char *cup_path)
 	printf("*--------*--------------------------------*------------*\n");
 	for (i = 0; i < n; i++) {
 		ret = WUMUpdate(acserver, i, cup, update_v);
-		printf("| %-6d | %-30s | %-10s |\n", wtpList[i].wtpId, wtpList[i].name, (ret == 0) ? "SUCCESS" : "FAILURE");
+		printf("| %-6d | %-30s | %-10s |\n", wtpList[i].wtpId, wtpList[i].name,
+		       (ret == 0) ? "SUCCESS" : "FAILURE");
 	}
 	printf("*--------*--------------------------------*------------*\n");
 
@@ -359,8 +361,9 @@ char *WTP_id2name(int id)
 {
 	int i;
 
-	for(i = 0; i < nWTPs; i++) {
-		if (wtpList[i].wtpId == id) return wtpList[i].name;
+	for (i = 0; i < nWTPs; i++) {
+		if (wtpList[i].wtpId == id)
+			return wtpList[i].name;
 	}
 
 	return NULL;

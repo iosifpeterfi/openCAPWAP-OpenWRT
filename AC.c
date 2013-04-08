@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	   *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -24,8 +24,6 @@
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
-
-
 
 #include "CWAC.h"
 #include "CWCommon.h"
@@ -45,7 +43,7 @@ CWThreadMutex gWTPsMutex;
 
 int gEnabledLog;
 int gMaxLogFileSize;
-char gLogFileName[]=AC_LOG_FILE_NAME;
+char gLogFileName[] = AC_LOG_FILE_NAME;
 
 /* number of active WTPs */
 int gActiveWTPs = 0;
@@ -58,7 +56,7 @@ int gRMACField = 0;
 /* The Wireless Field of the discovery response */
 int gWirelessField = 0;
 /* DTLS Policy for data channel */
-int gDTLSPolicy=DTLS_ENABLED_DATA;
+int gDTLSPolicy = DTLS_ENABLED_DATA;
 /* special socket to handle multiple network interfaces */
 CWMultiHomedSocket gACSocket;
 /* AC's network interfaces */
@@ -76,14 +74,15 @@ int gACHWVersion;
 int gACSWVersion;
 char *gACName = NULL;
 
-int gDiscoveryTimer=20;
-int gEchoRequestTimer=CW_ECHO_INTERVAL_DEFAULT;
+int gDiscoveryTimer = 20;
+int gEchoRequestTimer = CW_ECHO_INTERVAL_DEFAULT;
 /* PROVVISORIO: Il valore e' scelto a caso */
-int gIdleTimeout=10;
+int gIdleTimeout = 10;
 
 /*_________________________________________________________*/
 /*  *******************___FUNCTIONS___*******************  */
-int main (int argc, const char * argv[]) {
+int main(int argc, const char *argv[])
+{
 
 	/* Daemon mode */
 
@@ -104,42 +103,44 @@ int main (int argc, const char * argv[]) {
 	return 0;
 }
 
-int CWACSemPostForOpenSSLHack(void *s) {
+int CWACSemPostForOpenSSLHack(void *s)
+{
 
-	CWThreadTimedSem *semPtr = (CWThreadTimedSem*) s;
+	CWThreadTimedSem *semPtr = (CWThreadTimedSem *) s;
 
-	if(!CWThreadTimedSemIsZero(semPtr)) {
+	if (!CWThreadTimedSemIsZero(semPtr)) {
 		CWLog("This Semaphore's Value should really be 0");
 		/* note: we can consider setting the value to 0 and going on,
 		 * that is what we do here
 		 */
-		if(!CWErr(CWThreadTimedSemSetValue(semPtr, 0))) return 0;
+		if (!CWErr(CWThreadTimedSemSetValue(semPtr, 0)))
+			return 0;
 	}
 
-	if(!CWErr(CWThreadTimedSemPost(semPtr))) {
+	if (!CWErr(CWThreadTimedSemPost(semPtr))) {
 		return 0;
 	}
 
 	return 1;
 }
 
-void CWACInit() {
+void CWACInit()
+{
 	int i;
 	CWNetworkLev4Address *addresses = NULL;
 	struct sockaddr_in *IPv4Addresses = NULL;
 
 	CWLogInitFile(AC_LOG_FILE_NAME);
 
-	#ifndef CW_SINGLE_THREAD
-		CWDebugLog("Use Threads");
-	#else
-		CWDebugLog("Don't Use Threads");
-	#endif
+#ifndef CW_SINGLE_THREAD
+	CWDebugLog("Use Threads");
+#else
+	CWDebugLog("Don't Use Threads");
+#endif
 
 	CWErrorHandlingInitLib();
 
-	if(!CWParseSettingsFile())
-	{
+	if (!CWParseSettingsFile()) {
 		CWLog("Can't start AC");
 		exit(1);
 	}
@@ -152,40 +153,32 @@ void CWACInit() {
 		exit(1);
 	}
 
-	if(!CWErr(CWParseConfigFile()) ||
+	if (!CWErr(CWParseConfigFile()) ||
 #ifndef CW_NO_DTLS
-	   !CWErr(CWSecurityInitLib()) ||
+	    !CWErr(CWSecurityInitLib()) ||
 #endif
-	   !CWErr(CWNetworkInitSocketServerMultiHomed(&gACSocket, CW_CONTROL_PORT, gMulticastGroups, gMulticastGroupsCount)) ||
-	   !CWErr(CWNetworkGetInterfaceAddresses(&gACSocket, &addresses, &IPv4Addresses)) ||
-	   !CWErr(CWCreateThreadMutex(&gWTPsMutex)) ||
-	   !CWErr(CWCreateThreadMutex(&gActiveWTPsMutex))) {
+	    !CWErr(CWNetworkInitSocketServerMultiHomed
+		   (&gACSocket, CW_CONTROL_PORT, gMulticastGroups, gMulticastGroupsCount))
+	    || !CWErr(CWNetworkGetInterfaceAddresses(&gACSocket, &addresses, &IPv4Addresses))
+	    || !CWErr(CWCreateThreadMutex(&gWTPsMutex)) || !CWErr(CWCreateThreadMutex(&gActiveWTPsMutex))) {
 
 		/* error starting */
 		CWLog("Can't start AC");
 		exit(1);
 	}
-
 #ifndef CW_NO_DTLS
-	if(gACDescriptorSecurity == CW_X509_CERTIFICATE) {
+	if (gACDescriptorSecurity == CW_X509_CERTIFICATE) {
 
-		if(!CWErr(CWSecurityInitContext(&gACSecurityContext,
-						"root.pem",
-						"server.pem",
-						"prova",
-						CW_FALSE,
-						CWACSemPostForOpenSSLHack))) {
+		if (!CWErr(CWSecurityInitContext(&gACSecurityContext,
+						 "root.pem",
+						 "server.pem", "prova", CW_FALSE, CWACSemPostForOpenSSLHack))) {
 
 			CWLog("Can't start AC");
 			exit(1);
 		}
-	} else { /* preshared */
-		if(!CWErr(CWSecurityInitContext(&gACSecurityContext,
-						NULL,
-						NULL,
-						NULL,
-						CW_FALSE,
-						CWACSemPostForOpenSSLHack))) {
+	} else {		/* preshared */
+		if (!CWErr(CWSecurityInitContext(&gACSecurityContext,
+						 NULL, NULL, NULL, CW_FALSE, CWACSemPostForOpenSSLHack))) {
 			CWLog("Can't start AC");
 			exit(1);
 		}
@@ -193,11 +186,11 @@ void CWACInit() {
 #endif
 	CW_FREE_OBJECTS_ARRAY(gMulticastGroups, gMulticastGroupsCount);
 
-	for(i = 0; i < gMaxWTPs; i++) {
+	for (i = 0; i < gMaxWTPs; i++) {
 		gWTPs[i].isNotFree = CW_FALSE;
 
-		if (!gWTPs[i].tap_fd){
-		    init_AC_tap_interface(i);
+		if (!gWTPs[i].tap_fd) {
+			init_AC_tap_interface(i);
 		}
 
 	}
@@ -206,52 +199,53 @@ void CWACInit() {
 	gInterfacesCount = CWNetworkCountInterfaceAddresses(&gACSocket);
 	CWLog("Found %d Network Interface(s)", gInterfacesCount);
 
-	if (gInterfacesCount<=0){
+	if (gInterfacesCount <= 0) {
 		CWLog("Can't start AC");
 		exit(1);
 	}
 
-	CW_CREATE_ARRAY_ERR(gInterfaces,
-			    gInterfacesCount,
-			    CWProtocolNetworkInterface,
-			    CWLog("Out of Memory"); return;);
+	CW_CREATE_ARRAY_ERR(gInterfaces, gInterfacesCount, CWProtocolNetworkInterface, CWLog("Out of Memory");
+			    return;
+	    );
 
-	for(i = 0; i < gInterfacesCount; i++) {
+	for (i = 0; i < gInterfacesCount; i++) {
 		gInterfaces[i].WTPCount = 0;
-		CW_COPY_NET_ADDR_PTR(&(gInterfaces[i].addr), ((CWNetworkLev4Address*)&((addresses)[i])) );
-		if(IPv4Addresses != NULL) {
+		CW_COPY_NET_ADDR_PTR(&(gInterfaces[i].addr), ((CWNetworkLev4Address *) & ((addresses)[i])));
+		if (IPv4Addresses != NULL) {
 			CW_COPY_NET_ADDR_PTR(&(gInterfaces[i].addrIPv4), &((IPv4Addresses)[i]));
 		}
 	}
 	CW_FREE_OBJECT(addresses);
 	CW_FREE_OBJECT(IPv4Addresses);
 
-	if(!CWErr(CWCreateThreadMutex(&gCreateIDMutex))) {
+	if (!CWErr(CWCreateThreadMutex(&gCreateIDMutex))) {
 		exit(1);
 	}
 
 	CWLog("AC Started");
 }
 
-void CWCreateConnectionWithHostapdAC(){
+void CWCreateConnectionWithHostapdAC()
+{
 
 	CWThread thread_ipc_with_ac_hostapd;
-	if(!CWErr(CWCreateThread(&thread_ipc_with_ac_hostapd, CWACipc_with_ac_hostapd, NULL))) {
+	if (!CWErr(CWCreateThread(&thread_ipc_with_ac_hostapd, CWACipc_with_ac_hostapd, NULL))) {
 		CWLog("Error starting Thread that receive command and 802.11 frame from hostapd (WTP side)");
 		exit(1);
 	}
 
 }
 
-void CWACDestroy() {
+void CWACDestroy()
+{
 
 	CWNetworkCloseMultiHomedSocket(&gACSocket);
 
 	/*
-	for(i = 0; i < CW_MAX_WTP; i++) {
-		//CW_FREE_OBJECT(gWTPs[i].addr);
-	}
-	*/
+	   for(i = 0; i < CW_MAX_WTP; i++) {
+	   //CW_FREE_OBJECT(gWTPs[i].addr);
+	   }
+	 */
 
 	CWSslCleanUp();
 
@@ -265,21 +259,21 @@ void CWACDestroy() {
 	CWLog("AC Destroyed");
 }
 
-
-__inline__ unsigned int CWGetSeqNum() {
+__inline__ unsigned int CWGetSeqNum()
+{
 
 	static unsigned int seqNum = 0;
 	unsigned int r;
 
-	if(!CWThreadMutexLock(&gCreateIDMutex)) {
+	if (!CWThreadMutexLock(&gCreateIDMutex)) {
 
 		CWDebugLog("Error Locking a mutex");
 	}
 
 	r = seqNum;
 
-	if (seqNum==CW_MAX_SEQ_NUM)
-		seqNum=0;
+	if (seqNum == CW_MAX_SEQ_NUM)
+		seqNum = 0;
 	else
 		seqNum++;
 
@@ -287,26 +281,24 @@ __inline__ unsigned int CWGetSeqNum() {
 	return r;
 }
 
-
-__inline__ int CWGetFragmentID() {
+__inline__ int CWGetFragmentID()
+{
 
 	static int fragID = 0;
 	int r;
 
-	if(!CWThreadMutexLock(&gCreateIDMutex)) {
+	if (!CWThreadMutexLock(&gCreateIDMutex)) {
 
 		CWDebugLog("Error Locking a mutex");
 	}
 
 	r = fragID;
 
-	if (fragID==CW_MAX_FRAGMENT_ID)
-		fragID=0;
+	if (fragID == CW_MAX_FRAGMENT_ID)
+		fragID = 0;
 	else
 		fragID++;
 
 	CWThreadMutexUnlock(&gCreateIDMutex);
 	return r;
 }
-
-

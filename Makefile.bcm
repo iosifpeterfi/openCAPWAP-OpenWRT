@@ -7,7 +7,7 @@
 # * version 2 of the License, or (at your option) any later version.                        *
 # *                                                                                         *
 # * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
-# * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	    *
+# * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
 # * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
 # *                                                                                         *
 # * You should have received a copy of the GNU General Public License along with this       *
@@ -58,15 +58,15 @@ WTP_NAME = WTP
 all: $(WTP_NAME)
 
 $(WTP_NAME): $(WTP_OBJS) 
-	$(CC) -DWRITE_STD_OUTPUT $(WTP_OBJS) $(CC_FLAGS) $(LDFLAGS) -o $(WTP_NAME) 
+    $(CC) -DWRITE_STD_OUTPUT $(WTP_OBJS) $(CC_FLAGS) $(LDFLAGS) -o $(WTP_NAME) 
 
 clean: 
-	$(RM) $(WTP_NAME) $(WTP_OBJS) $(WTP_DEPS)
+    $(RM) $(WTP_NAME) $(WTP_OBJS) $(WTP_DEPS)
 
 clean_deps:
-	$(WTP_DEPS)
-	
+    $(WTP_DEPS)
+    
 deps: $(WTP_SRC)
-	$(CC) -MD -E -DWRITE_STD_OUTPUT $(WTP_SRCS) $(CFLAGS) >/dev/null
+    $(CC) -MD -E -DWRITE_STD_OUTPUT $(WTP_SRCS) $(CFLAGS) >/dev/null
 
 -include $(WTP_DEPS)

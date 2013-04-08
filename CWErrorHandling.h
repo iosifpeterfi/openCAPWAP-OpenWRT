@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	       *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -24,7 +24,6 @@
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
-
 
 #ifndef __CAPWAP_CWErrorHandling_HEADER__
 #define __CAPWAP_CWErrorHandling_HEADER__
@@ -46,7 +45,6 @@ typedef enum {
 	CW_ERROR_NONE
 } CWErrorCode;
 
-
 typedef struct {
 	CWErrorCode code;
 	char message[256];
@@ -54,19 +52,19 @@ typedef struct {
 	char fileName[64];
 } CWErrorHandlingInfo;
 
-#define CWErrorRaiseSystemError(error)		{					\
-							char buf[256];			\
-							strerror_r(errno, buf, 256);	\
-							CWErrorRaise(error, buf);	\
-							return CW_FALSE;		\
-						}
+#define CWErrorRaiseSystemError(error)      {                   \
+                            char buf[256];          \
+                            strerror_r(errno, buf, 256);    \
+                            CWErrorRaise(error, buf);   \
+                            return CW_FALSE;        \
+                        }
 
-#define CWErrorRaise(code, msg) 		_CWErrorRaise(code, msg, __FILE__, __LINE__)
-#define CWErr(arg)				((arg) || _CWErrorHandleLast(__FILE__, __LINE__))
-#define CWErrorHandleLast()			_CWErrorHandleLast(__FILE__, __LINE__)
+#define CWErrorRaise(code, msg)         _CWErrorRaise(code, msg, __FILE__, __LINE__)
+#define CWErr(arg)              ((arg) || _CWErrorHandleLast(__FILE__, __LINE__))
+#define CWErrorHandleLast()         _CWErrorHandleLast(__FILE__, __LINE__)
 
 CWBool _CWErrorRaise(CWErrorCode code, const char *msg, const char *fileName, int line);
-void CWErrorPrint(CWErrorHandlingInfo *infoPtr, const char *desc, const char *fileName, int line);
+void CWErrorPrint(CWErrorHandlingInfo * infoPtr, const char *desc, const char *fileName, int line);
 CWErrorCode CWErrorGetLastErrorCode(void);
 CWBool _CWErrorHandleLast(const char *fileName, int line);
 

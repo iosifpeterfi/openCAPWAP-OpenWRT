@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	       *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -24,7 +24,6 @@
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
-
 
 #ifndef __CAPWAP_CWNetwork_HEADER__
 #define __CAPWAP_CWNetwork_HEADER__
@@ -49,37 +48,37 @@ typedef enum {
 
 extern CWNetworkLev3Service gNetworkPreferredFamily;
 
-#define	CW_COPY_NET_ADDR_PTR(addr1, addr2)  	sock_cpy_addr_port(((struct sockaddr*)(addr1)), ((struct sockaddr*)(addr2)))
-#define	CW_COPY_NET_ADDR(addr1, addr2)		CW_COPY_NET_ADDR_PTR(&(addr1), &(addr2))
+#define CW_COPY_NET_ADDR_PTR(addr1, addr2)      sock_cpy_addr_port(((struct sockaddr*)(addr1)), ((struct sockaddr*)(addr2)))
+#define CW_COPY_NET_ADDR(addr1, addr2)      CW_COPY_NET_ADDR_PTR(&(addr1), &(addr2))
 
-#define CWUseSockNtop(sa, block) 		{ 						\
-							char __str[128];			\
-							char *str; str = sock_ntop_r(((struct sockaddr*)(sa)), __str);\
-							{block}					\
-						}
+#define CWUseSockNtop(sa, block)        {                       \
+                            char __str[128];            \
+                            char *str; str = sock_ntop_r(((struct sockaddr*)(sa)), __str);\
+                            {block}                 \
+                        }
 
-#define CWNetworkRaiseSystemError(error)	{						\
-							char buf[256];				\
-							if(strerror_r(errno, buf, 256) < 0) {	\
-								CWErrorRaise(error, NULL);	\
-								return CW_FALSE;		\
-							}					\
-							CWErrorRaise(error, NULL);		\
-							return CW_FALSE;			\
-						}
+#define CWNetworkRaiseSystemError(error)    {                       \
+                            char buf[256];              \
+                            if(strerror_r(errno, buf, 256) < 0) {   \
+                                CWErrorRaise(error, NULL);  \
+                                return CW_FALSE;        \
+                            }                   \
+                            CWErrorRaise(error, NULL);      \
+                            return CW_FALSE;            \
+                        }
 
-#define		CWNetworkCloseSocket(x)		{ shutdown(SHUT_RDWR, x); close(x); }
+#define     CWNetworkCloseSocket(x)     { shutdown(SHUT_RDWR, x); close(x); }
 
-int CWNetworkGetAddressSize(CWNetworkLev4Address *addrPtr);
+int CWNetworkGetAddressSize(CWNetworkLev4Address * addrPtr);
 CWBool CWNetworkSendUnsafeConnected(CWSocket sock, const char *buf, int len);
-CWBool CWNetworkSendUnsafeUnconnected(CWSocket sock, CWNetworkLev4Address *addrPtr, const char *buf, int len);
-CWBool CWNetworkReceiveUnsafe(CWSocket sock, char *buf, int len, int flags, CWNetworkLev4Address *addrPtr, int *readBytesPtr);
+CWBool CWNetworkSendUnsafeUnconnected(CWSocket sock, CWNetworkLev4Address * addrPtr, const char *buf, int len);
+CWBool CWNetworkReceiveUnsafe(CWSocket sock, char *buf, int len, int flags, CWNetworkLev4Address * addrPtr,
+			      int *readBytesPtr);
 CWBool CWNetworkReceiveUnsafeConnected(CWSocket sock, char *buf, int len, int *readBytesPtr);
-CWBool CWNetworkInitSocketClient(CWSocket *sockPtr, CWNetworkLev4Address *addrPtr);
-CWBool CWNetworkInitSocketClientDataChannel(CWSocket *sockPtr, CWNetworkLev4Address *addrPtr);
+CWBool CWNetworkInitSocketClient(CWSocket * sockPtr, CWNetworkLev4Address * addrPtr);
+CWBool CWNetworkInitSocketClientDataChannel(CWSocket * sockPtr, CWNetworkLev4Address * addrPtr);
 CWBool CWNetworkTimedPollRead(CWSocket sock, struct timeval *timeout);
-CWBool CWNetworkGetAddressForHost(char *host, CWNetworkLev4Address *addrPtr);
-
+CWBool CWNetworkGetAddressForHost(char *host, CWNetworkLev4Address * addrPtr);
 
 //CWBool CWNetworkInitLib(void);
 //CWBool CWNetworkInitSocketServer(CWSocket *sockPtr, int port);

@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	   *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -31,9 +31,10 @@
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
 
-CWBool ACEnterDataCheck(int WTPIndex, CWProtocolMessage *msgPtr) {
+CWBool ACEnterDataCheck(int WTPIndex, CWProtocolMessage * msgPtr)
+{
 
-	/*CWProtocolMessage *messages = NULL;*/
+	/*CWProtocolMessage *messages = NULL; */
 	int seqNum;
 	CWProtocolChangeStateEventRequestValues *changeStateEvent;
 
@@ -41,17 +42,16 @@ CWBool ACEnterDataCheck(int WTPIndex, CWProtocolMessage *msgPtr) {
 	CWDebugLog("######### Status Event #########");
 
 	/* Destroy ChangeStatePending timer */
-	if(!CWErr(CWTimerCancel(&(gWTPs[WTPIndex].currentTimer)))) {
+	if (!CWErr(CWTimerCancel(&(gWTPs[WTPIndex].currentTimer)))) {
 
 		CWCloseThread();
 	}
 
-
 	CW_CREATE_OBJECT_ERR(changeStateEvent,
-			     CWProtocolChangeStateEventRequestValues,
-			     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+			     CWProtocolChangeStateEventRequestValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
+	    );
 
-	if(!(CWParseChangeStateEventRequestMessage(msgPtr->msg, msgPtr->offset, &seqNum, changeStateEvent))) {
+	if (!(CWParseChangeStateEventRequestMessage(msgPtr->msg, msgPtr->offset, &seqNum, changeStateEvent))) {
 		/* note: we can kill our thread in case of out-of-memory
 		 * error to free some space.
 		 * we can see this just calling CWErrorGetLastErrorCode()
@@ -61,26 +61,23 @@ CWBool ACEnterDataCheck(int WTPIndex, CWProtocolMessage *msgPtr) {
 
 	CWLog("Change State Event Received");
 
-	if(!(CWSaveChangeStateEventRequestMessage(changeStateEvent, &(gWTPs[WTPIndex].WTPProtocolManager))))
+	if (!(CWSaveChangeStateEventRequestMessage(changeStateEvent, &(gWTPs[WTPIndex].WTPProtocolManager))))
 		return CW_FALSE;
 
-	if(!(CWAssembleChangeStateEventResponse(&(gWTPs[WTPIndex].messages),
-						&(gWTPs[WTPIndex].messagesCount),
-						gWTPs[WTPIndex].pathMTU,
-						seqNum))) {
+	if (!(CWAssembleChangeStateEventResponse(&(gWTPs[WTPIndex].messages),
+						 &(gWTPs[WTPIndex].messagesCount), gWTPs[WTPIndex].pathMTU, seqNum))) {
 		return CW_FALSE;
 	}
 
-	if(!CWACSendFragments(WTPIndex)) {
+	if (!CWACSendFragments(WTPIndex)) {
 
 		return CW_FALSE;
 	}
 
 	/* Start NeighbourDeadInterval timer */
-	if(!CWErr(CWTimerRequest(gCWNeighborDeadInterval,
-				 &(gWTPs[WTPIndex].thread),
-				 &(gWTPs[WTPIndex].currentTimer),
-				 CW_CRITICAL_TIMER_EXPIRED_SIGNAL))) {
+	if (!CWErr(CWTimerRequest(gCWNeighborDeadInterval,
+				  &(gWTPs[WTPIndex].thread),
+				  &(gWTPs[WTPIndex].currentTimer), CW_CRITICAL_TIMER_EXPIRED_SIGNAL))) {
 
 		CWCloseThread();
 	}
@@ -95,15 +92,15 @@ CWBool ACEnterDataCheck(int WTPIndex, CWProtocolMessage *msgPtr) {
 
 CWBool CWParseChangeStateEventRequestMessage(char *msg,
 					     int len,
-					     int *seqNumPtr,
-					     CWProtocolChangeStateEventRequestValues *valuesPtr) {
+					     int *seqNumPtr, CWProtocolChangeStateEventRequestValues * valuesPtr)
+{
 
 	CWProtocolMessage completeMsg;
 	CWControlHeaderValues controlVal;
 	int i;
 	int offsetTillMessages;
 
-	if(msg == NULL || seqNumPtr == NULL || valuesPtr == NULL)
+	if (msg == NULL || seqNumPtr == NULL || valuesPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
 	CWDebugLog("Parsing Change State Event Request...");
@@ -111,12 +108,12 @@ CWBool CWParseChangeStateEventRequestMessage(char *msg,
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
 
-	if(!(CWParseControlHeader(&completeMsg, &controlVal)))
+	if (!(CWParseControlHeader(&completeMsg, &controlVal)))
 		/* will be handled by the caller */
 		return CW_FALSE;
 
 	/* different type */
-	if(controlVal.messageTypeValue != CW_MSG_TYPE_VALUE_CHANGE_STATE_EVENT_REQUEST)
+	if (controlVal.messageTypeValue != CW_MSG_TYPE_VALUE_CHANGE_STATE_EVENT_REQUEST)
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Message is not Change State Event Request");
 
 	*seqNumPtr = controlVal.seqNum;
@@ -124,61 +121,63 @@ CWBool CWParseChangeStateEventRequestMessage(char *msg,
 	controlVal.msgElemsLen -= CW_CONTROL_HEADER_OFFSET_FOR_MSG_ELEMS;
 
 	offsetTillMessages = completeMsg.offset;
-	valuesPtr->radioOperationalInfo.radiosCount=0;
+	valuesPtr->radioOperationalInfo.radiosCount = 0;
 
 	/* parse message elements */
-	while((completeMsg.offset-offsetTillMessages) < controlVal.msgElemsLen) {
-		unsigned short int elemType = 0;/* = CWProtocolRetrieve32(&completeMsg); */
+	while ((completeMsg.offset - offsetTillMessages) < controlVal.msgElemsLen) {
+		unsigned short int elemType = 0;	/* = CWProtocolRetrieve32(&completeMsg); */
 		unsigned short int elemLen = 0;	/* = CWProtocolRetrieve16(&completeMsg); */
 
-		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);
+		CWParseFormatMsgElem(&completeMsg, &elemType, &elemLen);
 
-		/*CWDebugLog("Parsing Message Element: %u, elemLen: %u", elemType, elemLen);*/
+		/*CWDebugLog("Parsing Message Element: %u, elemLen: %u", elemType, elemLen); */
 
-		switch(elemType) {
-			case CW_MSG_ELEMENT_RADIO_OPERAT_STATE_CW_TYPE:
-				/* just count how many radios we have,
-				 * so we can allocate the array
-				 */
-				valuesPtr->radioOperationalInfo.radiosCount++;
-				completeMsg.offset += elemLen;
-				break;
-			case CW_MSG_ELEMENT_RESULT_CODE_CW_TYPE:
-				if(!(CWParseResultCode(&completeMsg, elemLen, &(valuesPtr->resultCode))))
-					return CW_FALSE;
-				break;
-			default:
-				return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Unrecognized Message Element");
+		switch (elemType) {
+		case CW_MSG_ELEMENT_RADIO_OPERAT_STATE_CW_TYPE:
+			/* just count how many radios we have,
+			 * so we can allocate the array
+			 */
+			valuesPtr->radioOperationalInfo.radiosCount++;
+			completeMsg.offset += elemLen;
+			break;
+		case CW_MSG_ELEMENT_RESULT_CODE_CW_TYPE:
+			if (!(CWParseResultCode(&completeMsg, elemLen, &(valuesPtr->resultCode))))
+				return CW_FALSE;
+			break;
+		default:
+			return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Unrecognized Message Element");
 		}
 	}
 
-	if(completeMsg.offset != len)
+	if (completeMsg.offset != len)
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Garbage at the End of the Message");
 
 	CW_CREATE_ARRAY_ERR(valuesPtr->radioOperationalInfo.radios,
 			    valuesPtr->radioOperationalInfo.radiosCount,
-			    CWRadioOperationalInfoValues,
-			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+			    CWRadioOperationalInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
+	    );
 
 	completeMsg.offset = offsetTillMessages;
 	i = 0;
 
-	while(completeMsg.offset-offsetTillMessages < controlVal.msgElemsLen) {
+	while (completeMsg.offset - offsetTillMessages < controlVal.msgElemsLen) {
 		unsigned short int type = 0;	/* = CWProtocolRetrieve32(&completeMsg); */
 		unsigned short int len = 0;	/* = CWProtocolRetrieve16(&completeMsg); */
 
-		CWParseFormatMsgElem(&completeMsg,&type,&len);
+		CWParseFormatMsgElem(&completeMsg, &type, &len);
 
-		switch(type) {
-			case CW_MSG_ELEMENT_RADIO_OPERAT_STATE_CW_TYPE:
-				if(!(CWParseWTPRadioOperationalState(&completeMsg, len, &(valuesPtr->radioOperationalInfo.radios[i]))))
-					/* will be handled by the caller */
-					return CW_FALSE;
-				i++;
-				break;
-			default:
-				completeMsg.offset += len;
-				break;
+		switch (type) {
+		case CW_MSG_ELEMENT_RADIO_OPERAT_STATE_CW_TYPE:
+			if (!
+			    (CWParseWTPRadioOperationalState
+			     (&completeMsg, len, &(valuesPtr->radioOperationalInfo.radios[i]))))
+				/* will be handled by the caller */
+				return CW_FALSE;
+			i++;
+			break;
+		default:
+			completeMsg.offset += len;
+			break;
 		}
 	}
 	CWDebugLog("Change State Event Request Parsed");
@@ -186,40 +185,35 @@ CWBool CWParseChangeStateEventRequestMessage(char *msg,
 	return CW_TRUE;
 }
 
-CWBool CWAssembleChangeStateEventResponse(CWProtocolMessage **messagesPtr,
-					  int *fragmentsNumPtr,
-					  int PMTU,
-					  int seqNum) {
+CWBool CWAssembleChangeStateEventResponse(CWProtocolMessage ** messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum)
+{
 
-	CWProtocolMessage *msgElems= NULL;
-	const int msgElemCount=0;
-	CWProtocolMessage *msgElemsBinding= NULL;
-	int msgElemBindingCount=0;
+	CWProtocolMessage *msgElems = NULL;
+	const int msgElemCount = 0;
+	CWProtocolMessage *msgElemsBinding = NULL;
+	int msgElemBindingCount = 0;
 
-	if(messagesPtr == NULL || fragmentsNumPtr == NULL)
+	if (messagesPtr == NULL || fragmentsNumPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
 	CWDebugLog("Assembling Change State Event Response...");
 	/*CW_CREATE_ARRAY_ERR(msgElems,
-	 * 		      msgElemCount,
-	 * 		      CWProtocolMessage,
-	 * 		      return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+	 *            msgElemCount,
+	 *            CWProtocolMessage,
+	 *            return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	 */
-	if(!(CWAssembleMessage(messagesPtr,
-			       fragmentsNumPtr,
-			       PMTU,
-			       seqNum,
-			       CW_MSG_TYPE_VALUE_CHANGE_STATE_EVENT_RESPONSE,
-			       msgElems,
-			       msgElemCount,
-			       msgElemsBinding,
-			       msgElemBindingCount,
+	if (!(CWAssembleMessage(messagesPtr,
+				fragmentsNumPtr,
+				PMTU,
+				seqNum,
+				CW_MSG_TYPE_VALUE_CHANGE_STATE_EVENT_RESPONSE,
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
 #ifdef CW_NO_DTLS
-			      CW_PACKET_PLAIN)))
+				CW_PACKET_PLAIN)))
 #else
-			      CW_PACKET_CRYPT)))
+				CW_PACKET_CRYPT)))
 #endif
-		return CW_FALSE;
+	    return CW_FALSE;
 
 	CWDebugLog("Change State Event Response Assembled");
 	return CW_TRUE;

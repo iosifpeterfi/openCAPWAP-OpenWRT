@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	   *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -23,25 +23,25 @@
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
- *	         Daniele De Sanctis (danieledesanctis@gmail.com)                           *
- *	         Antonio Davoli (antonio.davoli@gmail.com)                                 *
- *		 Donato Capitella (d.capitella@gmail.com)				   *
+ *           Daniele De Sanctis (danieledesanctis@gmail.com)                               *
+ *           Antonio Davoli (antonio.davoli@gmail.com)                                     *
+ *           Donato Capitella (d.capitella@gmail.com)                                      *
  *******************************************************************************************/
 
 #ifndef __CAPWAP_ACInterface_HEADER__
 #define __CAPWAP_ACInterface_HEADER__
 
 //No Interface Command
-#define	NO_CMD			0
+#define NO_CMD          0
 //Manual setting for QoS values
-#define QOS_CMD			1
-#define CLEAR_CONFIG_MSG_CMD	2
+#define QOS_CMD         1
+#define CLEAR_CONFIG_MSG_CMD    2
 /* 2009 Update: Manual setting for OFDM values*/
 #define OFDM_CONTROL_CMD        3
 /*Update 2009:
-		Manage UCI configuration command*/
+        Manage UCI configuration command*/
 #define UCI_CONTROL_CMD 4
 /* Manage WTP Update Command */
-#define WTP_UPDATE_CMD	5
+#define WTP_UPDATE_CMD  5
 
 #endif

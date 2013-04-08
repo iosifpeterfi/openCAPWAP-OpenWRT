@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	       *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -25,7 +25,6 @@
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
-
 #include "CWCommon.h"
 
 #ifdef DMALLOC
@@ -34,13 +33,13 @@
 
 int gCWForceMTU = 0;
 int gCWRetransmitTimer = CW_RETRANSMIT_INTERVAL_DEFAULT;	//Default value for RetransmitInterval
-int gCWNeighborDeadInterval = CW_NEIGHBORDEAD_INTERVAL_DEFAULT; //Default value for NeighbourDeadInterval (no less than 2*EchoInterval and no greater than 240)
-int gCWMaxRetransmit = CW_MAX_RETRANSMIT_DEFAULT;		//Default value for MaxRetransmit
+int gCWNeighborDeadInterval = CW_NEIGHBORDEAD_INTERVAL_DEFAULT;	//Default value for NeighbourDeadInterval (no less than 2*EchoInterval and no greater than 240)
+int gCWMaxRetransmit = CW_MAX_RETRANSMIT_DEFAULT;	//Default value for MaxRetransmit
 
-
-int CWTimevalSubtract(struct timeval *res, const struct timeval *x, const struct timeval *y){
+int CWTimevalSubtract(struct timeval *res, const struct timeval *x, const struct timeval *y)
+{
 	int nsec;
-	struct timeval z=*y;
+	struct timeval z = *y;
 
 	// Perform the carry for the later subtraction by updating Y
 	if (x->tv_usec < z.tv_usec) {
@@ -53,13 +52,11 @@ int CWTimevalSubtract(struct timeval *res, const struct timeval *x, const struct
 		z.tv_usec += 1000000 * nsec;
 		z.tv_sec -= nsec;
 	}
-
 	// Compute the time remaining to wait. `tv_usec' is certainly positive
-	if ( res != NULL){
+	if (res != NULL) {
 		res->tv_sec = x->tv_sec - z.tv_sec;
 		res->tv_usec = x->tv_usec - z.tv_usec;
 	}
-
 	// Return 1 if result is negative (x < y)
 	return ((x->tv_sec < z.tv_sec) || ((x->tv_sec == z.tv_sec) && (x->tv_usec < z.tv_usec)));
 }

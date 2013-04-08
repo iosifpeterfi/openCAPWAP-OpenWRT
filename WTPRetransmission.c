@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	   *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -25,14 +25,14 @@
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
-
 #include "CWWTP.h"
 
 #ifdef DMALLOC
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
 
-void CWResetPendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs) {
+void CWResetPendingMsgBox(CWPendingRequestMessage * pendingRequestMsgs)
+{
 	pendingRequestMsgs->msgType = UNUSED_MSG_TYPE;
 	pendingRequestMsgs->seqNum = 0;
 	pendingRequestMsgs->retransmission = 0;
@@ -45,7 +45,7 @@ void CWResetPendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs) {
 	timer_rem(pendingRequestMsgs->timer, NULL);
 
 	int i;
-	for(i=0; i<(pendingRequestMsgs->fragmentsNum); i++){
+	for (i = 0; i < (pendingRequestMsgs->fragmentsNum); i++) {
 		CW_FREE_PROTOCOL_MESSAGE((pendingRequestMsgs->msgElems)[i]);
 	}
 	CW_FREE_OBJECT(pendingRequestMsgs->msgElems);
@@ -55,30 +55,32 @@ void CWResetPendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs) {
 	return;
 }
 
-int CWFindFreePendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs, const int length) {
+int CWFindFreePendingMsgBox(CWPendingRequestMessage * pendingRequestMsgs, const int length)
+{
 	int k;
 
-	for(k=0; k<length; k++){
-		if(pendingRequestMsgs[k].msgType == UNUSED_MSG_TYPE){
-			CWResetPendingMsgBox(pendingRequestMsgs+k);
+	for (k = 0; k < length; k++) {
+		if (pendingRequestMsgs[k].msgType == UNUSED_MSG_TYPE) {
+			CWResetPendingMsgBox(pendingRequestMsgs + k);
 			return k;
 		}
 	}
 	return -1;
 }
 
-CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs,
+CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage * pendingRequestMsgs,
 			     unsigned char msgType,
 			     int seqNum,
 			     int timer_sec,
 			     CWTimerArg timer_arg,
-			     void (*timer_hdl)(CWTimerArg),
-			     int retransmission,
-			     CWProtocolMessage *msgElems,
-			     int fragmentsNum){
+			     void (*timer_hdl) (CWTimerArg),
+			     int retransmission, CWProtocolMessage * msgElems, int fragmentsNum)
+{
 
-	if(pendingRequestMsgs == NULL) return CW_FALSE;
-	if(pendingRequestMsgs->msgType != UNUSED_MSG_TYPE) return CW_TRUE;
+	if (pendingRequestMsgs == NULL)
+		return CW_FALSE;
+	if (pendingRequestMsgs->msgType != UNUSED_MSG_TYPE)
+		return CW_TRUE;
 
 	pendingRequestMsgs->msgType = msgType;
 	pendingRequestMsgs->seqNum = seqNum;
@@ -88,24 +90,24 @@ CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs,
 	pendingRequestMsgs->timer_sec = timer_sec;
 	pendingRequestMsgs->timer_hdl = timer_hdl;
 	pendingRequestMsgs->timer_arg = timer_arg;
-	if((pendingRequestMsgs->timer = timer_add(timer_sec, 0, timer_hdl, timer_arg))) {
+	if ((pendingRequestMsgs->timer = timer_add(timer_sec, 0, timer_hdl, timer_arg))) {
 		return CW_FALSE;
 	}
 
 	return CW_TRUE;
 }
 
-int CWFindPendingRequestMsgsBox(CWPendingRequestMessage *pendingRequestMsgs,
-				const int length,
-				const int msgType,
-				const int seqNum){
+int CWFindPendingRequestMsgsBox(CWPendingRequestMessage * pendingRequestMsgs,
+				const int length, const int msgType, const int seqNum)
+{
 
-	if(pendingRequestMsgs == NULL) return -1;
+	if (pendingRequestMsgs == NULL)
+		return -1;
 	/* CWDebugLog("### TYPE = %d   SEQNUM = %d", msgType, seqNum); */
 	int k;
-	for(k=0; k<length; k++){
+	for (k = 0; k < length; k++) {
 		/* CWDebugLog("### K = %d   TYPE = %d   SEQNUM = %d", k, pendingRequestMsgs[k].msgType, pendingRequestMsgs[k].seqNum); */
-		if((pendingRequestMsgs[k].seqNum == seqNum) && (pendingRequestMsgs[k].msgType == msgType)){
+		if ((pendingRequestMsgs[k].seqNum == seqNum) && (pendingRequestMsgs[k].msgType == msgType)) {
 
 			timer_rem(pendingRequestMsgs[k].timer, NULL);
 			return k;
@@ -115,26 +117,27 @@ int CWFindPendingRequestMsgsBox(CWPendingRequestMessage *pendingRequestMsgs,
 
 }
 
-
-int CWSendPendingRequestMessage(CWPendingRequestMessage *pendingRequestMsgs, CWProtocolMessage *messages, int fragmentsNum) {
+int CWSendPendingRequestMessage(CWPendingRequestMessage * pendingRequestMsgs, CWProtocolMessage * messages,
+				int fragmentsNum)
+{
 	int pendingReqIndex = -1;
 
-	if(messages == NULL || fragmentsNum <0) {
+	if (messages == NULL || fragmentsNum < 0) {
 		return -1;
 	}
 
 	pendingReqIndex = CWFindFreePendingMsgBox(pendingRequestMsgs, MAX_PENDING_REQUEST_MSGS);
 
-	if(pendingReqIndex < 0) {
+	if (pendingReqIndex < 0) {
 		return -1;
 	}
 
 	int i;
-	for(i = 0; i < fragmentsNum; i++) {
+	for (i = 0; i < fragmentsNum; i++) {
 #ifdef CW_NO_DTLS
-		if(!CWNetworkSendUnsafeConnected(gWTPSocket, messages[i].msg, messages[i].offset)) {
+		if (!CWNetworkSendUnsafeConnected(gWTPSocket, messages[i].msg, messages[i].offset)) {
 #else
-		if(!CWSecuritySend(gWTPSession, messages[i].msg, messages[i].offset)){
+		if (!CWSecuritySend(gWTPSession, messages[i].msg, messages[i].offset)) {
 #endif
 			return -1;
 		}
@@ -142,4 +145,3 @@ int CWSendPendingRequestMessage(CWPendingRequestMessage *pendingRequestMsgs, CWP
 
 	return pendingReqIndex;
 }
-

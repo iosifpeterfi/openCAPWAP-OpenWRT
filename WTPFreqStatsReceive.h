@@ -19,9 +19,8 @@
  * Project:  Capwap                                                                        *
  *                                                                                         *
  * Author : Antonio Davoli (antonio.davoli@gmail.com)                                      *
- *                                            				                    		   *
+ *                                                                                         *
  *******************************************************************************************/
-
 
 #ifndef __CAPWAP_WTPFreqStatsReceive_HEADER__
 #define __CAPWAP_WTPFreqStatsReceive_HEADER__
@@ -32,12 +31,11 @@
 #include <sys/un.h>
 
 #define SERVER_PORT 1237
-#define PACKET_SIZE	65536
+#define PACKET_SIZE 65536
 
-
-#define EXIT_THREAD	CWLog("ERROR Handling Frequency Stats: application will be closed!");		\
-				close(recSock);								\
-				exit(1);
+#define EXIT_THREAD CWLog("ERROR Handling Frequency Stats: application will be closed!");       \
+                close(recSock);                             \
+                exit(1);
 
 /* Structs for frequencies' informations */
 
@@ -45,11 +43,11 @@ typedef unsigned char uint8;
 
 #define MAX_FREQ_LENGTH 16
 #define MAX_ESSID_LENGTH 32
-#define MAX_MAC_ADDR_LENGTH 18 /* XX:XX:XX:XX:XX:XX */
+#define MAX_MAC_ADDR_LENGTH 18	/* XX:XX:XX:XX:XX:XX */
 
 typedef struct _quality {
-  uint8 numerator;
-  uint8 denominator;
+	uint8 numerator;
+	uint8 denominator;
 } quality;
 
 typedef struct _FreqQualityInfo {
@@ -65,9 +63,8 @@ typedef struct _FreqQualityInfo {
 } FreqQualityInfo;
 
 typedef struct _FREQ_MONITOR_DATA {
-  int numberOfCells;
-  FreqQualityInfo *qualityOfCells;
+	int numberOfCells;
+	FreqQualityInfo *qualityOfCells;
 } FREQ_MONITOR_DATA;
 
 #endif
-

@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	   *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -25,7 +25,6 @@
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
-
 #ifndef __CAPWAP_CWWTP_HEADER__
 #define __CAPWAP_CWWTP_HEADER__
 
@@ -38,7 +37,7 @@
 
 /*______________________________________________________*/
 /*  *******************___DEFINE___*******************  */
-#define WTP_LOG_FILE_NAME	"/var/log/wtp.log.txt"
+#define WTP_LOG_FILE_NAME   "/var/log/wtp.log.txt"
 
 /*_____________________________________________________*/
 /*  *******************___TYPES___*******************  */
@@ -51,19 +50,18 @@ typedef struct {
 
 /*_____________________________________________________________*/
 /*  *******************___WTP VARIABLES___*******************  */
-extern char* gInterfaceName;
-extern char* gEthInterfaceName;
-extern char* gRadioInterfaceName_0;
-extern char* gBaseMACInterfaceName;
+extern char *gInterfaceName;
+extern char *gEthInterfaceName;
+extern char *gRadioInterfaceName_0;
+extern char *gBaseMACInterfaceName;
 extern char gBoardReversionNo;
 extern char **gCWACAddresses;
 extern int gCWACCount;
 
 extern int gHostapd_port;
-extern char*  gHostapd_unix_path;
-extern char  gRADIO_MAC[6];
+extern char *gHostapd_unix_path;
+extern char gRADIO_MAC[6];
 extern pthread_mutex_t gRADIO_MAC_mutex;
-
 
 extern char *gWTPLocation;
 extern char *gWTPName;
@@ -101,86 +99,73 @@ extern CWThreadMutex gInterfaceMutex;
 /* in WTP.c */
 CWBool CWWTPLoadConfiguration();
 CWBool CWWTPInitConfiguration();
-void CWWTPResetRadioStatistics(WTPRadioStatisticsInfo *radioStatistics);
-CWBool CWReceiveMessage(CWProtocolMessage *msgPtr);
+void CWWTPResetRadioStatistics(WTPRadioStatisticsInfo * radioStatistics);
+CWBool CWReceiveMessage(CWProtocolMessage * msgPtr);
 CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 				   CWList msgElemlist,
-				   CWBool (assembleFunc)(CWProtocolMessage **, int *, int, int, CWList),
-				   CWBool (parseFunc)(char*, int, int, void*),
-				   CWBool (saveFunc)(void*),
-				   void *valuesPtr);
+				   CWBool(assembleFunc) (CWProtocolMessage **, int *, int, int, CWList),
+				   CWBool(parseFunc) (char *, int, int, void *),
+				   CWBool(saveFunc) (void *), void *valuesPtr);
 void CWWTPDestroy();
 
 /* in WTPRunState.c */
-CWBool CWAssembleWTPDataTansferRequest(CWProtocolMessage **messagesPtr,
-				       int *fragmentsNumPtr,
-				       int PMTU,
-				       int seqNum,
-				       CWList msgElemList);
+CWBool CWAssembleWTPDataTansferRequest(CWProtocolMessage ** messagesPtr,
+				       int *fragmentsNumPtr, int PMTU, int seqNum, CWList msgElemList);
 
-CWBool CWAssembleWTPEventRequest(CWProtocolMessage **messagesPtr,
-				 int *fragmentsNumPtr,
-				 int PMTU,
-				 int seqNum,
-				 CWList msgElemList);
+CWBool CWAssembleWTPEventRequest(CWProtocolMessage ** messagesPtr,
+				 int *fragmentsNumPtr, int PMTU, int seqNum, CWList msgElemList);
 
 CW_THREAD_RETURN_TYPE CWWTPReceiveDtlsPacket(void *arg);
 CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg);
 CWBool CWWTPCheckForBindingFrame();
 
 /* in WTPProtocol_User.c */
-CWBool CWWTPGetACNameWithIndex (CWACNamesWithIndex *ACsInfo);
-int getInterfaceMacAddr(char* interface, unsigned char* macAddr);
-int initWTPSessionID(char * sessionID);
-int CWWTPGetStatisticsTimer ();
-void CWWTPGetIPv6Address(struct sockaddr_in6* myAddr);
-CWBool CWGetWTPRadiosAdminState(CWRadiosAdminInfo *valPtr);
-CWBool CWGetDecryptErrorReport(int radioID, CWDecryptErrorReportInfo *valPtr);
+CWBool CWWTPGetACNameWithIndex(CWACNamesWithIndex * ACsInfo);
+int getInterfaceMacAddr(char *interface, unsigned char *macAddr);
+int initWTPSessionID(char *sessionID);
+int CWWTPGetStatisticsTimer();
+void CWWTPGetIPv6Address(struct sockaddr_in6 *myAddr);
+CWBool CWGetWTPRadiosAdminState(CWRadiosAdminInfo * valPtr);
+CWBool CWGetDecryptErrorReport(int radioID, CWDecryptErrorReportInfo * valPtr);
 
 /* in WTPRetransmission.c */
-int CWSendPendingRequestMessage(CWPendingRequestMessage *pendingRequestMsgs,
-				CWProtocolMessage *messages,
-				int fragmentsNum);
+int CWSendPendingRequestMessage(CWPendingRequestMessage * pendingRequestMsgs,
+				CWProtocolMessage * messages, int fragmentsNum);
 
-int CWFindPendingRequestMsgsBox(CWPendingRequestMessage *pendingRequestMsgs,
-				const int length,
-				const int msgType,
-				const int seqNum);
+int CWFindPendingRequestMsgsBox(CWPendingRequestMessage * pendingRequestMsgs,
+				const int length, const int msgType, const int seqNum);
 
-void CWResetPendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs);
-CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs,
+void CWResetPendingMsgBox(CWPendingRequestMessage * pendingRequestMsgs);
+CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage * pendingRequestMsgs,
 			     unsigned char msgType,
 			     int seqNum,
 			     int timer_sec,
 			     CWTimerArg timer_arg,
-			     void (*timer_hdl)(CWTimerArg),
-			     int retransmission,
-			     CWProtocolMessage *msgElems,
-			     int fragmentsNum);
-
+			     void (*timer_hdl) (CWTimerArg),
+			     int retransmission, CWProtocolMessage * msgElems, int fragmentsNum);
 
 #ifdef SOFTMAC
 //in WTPmacDriverInteraction.c
-int set_wme_cwmin(int acclass,int value);
-int set_wme_cwmax(int acclass,int value);
-int set_wme_aifsn(int acclass,int value);
+int set_wme_cwmin(int acclass, int value);
+int set_wme_cwmax(int acclass, int value);
+int set_wme_aifsn(int acclass, int value);
 #else
 
 #ifndef BCM
 //in WTPDriverInteraction.c
 int set_cwmin(int sock, struct iwreq wrq, int acclass, int sta, int value);
-int get_cwmin(int sock, struct iwreq* wrq, int acclass, int sta);
+int get_cwmin(int sock, struct iwreq *wrq, int acclass, int sta);
 int set_cwmax(int sock, struct iwreq wrq, int acclass, int sta, int value);
-int get_cwmax(int sock, struct iwreq* wrq, int acclass, int sta);
+int get_cwmax(int sock, struct iwreq *wrq, int acclass, int sta);
 int set_aifs(int sock, struct iwreq wrq, int acclass, int sta, int value);
-int get_aifs(int sock, struct iwreq* wrq, int acclass, int sta);
+int get_aifs(int sock, struct iwreq *wrq, int acclass, int sta);
 
 #else
 
 //in WTPBcmDriverInteraction.c
-int set_wme_cwmin(int acclass,int value);
-int set_wme_cwmax(int acclass,int value);
-int set_wme_aifsn(int acclass,int value);
+int set_wme_cwmin(int acclass, int value);
+int set_wme_cwmax(int acclass, int value);
+int set_wme_aifsn(int acclass, int value);
 #endif
 #endif
 

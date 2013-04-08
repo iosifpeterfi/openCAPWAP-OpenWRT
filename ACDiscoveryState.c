@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	   *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -24,7 +24,6 @@
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
-
 
 #include "CWAC.h"
 
@@ -49,39 +48,41 @@ __inline__ int CWACGetInterfacesCount();
 /*  *******************___FUNCTIONS___*******************  */
 
 /* send Discovery Response to the host at the specified address */
-CWBool CWAssembleDiscoveryResponse(CWProtocolMessage **messagesPtr, int seqNum) {
+CWBool CWAssembleDiscoveryResponse(CWProtocolMessage ** messagesPtr, int seqNum)
+{
 
-	CWProtocolMessage *msgElems= NULL;
+	CWProtocolMessage *msgElems = NULL;
 	int msgElemCount = 4;
-	CWProtocolMessage *msgElemsBinding= NULL;
-	int msgElemBindingCount=0;
+	CWProtocolMessage *msgElemsBinding = NULL;
+	int msgElemBindingCount = 0;
 	int fragmentsNum;
 
 	int k = -1;
-	if(messagesPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
+	if (messagesPtr == NULL)
+		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
-	if(CWACSupportIPv6()) {
+	if (CWACSupportIPv6()) {
 		msgElemCount++;
 	}
 
 	CWLog("Send Discovery Response");
-	CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems,
-					 msgElemCount,
-					 return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+	CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems, msgElemCount, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
+	    );
 
 	/* Assemble Message Elements */
-	if (
-		(!(CWAssembleMsgElemACDescriptor(&(msgElems[++k])))) ||
-		(!(CWAssembleMsgElemACName(&(msgElems[++k])))) ||
-		(!(CWAssembleMsgElemCWControlIPv4Addresses(&(msgElems[++k])))) ||
-		(!(CWAssembleMsgElemACWTPRadioInformation(&(msgElems[++k]))))
-		/*(CWACSupportIPv6() && (!(CWAssembleMsgElemCWControlIPv6Addresses(&(msgElems[++k])))))*/
-	) {
+	if ((!(CWAssembleMsgElemACDescriptor(&(msgElems[++k])))) ||
+	    (!(CWAssembleMsgElemACName(&(msgElems[++k])))) ||
+	    (!(CWAssembleMsgElemCWControlIPv4Addresses(&(msgElems[++k])))) ||
+	    (!(CWAssembleMsgElemACWTPRadioInformation(&(msgElems[++k]))))
+	    /*(CWACSupportIPv6() && (!(CWAssembleMsgElemCWControlIPv6Addresses(&(msgElems[++k]))))) */
+	    ) {
 		CWErrorHandleLast();
 		int i;
-		for(i = 0; i <= k; i++) {CW_FREE_PROTOCOL_MESSAGE(msgElems[i]);}
+		for (i = 0; i <= k; i++) {
+			CW_FREE_PROTOCOL_MESSAGE(msgElems[i]);
+		}
 		CW_FREE_OBJECT(msgElems);
-		return CW_FALSE; // error will be handled by the caller
+		return CW_FALSE;	// error will be handled by the caller
 	}
 
 	return CWAssembleMessage(messagesPtr,
@@ -89,19 +90,11 @@ CWBool CWAssembleDiscoveryResponse(CWProtocolMessage **messagesPtr, int seqNum) 
 				 0,
 				 seqNum,
 				 CW_MSG_TYPE_VALUE_DISCOVERY_RESPONSE,
-				 msgElems,
-				 msgElemCount,
-				 msgElemsBinding,
-				 msgElemBindingCount,
-				 CW_PACKET_PLAIN);
+				 msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount, CW_PACKET_PLAIN);
 }
 
-CWBool CWParseDiscoveryRequestMessage(char *msg,
-				      int len,
-				      int *seqNumPtr,
-				      CWDiscoveryRequestValues *valuesPtr) {
-
-
+CWBool CWParseDiscoveryRequestMessage(char *msg, int len, int *seqNumPtr, CWDiscoveryRequestValues * valuesPtr)
+{
 
 	CWControlHeaderValues controlVal;
 	CWProtocolTransportHeaderValues transportVal;
@@ -110,7 +103,7 @@ CWBool CWParseDiscoveryRequestMessage(char *msg,
 
 	CWProtocolMessage completeMsg;
 
-	if(msg == NULL || seqNumPtr == NULL || valuesPtr == NULL)
+	if (msg == NULL || seqNumPtr == NULL || valuesPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
 	CWDebugLog("Parse Discovery Request");
@@ -119,16 +112,16 @@ CWBool CWParseDiscoveryRequestMessage(char *msg,
 	completeMsg.offset = 0;
 
 	CWBool dataFlag = CW_FALSE;
-	if(!(CWParseTransportHeader(&completeMsg, &transportVal, &dataFlag, NULL)))
+	if (!(CWParseTransportHeader(&completeMsg, &transportVal, &dataFlag, NULL)))
 		/* will be handled by the caller */
 		return CW_FALSE;
-	if(!(CWParseControlHeader(&completeMsg, &controlVal)))
+	if (!(CWParseControlHeader(&completeMsg, &controlVal)))
 		/* will be handled by the caller */
 		return CW_FALSE;
 
 	/* different type */
 
-	if(controlVal.messageTypeValue != CW_MSG_TYPE_VALUE_DISCOVERY_REQUEST)
+	if (controlVal.messageTypeValue != CW_MSG_TYPE_VALUE_DISCOVERY_REQUEST)
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Message is not Discovery Request as Expected");
 
 	*seqNumPtr = controlVal.seqNum;
@@ -140,109 +133,111 @@ CWBool CWParseDiscoveryRequestMessage(char *msg,
 	/* (*valuesPtr).radios.radiosCount = 0; */
 
 	/* parse message elements */
-	while((completeMsg.offset-offsetTillMessages) < controlVal.msgElemsLen) {
+	while ((completeMsg.offset - offsetTillMessages) < controlVal.msgElemsLen) {
 
-		unsigned short int elemType = 0;/* = CWProtocolRetrieve32(&completeMsg); */
+		unsigned short int elemType = 0;	/* = CWProtocolRetrieve32(&completeMsg); */
 		unsigned short int elemLen = 0;	/* = CWProtocolRetrieve16(&completeMsg); */
 
-		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);
+		CWParseFormatMsgElem(&completeMsg, &elemType, &elemLen);
 
 		/* CWDebugLog("Parsing Message Element: %u, elemLen: %u", elemType, elemLen); */
 
-		switch(elemType) {
-			case CW_MSG_ELEMENT_DISCOVERY_TYPE_CW_TYPE:
-				if(!(CWParseDiscoveryType(&completeMsg, elemLen, valuesPtr)))
-					/* will be handled by the caller */
-					return CW_FALSE;
-				break;
-			case CW_MSG_ELEMENT_WTP_BOARD_DATA_CW_TYPE:
-				if(!(CWParseWTPBoardData(&completeMsg, elemLen, &(valuesPtr->WTPBoardData))))
-					/* will be handled by the caller */
-					return CW_FALSE;
-				break;
-			case CW_MSG_ELEMENT_WTP_DESCRIPTOR_CW_TYPE:
-				if(!(CWParseWTPDescriptor(&completeMsg, elemLen, &(valuesPtr->WTPDescriptor))))
-					/* will be handled by the caller */
-					return CW_FALSE;
-				break;
-			case CW_MSG_ELEMENT_WTP_FRAME_TUNNEL_MODE_CW_TYPE:
-				if(!(CWParseWTPFrameTunnelMode(&completeMsg, elemLen, &(valuesPtr->frameTunnelMode))))
-					/* will be handled by the caller */
-					return CW_FALSE;
-				break;
-			case CW_MSG_ELEMENT_WTP_MAC_TYPE_CW_TYPE:
-				if(!(CWParseWTPMACType(&completeMsg, elemLen, &(valuesPtr->MACType))))
-					/* will be handled by the caller */
-					return CW_FALSE;
-				break;
-			case CW_MSG_ELEMENT_IEEE80211_WTP_RADIO_INFORMATION_CW_TYPE:
-				if(!(CWParseWTPRadioInformation(&completeMsg, elemLen, &RadioInfoABGN)))return CW_FALSE;
+		switch (elemType) {
+		case CW_MSG_ELEMENT_DISCOVERY_TYPE_CW_TYPE:
+			if (!(CWParseDiscoveryType(&completeMsg, elemLen, valuesPtr)))
+				/* will be handled by the caller */
+				return CW_FALSE;
+			break;
+		case CW_MSG_ELEMENT_WTP_BOARD_DATA_CW_TYPE:
+			if (!(CWParseWTPBoardData(&completeMsg, elemLen, &(valuesPtr->WTPBoardData))))
+				/* will be handled by the caller */
+				return CW_FALSE;
+			break;
+		case CW_MSG_ELEMENT_WTP_DESCRIPTOR_CW_TYPE:
+			if (!(CWParseWTPDescriptor(&completeMsg, elemLen, &(valuesPtr->WTPDescriptor))))
+				/* will be handled by the caller */
+				return CW_FALSE;
+			break;
+		case CW_MSG_ELEMENT_WTP_FRAME_TUNNEL_MODE_CW_TYPE:
+			if (!(CWParseWTPFrameTunnelMode(&completeMsg, elemLen, &(valuesPtr->frameTunnelMode))))
+				/* will be handled by the caller */
+				return CW_FALSE;
+			break;
+		case CW_MSG_ELEMENT_WTP_MAC_TYPE_CW_TYPE:
+			if (!(CWParseWTPMACType(&completeMsg, elemLen, &(valuesPtr->MACType))))
+				/* will be handled by the caller */
+				return CW_FALSE;
+			break;
+		case CW_MSG_ELEMENT_IEEE80211_WTP_RADIO_INFORMATION_CW_TYPE:
+			if (!(CWParseWTPRadioInformation(&completeMsg, elemLen, &RadioInfoABGN)))
+				return CW_FALSE;
 
-				break;
+			break;
 			/*case CW_MSG_ELEMENT_WTP_RADIO_INFO_CW_TYPE:
-				// just count how many radios we have, so we can allocate the array
-			  	(*valuesPtr).radios.radiosCount++;
-				completeMsg.offset += elemLen;
-				break;
-			*/
-			default:
-				return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
-					"Unrecognized Message Element");
+			   // just count how many radios we have, so we can allocate the array
+			   (*valuesPtr).radios.radiosCount++;
+			   completeMsg.offset += elemLen;
+			   break;
+			 */
+		default:
+			return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Unrecognized Message Element");
 		}
 
-		/*CWDebugLog("bytes: %d/%d", (completeMsg.offset-offsetTillMessages), controlVal.msgElemsLen);*/
+		/*CWDebugLog("bytes: %d/%d", (completeMsg.offset-offsetTillMessages), controlVal.msgElemsLen); */
 	}
 
-	if(completeMsg.offset != len) return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Garbage at the End of the Message");
+	if (completeMsg.offset != len)
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Garbage at the End of the Message");
 
+	/*
+	   // actually read each radio info
+	   CW_CREATE_ARRAY_ERR((*valuesPtr).radios.radios, (*valuesPtr).radios.radiosCount, CWRadioInformationValues,
+	   return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+	   i = 0;
 
-/*
-	// actually read each radio info
-	CW_CREATE_ARRAY_ERR((*valuesPtr).radios.radios, (*valuesPtr).radios.radiosCount, CWRadioInformationValues,
-		return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	i = 0;
+	   completeMsg.offset = offsetTillMessages;
+	   while(i < (*valuesPtr).radios.radiosCount && (completeMsg.offset-offsetTillMessages) < controlVal.msgElemsLen) {
+	   unsigned short int type=0;// = CWProtocolRetrieve32(&completeMsg);
+	   unsigned short int len=0;// = CWProtocolRetrieve16(&completeMsg);
 
-	completeMsg.offset = offsetTillMessages;
-	while(i < (*valuesPtr).radios.radiosCount && (completeMsg.offset-offsetTillMessages) < controlVal.msgElemsLen) {
-		unsigned short int type=0;// = CWProtocolRetrieve32(&completeMsg);
-		unsigned short int len=0;// = CWProtocolRetrieve16(&completeMsg);
+	   CWParseFormatMsgElem(&completeMsg,&type,&len);
 
-		CWParseFormatMsgElem(&completeMsg,&type,&len);
-
-		switch(type) {
-			case CW_MSG_ELEMENT_WTP_RADIO_INFO_CW_TYPE:
-				if(!(CWParseWTPRadioInfo(&completeMsg, len, &(valuesPtr->radios), i))) return CW_FALSE; // will be handled by the caller
-				i++;
-				break;
-			default:
-				completeMsg.offset += len;
-				break;
-		}
-	}
-*/
+	   switch(type) {
+	   case CW_MSG_ELEMENT_WTP_RADIO_INFO_CW_TYPE:
+	   if(!(CWParseWTPRadioInfo(&completeMsg, len, &(valuesPtr->radios), i))) return CW_FALSE; // will be handled by the caller
+	   i++;
+	   break;
+	   default:
+	   completeMsg.offset += len;
+	   break;
+	   }
+	   }
+	 */
 	return CW_TRUE;
 }
 
-void CWDestroyDiscoveryRequestValues(CWDiscoveryRequestValues *valPtr) {
+void CWDestroyDiscoveryRequestValues(CWDiscoveryRequestValues * valPtr)
+{
 
 	int i;
 
-	if(valPtr == NULL) return;
-	for(i = 0; i < (valPtr->WTPDescriptor.vendorInfos).vendorInfosCount; i++) {
+	if (valPtr == NULL)
+		return;
+	for (i = 0; i < (valPtr->WTPDescriptor.vendorInfos).vendorInfosCount; i++) {
 
 		CW_FREE_OBJECT(((valPtr->WTPDescriptor.vendorInfos).vendorInfos)[i].valuePtr);
 	}
 	CW_FREE_OBJECT((valPtr->WTPDescriptor.vendorInfos).vendorInfos);
 
 	/*
-         * BUG ML11
-         *
-         * 10/10/2009 - Donato Capitella
-         */
-        for(i = 0; i < valPtr->WTPBoardData.vendorInfosCount; i++) {
-                CW_FREE_OBJECT(valPtr->WTPBoardData.vendorInfos[i].valuePtr);
-        }
-        CW_FREE_OBJECT(valPtr->WTPBoardData.vendorInfos);
+	 * BUG ML11
+	 *
+	 * 10/10/2009 - Donato Capitella
+	 */
+	for (i = 0; i < valPtr->WTPBoardData.vendorInfosCount; i++) {
+		CW_FREE_OBJECT(valPtr->WTPBoardData.vendorInfos[i].valuePtr);
+	}
+	CW_FREE_OBJECT(valPtr->WTPBoardData.vendorInfos);
 
-	/*CW_FREE_OBJECT((valPtr->radios).radios);*/
+	/*CW_FREE_OBJECT((valPtr->radios).radios); */
 }

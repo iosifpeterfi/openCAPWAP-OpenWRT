@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	       *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -26,10 +26,8 @@
  *           Antonio Davoli (antonio.davoli@gmail.com)                                     *
  *******************************************************************************************/
 
-
 #ifndef __CAPWAP_CWCommon_HEADER__
 #define __CAPWAP_CWCommon_HEADER__
-
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -44,9 +42,9 @@
 #include <signal.h>
 #include <unistd.h>
 #ifdef MACOSX
-	#include <netinet/if_ether.h>
+#include <netinet/if_ether.h>
 #else
-	#include <linux/if_ether.h>
+#include <linux/if_ether.h>
 #endif
 #include <net/if.h>
 #include <sys/ioctl.h>
@@ -60,12 +58,12 @@
 CW_COMPILE_TIME_ASSERT(int_size, sizeof(int) == 4);
 CW_COMPILE_TIME_ASSERT(char_size, sizeof(char) == 1);
 
-#define		CW_BUFFER_SIZE					65536
-#define		CW_ZERO_MEMORY					bzero
-#define		CW_COPY_MEMORY(dst, src, len)			bcopy(src, dst, len)
-#define		CW_REPEAT_FOREVER				while(1)
+#define     CW_BUFFER_SIZE                  65536
+#define     CW_ZERO_MEMORY                  bzero
+#define     CW_COPY_MEMORY(dst, src, len)           bcopy(src, dst, len)
+#define     CW_REPEAT_FOREVER               while(1)
 
-#define DEFAULT_LOG_SIZE					1000000
+#define DEFAULT_LOG_SIZE                    1000000
 
 typedef enum {
 	CW_FALSE = 0,
@@ -91,24 +89,24 @@ extern int gCWMaxRetransmit;
 extern int gMaxLogFileSize;
 extern int gEnabledLog;
 
-#define	CW_FREE_OBJECT(obj_name)		{if(obj_name){free((obj_name)); (obj_name) = NULL;}}
-#define	CW_FREE_OBJECTS_ARRAY(ar_name, ar_size)	{int _i = 0; for(_i = ((ar_size)-1); _i >= 0; _i--) {if(((ar_name)[_i]) != NULL){ free((ar_name)[_i]);}} free(ar_name); (ar_name) = NULL; }
-#define	CW_PRINT_STRING_ARRAY(ar_name, ar_size)	{int i = 0; for(i = 0; i < (ar_size); i++) printf("[%d]: **%s**\n", i, ar_name[i]);}
+#define CW_FREE_OBJECT(obj_name)        {if(obj_name){free((obj_name)); (obj_name) = NULL;}}
+#define CW_FREE_OBJECTS_ARRAY(ar_name, ar_size) {int _i = 0; for(_i = ((ar_size)-1); _i >= 0; _i--) {if(((ar_name)[_i]) != NULL){ free((ar_name)[_i]);}} free(ar_name); (ar_name) = NULL; }
+#define CW_PRINT_STRING_ARRAY(ar_name, ar_size) {int i = 0; for(i = 0; i < (ar_size); i++) printf("[%d]: **%s**\n", i, ar_name[i]);}
 
 // custom error
-#define	CW_CREATE_OBJECT_ERR(obj_name, obj_type, on_err)	{obj_name = (obj_type*) (malloc(sizeof(obj_type))); if(!(obj_name)) {on_err}}
-#define	CW_CREATE_OBJECT_SIZE_ERR(obj_name, obj_size,on_err)	{obj_name = (malloc(obj_size)); if(!(obj_name)) {on_err}}
-#define	CW_CREATE_ARRAY_ERR(ar_name, ar_size, ar_type, on_err)	{ar_name = (ar_type*) (malloc(sizeof(ar_type) * (ar_size))); if(!(ar_name)) {on_err}}
-#define	CW_CREATE_STRING_ERR(str_name, str_length, on_err)	{str_name = (char*) (malloc(sizeof(char) * ((str_length)+1) ) ); if(!(str_name)) {on_err}}
-#define	CW_CREATE_STRING_FROM_STRING_ERR(str_name, str, on_err)	{CW_CREATE_STRING_ERR(str_name, strlen(str), on_err); strcpy((str_name), str);}
+#define CW_CREATE_OBJECT_ERR(obj_name, obj_type, on_err)    {obj_name = (obj_type*) (malloc(sizeof(obj_type))); if(!(obj_name)) {on_err}}
+#define CW_CREATE_OBJECT_SIZE_ERR(obj_name, obj_size,on_err)    {obj_name = (malloc(obj_size)); if(!(obj_name)) {on_err}}
+#define CW_CREATE_ARRAY_ERR(ar_name, ar_size, ar_type, on_err)  {ar_name = (ar_type*) (malloc(sizeof(ar_type) * (ar_size))); if(!(ar_name)) {on_err}}
+#define CW_CREATE_STRING_ERR(str_name, str_length, on_err)  {str_name = (char*) (malloc(sizeof(char) * ((str_length)+1) ) ); if(!(str_name)) {on_err}}
+#define CW_CREATE_STRING_FROM_STRING_ERR(str_name, str, on_err) {CW_CREATE_STRING_ERR(str_name, strlen(str), on_err); strcpy((str_name), str);}
 
 #ifdef CW_DEBUGGING
 
-#define	CW_CREATE_ARRAY_ERR2(ar_name, ar_size, ar_type, on_err)		{ar_name = (ar_type*) (malloc(sizeof(ar_type) * (ar_size))); if((ar_name)) {on_err}}
-#define	CW_CREATE_OBJECT_ERR2(obj_name, obj_type, on_err)		{obj_name = (obj_type*) (malloc(sizeof(obj_type))); if((obj_name)) {on_err}}
-#define	CW_CREATE_OBJECT_SIZE_ERR2(obj_name, obj_size,on_err)		{obj_name = (malloc(obj_size)); if((obj_name)) {on_err}}
-#define	CW_CREATE_STRING_ERR2(str_name, str_length, on_err)		{str_name = (char*) (malloc(sizeof(char) * ((str_length)+1) ) ); if((str_name)) {on_err}}
-#define	CW_CREATE_STRING_FROM_STRING_ERR2(str_name, str, on_err)	{CW_CREATE_STRING_ERR2(str_name, strlen(str), on_err); strcpy((str_name), str);}
+#define CW_CREATE_ARRAY_ERR2(ar_name, ar_size, ar_type, on_err)     {ar_name = (ar_type*) (malloc(sizeof(ar_type) * (ar_size))); if((ar_name)) {on_err}}
+#define CW_CREATE_OBJECT_ERR2(obj_name, obj_type, on_err)       {obj_name = (obj_type*) (malloc(sizeof(obj_type))); if((obj_name)) {on_err}}
+#define CW_CREATE_OBJECT_SIZE_ERR2(obj_name, obj_size,on_err)       {obj_name = (malloc(obj_size)); if((obj_name)) {on_err}}
+#define CW_CREATE_STRING_ERR2(str_name, str_length, on_err)     {str_name = (char*) (malloc(sizeof(char) * ((str_length)+1) ) ); if((str_name)) {on_err}}
+#define CW_CREATE_STRING_FROM_STRING_ERR2(str_name, str, on_err)    {CW_CREATE_STRING_ERR2(str_name, strlen(str), on_err); strcpy((str_name), str);}
 
 #endif
 

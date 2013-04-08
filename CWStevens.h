@@ -7,7 +7,7 @@
  * version 2 of the License, or (at your option) any later version.                        *
  *                                                                                         *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	       *
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A         *
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
  *                                                                                         *
  * You should have received a copy of the GNU General Public License along with this       *
@@ -25,26 +25,25 @@
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
-
 #ifndef __CAPWAP_CWStevens_HEADER__
 #define __CAPWAP_CWStevens_HEADER__
 
 #include <net/if.h>
 #include <sys/ioctl.h>
 
-#define	IFI_NAME	16			/* same as IFNAMSIZ in <net/if.h> */
-#define	IFI_HADDR	 8			/* allow for 64-bit EUI-64 in future */
+#define IFI_NAME    16		/* same as IFNAMSIZ in <net/if.h> */
+#define IFI_HADDR    8		/* allow for 64-bit EUI-64 in future */
 
 struct ifi_info {
-  char    ifi_name[IFI_NAME];	/* interface name, null-terminated */
-  short   ifi_index;			/* interface index */
-  short   ifi_flags;			/* IFF_xxx constants from <net/if.h> */
-  struct sockaddr  *ifi_addr;	/* primary address */
-  struct sockaddr  *ifi_brdaddr;/* broadcast address */
-  struct ifi_info  *ifi_next;	/* next of these structures */
+	char ifi_name[IFI_NAME];	/* interface name, null-terminated */
+	short ifi_index;	/* interface index */
+	short ifi_flags;	/* IFF_xxx constants from <net/if.h> */
+	struct sockaddr *ifi_addr;	/* primary address */
+	struct sockaddr *ifi_brdaddr;	/* broadcast address */
+	struct ifi_info *ifi_next;	/* next of these structures */
 };
 
-struct ifi_info* get_ifi_info(int, int);
+struct ifi_info *get_ifi_info(int, int);
 void free_ifi_info(struct ifi_info *);
 char *sock_ntop_r(const struct sockaddr *sa, char *str);
 int sock_cpy_addr_port(struct sockaddr *sa1, const struct sockaddr *sa2);
@@ -54,4 +53,4 @@ int sock_cmp_addr(const struct sockaddr *sa1, const struct sockaddr *sa2, sockle
 int mcast_join(int sockfd, const struct sockaddr *grp, socklen_t grplen, const char *ifname, u_int ifindex);
 int Writen(int fd, void *ptr, size_t nbytes);
 
-#endif	/* __CAPWAP_CWStevens_HEADER__ */
+#endif				/* __CAPWAP_CWStevens_HEADER__ */
