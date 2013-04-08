@@ -18,14 +18,14 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
- 
+
 #include	"CWCommon.h"
 #include <sys/un.h>
 #ifdef	HAVE_SOCKADDR_DL_STRUCT
@@ -126,7 +126,7 @@ int sock_cpy_addr_port(struct sockaddr *sa1, const struct sockaddr *sa2)
 		(memcpy( &((struct sockaddr_in6 *) sa1)->sin6_addr,
 					   &((struct sockaddr_in6 *) sa2)->sin6_addr,
 					   sizeof(struct in6_addr)));
-					   
+
 		( ((struct sockaddr_in6 *) sa1)->sin6_port =
 				((struct sockaddr_in6 *) sa2)->sin6_port);
 		return 0;
@@ -212,12 +212,12 @@ struct ifi_info* get_ifi_info(int family, int doaliases)
 #else
 		switch (ifr->ifr_addr.sa_family) {
 #ifdef	IPV6
-		case AF_INET6:	
+		case AF_INET6:
 			len = sizeof(struct sockaddr_in6);
 			break;
 #endif
-		case AF_INET:	
-		default:	
+		case AF_INET:
+		default:
 			len = sizeof(struct sockaddr);
 			break;
 		}
@@ -279,7 +279,7 @@ struct ifi_info* get_ifi_info(int family, int doaliases)
 			}
 #endif
 			/*
-                         * LE03 - Donato Capitella   
+                         * LE03 - Donato Capitella
                          */
                         break;
 		case AF_INET6:

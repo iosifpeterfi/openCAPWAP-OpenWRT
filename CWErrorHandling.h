@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -60,7 +60,7 @@ typedef struct {
 							CWErrorRaise(error, buf);	\
 							return CW_FALSE;		\
 						}
-											
+
 #define CWErrorRaise(code, msg) 		_CWErrorRaise(code, msg, __FILE__, __LINE__)
 #define CWErr(arg)				((arg) || _CWErrorHandleLast(__FILE__, __LINE__))
 #define CWErrorHandleLast()			_CWErrorHandleLast(__FILE__, __LINE__)

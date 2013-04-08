@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*  
+ * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*
  *           Del Moro Andrea (andrea_delmoro@libero.it)											*
  *           Giovannini Federica (giovannini.federica@gmail.com)								*
  *           Massimo Vellucci (m.vellucci@unicampus.it)											*
@@ -93,12 +93,12 @@ int gWTPPathMTU = 0;
 
 int gWTPRetransmissionCount;
 
-CWPendingRequestMessage gPendingRequestMsgs[MAX_PENDING_REQUEST_MSGS];	
+CWPendingRequestMessage gPendingRequestMsgs[MAX_PENDING_REQUEST_MSGS];
 
 CWBool WTPExitOnUpdateCommit = CW_FALSE;
 #define CW_SINGLE_THREAD
 
-/* 
+/*
  * Receive a message, that can be fragmented. This is useful not only for the Join State
  */
 CWBool CWReceiveMessage(CWProtocolMessage *msgPtr) {
@@ -106,7 +106,7 @@ CWBool CWReceiveMessage(CWProtocolMessage *msgPtr) {
 	int readBytes;
 	char buf[CW_BUFFER_SIZE];
 	CWBool dataFlag = CW_FALSE;
-	
+
 	CW_REPEAT_FOREVER {
 		CW_ZERO_MEMORY(buf, CW_BUFFER_SIZE);
 #ifdef CW_NO_DTLS
@@ -155,14 +155,14 @@ CWBool CWReceiveMessage(CWProtocolMessage *msgPtr) {
 			}
 		} else break; // the message is fully reassembled
 	}
-	
+
 	return CW_TRUE;
 }
 
-CWBool CWWTPSendAcknowledgedPacket(int seqNum, 
+CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 				   CWList msgElemlist,
 				   CWBool (assembleFunc)(CWProtocolMessage **, int *, int, int, CWList),
-				   CWBool (parseFunc)(char*, int, int, void*), 
+				   CWBool (parseFunc)(char*, int, int, void*),
 				   CWBool (saveFunc)(void*),
 				   void *valuesPtr) {
 
@@ -171,35 +171,35 @@ CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 	int fragmentsNum = 0, i;
 
 	struct timespec timewait;
-	
+
 	int gTimeToSleep = gCWRetransmitTimer;
 	int gMaxTimeToSleep = CW_ECHO_INTERVAL_DEFAULT/2;
 
 	msg.msg = NULL;
-	
-	if(!(assembleFunc(&messages, 
-			  &fragmentsNum, 
-			  gWTPPathMTU, 
-			  seqNum, 
+
+	if(!(assembleFunc(&messages,
+			  &fragmentsNum,
+			  gWTPPathMTU,
+			  seqNum,
 			  msgElemlist))) {
 
 		goto cw_failure;
 	}
-	
+
 	gWTPRetransmissionCount= 0;
-	
-	while(gWTPRetransmissionCount < gCWMaxRetransmit) 
+
+	while(gWTPRetransmissionCount < gCWMaxRetransmit)
 	{
 		CWDebugLog("Transmission Num:%d", gWTPRetransmissionCount);
-		for(i = 0; i < fragmentsNum; i++) 
+		for(i = 0; i < fragmentsNum; i++)
 		{
 #ifdef CW_NO_DTLS
-			if(!CWNetworkSendUnsafeConnected(gWTPSocket, 
+			if(!CWNetworkSendUnsafeConnected(gWTPSocket,
 							 messages[i].msg,
 							 messages[i].offset))
 #else
 			if(!CWSecuritySend(gWTPSession,
-					   messages[i].msg, 
+					   messages[i].msg,
 					   messages[i].offset))
 #endif
 			{
@@ -207,11 +207,11 @@ CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 				goto cw_failure;
 			}
 		}
-		
+
 		timewait.tv_sec = time(0) + gTimeToSleep;
 		timewait.tv_nsec = 0;
 
-		CW_REPEAT_FOREVER 
+		CW_REPEAT_FOREVER
 		{
 			CWThreadMutexLock(&gInterfaceMutex);
 
@@ -236,14 +236,14 @@ CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 				case CW_ERROR_SUCCESS:
 				{
 					/* there's something to read */
-					if(!(CWReceiveMessage(&msg))) 
+					if(!(CWReceiveMessage(&msg)))
 					{
 						CW_FREE_PROTOCOL_MESSAGE(msg);
 						CWDebugLog("Failure Receiving Response");
 						goto cw_failure;
 					}
-					
-					if(!(parseFunc(msg.msg, msg.offset, seqNum, valuesPtr))) 
+
+					if(!(parseFunc(msg.msg, msg.offset, seqNum, valuesPtr)))
 					{
 						if(CWErrorGetLastErrorCode() != CW_ERROR_INVALID_FORMAT) {
 
@@ -253,34 +253,34 @@ CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 						}
 						else {
 							CWErrorHandleLast();
-							{ 
+							{
 								gWTPRetransmissionCount++;
 								goto cw_continue_external_loop;
 							}
 							break;
 						}
 					}
-					
+
 					if((saveFunc(valuesPtr))) {
 
 						goto cw_success;
-					} 
+					}
 					else {
 						if(CWErrorGetLastErrorCode() != CW_ERROR_INVALID_FORMAT) {
 							CW_FREE_PROTOCOL_MESSAGE(msg);
 							CWDebugLog("Failure Saving Response");
 							goto cw_failure;
-						} 
+						}
 					}
 					break;
 				}
 
-				case CW_ERROR_INTERRUPTED: 
+				case CW_ERROR_INTERRUPTED:
 				{
 					gWTPRetransmissionCount++;
 					goto cw_continue_external_loop;
 					break;
-				}	
+				}
 				default:
 				{
 					CWErrorHandleLast();
@@ -290,27 +290,27 @@ CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 				}
 			}
 		}
-		
+
 		cw_continue_external_loop:
 			CWDebugLog("Retransmission time is over");
-			
+
 			gTimeToSleep<<=1;
 			if ( gTimeToSleep > gMaxTimeToSleep ) gTimeToSleep = gMaxTimeToSleep;
 	}
 
 	/* too many retransmissions */
 	return CWErrorRaise(CW_ERROR_NEED_RESOURCE, "Peer Dead");
-	
-cw_success:	
+
+cw_success:
 	for(i = 0; i < fragmentsNum; i++) {
 		CW_FREE_PROTOCOL_MESSAGE(messages[i]);
 	}
-	
+
 	CW_FREE_OBJECT(messages);
 	CW_FREE_PROTOCOL_MESSAGE(msg);
-	
+
 	return CW_TRUE;
-	
+
 cw_failure:
 	if(messages != NULL) {
 		for(i = 0; i < fragmentsNum; i++) {
@@ -323,12 +323,12 @@ cw_failure:
 }
 
 int main (int argc, const char * argv[]) {
-	
+
 
 	/* Daemon Mode */
 
 	pid_t pid;
-	
+
 	if (argc <= 1)
 		printf("Usage: WTP working_path\n");
 
@@ -343,9 +343,9 @@ int main (int argc, const char * argv[]) {
 			exit(1);
 		}
 		fclose(stdout);
-	}	
+	}
 
-	
+
 	CWStateTransition nextState = CW_ENTER_DISCOVERY;
 	CWLogInitFile(WTP_LOG_FILE_NAME);
 
@@ -382,7 +382,7 @@ int main (int argc, const char * argv[]) {
 	CWSetConditionSafeList(gFrameList, &gInterfaceWait);
 
 	CWLog("Starting WTP...");
-	
+
 	CWRandomInitLib();
 
 	CWThreadSetSignals(SIG_BLOCK, 1, SIGALRM);
@@ -446,7 +446,7 @@ int main (int argc, const char * argv[]) {
 	/* if AC address is given jump Discovery and use this address for Joining */
 	if(gWTPForceACAddress != NULL)	nextState = CW_ENTER_JOIN;
 
-	/* start CAPWAP state machine */	
+	/* start CAPWAP state machine */
 	CW_REPEAT_FOREVER {
 		switch(nextState) {
 			case CW_ENTER_DISCOVERY:
@@ -460,10 +460,10 @@ int main (int argc, const char * argv[]) {
 				break;
 			case CW_ENTER_CONFIGURE:
 				nextState = CWWTPEnterConfigure();
-				break;	
+				break;
 			case CW_ENTER_DATA_CHECK:
 				nextState = CWWTPEnterDataCheck();
-				break;	
+				break;
 			case CW_ENTER_RUN:
 				nextState = CWWTPEnterRun();
 				break;
@@ -488,7 +488,7 @@ int main (int argc, const char * argv[]) {
 
 __inline__ unsigned int CWGetSeqNum() {
 	static unsigned int seqNum = 0;
-	
+
 	if (seqNum==CW_MAX_SEQ_NUM) seqNum=0;
 	else seqNum++;
 	return seqNum;
@@ -500,24 +500,24 @@ __inline__ int CWGetFragmentID() {
 }
 
 
-/* 
+/*
  * Parses config file and inits WTP configuration.
  */
 CWBool CWWTPLoadConfiguration() {
 	int i;
-	
+
 	CWLog("WTP Loads Configuration");
-	
+
 	/* get saved preferences */
 	if(!CWErr(CWParseConfigFile())) {
 		CWLog("Can't Read Config File");
 		exit(1);
 	}
-	
-	if(gCWACCount == 0) 
+
+	if(gCWACCount == 0)
 		return CWErrorRaise(CW_ERROR_NEED_RESOURCE, "No AC Configured");
-	
-	CW_CREATE_ARRAY_ERR(gCWACList, 
+
+	CW_CREATE_ARRAY_ERR(gCWACList,
 			    gCWACCount,
 			    CWACDescriptor,
 			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
@@ -528,20 +528,20 @@ CWBool CWWTPLoadConfiguration() {
 		CW_CREATE_STRING_FROM_STRING_ERR(gCWACList[i].address, gCWACAddresses[i],
 						 return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	}
-	
+
 	CW_FREE_OBJECTS_ARRAY(gCWACAddresses, gCWACCount);
 	return CW_TRUE;
 }
 
 void CWWTPDestroy() {
 	int i;
-	
+
 	CWLog("Destroy WTP");
-	
+
 	for(i = 0; i < gCWACCount; i++) {
 		CW_FREE_OBJECT(gCWACList[i].address);
 	}
-	
+
 	timer_destroy();
 
 	CW_FREE_OBJECT(gCWACList);
@@ -549,7 +549,7 @@ void CWWTPDestroy() {
 }
 
 CWBool CWWTPInitConfiguration() {
-	CWDebugLog("CWWTPInitConfiguration"); 
+	CWDebugLog("CWWTPInitConfiguration");
 	int i;
 
 	//Generate 128-bit Session ID,
@@ -583,7 +583,7 @@ CWBool CWWTPInitConfiguration() {
 		gRadiosInfo.radiosInfo[i].decryptErrorMACAddressList = NULL;
 		gRadiosInfo.radiosInfo[i].reportInterval= CW_REPORT_INTERVAL_DEFAULT;
 		/* Default value for CAPWA� */
-		gRadiosInfo.radiosInfo[i].adminState= ENABLED; 
+		gRadiosInfo.radiosInfo[i].adminState= ENABLED;
 		gRadiosInfo.radiosInfo[i].adminCause= AD_NORMAL;
 		gRadiosInfo.radiosInfo[i].operationalState= DISABLED;
 		gRadiosInfo.radiosInfo[i].operationalCause= OP_NORMAL;

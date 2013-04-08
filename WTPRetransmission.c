@@ -43,7 +43,7 @@ void CWResetPendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs) {
 	pendingRequestMsgs->timer_arg = NULL;
 
 	timer_rem(pendingRequestMsgs->timer, NULL);
-	
+
 	int i;
 	for(i=0; i<(pendingRequestMsgs->fragmentsNum); i++){
 		CW_FREE_PROTOCOL_MESSAGE((pendingRequestMsgs->msgElems)[i]);
@@ -51,7 +51,7 @@ void CWResetPendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs) {
 	CW_FREE_OBJECT(pendingRequestMsgs->msgElems);
 
 	pendingRequestMsgs->fragmentsNum = 0;
-	
+
 	return;
 }
 
@@ -67,7 +67,7 @@ int CWFindFreePendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs, const i
 	return -1;
 }
 
-CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs, 
+CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs,
 			     unsigned char msgType,
 			     int seqNum,
 			     int timer_sec,
@@ -107,7 +107,7 @@ int CWFindPendingRequestMsgsBox(CWPendingRequestMessage *pendingRequestMsgs,
 		/* CWDebugLog("### K = %d   TYPE = %d   SEQNUM = %d", k, pendingRequestMsgs[k].msgType, pendingRequestMsgs[k].seqNum); */
 		if((pendingRequestMsgs[k].seqNum == seqNum) && (pendingRequestMsgs[k].msgType == msgType)){
 
-			timer_rem(pendingRequestMsgs[k].timer, NULL);	
+			timer_rem(pendingRequestMsgs[k].timer, NULL);
 			return k;
 		}
 	}
@@ -128,7 +128,7 @@ int CWSendPendingRequestMessage(CWPendingRequestMessage *pendingRequestMsgs, CWP
 	if(pendingReqIndex < 0) {
 		return -1;
 	}
-	
+
 	int i;
 	for(i = 0; i < fragmentsNum; i++) {
 #ifdef CW_NO_DTLS

@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -32,7 +32,7 @@
 #include <time.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <unistd.h> 
+#include <unistd.h>
 
 #define CW_USE_THREAD_TIMERS
 
@@ -45,9 +45,9 @@ CW_THREAD_RETURN_TYPE CWThreadManageTimers(void *arg);
 // Creates a thread that will execute a given function with a given parameter
 CWBool CWCreateThread(CWThread *newThread, CW_THREAD_FUNCTION threadFunc, void *arg) {
 	if(newThread == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWDebugLog("Create Thread\n");
-		
+
 	if(pthread_create(newThread, NULL, threadFunc, arg) != 0) {
 		return CWErrorRaise(CW_ERROR_NEED_RESOURCE, "Can't create thread (maybe there are too many other threads)");
 	}
@@ -58,7 +58,7 @@ CWBool CWCreateThread(CWThread *newThread, CW_THREAD_FUNCTION threadFunc, void *
 // Creates a thread condition (wrapper for pthread_cond_init)
 CWBool CWCreateThreadCondition(CWThreadCondition *theCondition) {
 	if(theCondition == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	switch(pthread_cond_init(theCondition, NULL)) {
 		case 0: // success
 			break;
@@ -78,16 +78,16 @@ void CWDestroyThreadCondition(CWThreadCondition *theCondition) {
 
 // Wait for a thread condition (wrapper for pthread_cond_wait)
 CWBool CWWaitThreadCondition(CWThreadCondition *theCondition, CWThreadMutex *theMutex) {
-	
+
 	if(theCondition == NULL || theMutex == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	switch(pthread_cond_wait(theCondition, theMutex)) {
 		case 0: // success
 			break;
 		case  ETIMEDOUT:
 			return CWErrorRaise(CW_ERROR_TIME_EXPIRED, NULL);
 		default:
-			return CWErrorRaise(CW_ERROR_GENERAL, "Error waiting on thread condition");	
+			return CWErrorRaise(CW_ERROR_GENERAL, "Error waiting on thread condition");
 	}
 
 	return CW_TRUE;
@@ -96,7 +96,7 @@ CWBool CWWaitThreadCondition(CWThreadCondition *theCondition, CWThreadMutex *the
 // Wait for a thread condition (wrapper for pthread_cond_wait)
 CWBool CWWaitThreadConditionTimeout(CWThreadCondition *theCondition, CWThreadMutex *theMutex, struct timespec* pTimeout) {
 	if(theCondition == NULL || theMutex == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	switch(pthread_cond_timedwait(theCondition, theMutex, pTimeout)) {
 		case 0: // success
 			break;
@@ -105,23 +105,23 @@ CWBool CWWaitThreadConditionTimeout(CWThreadCondition *theCondition, CWThreadMut
 			return CWErrorRaise(CW_ERROR_TIME_EXPIRED, NULL);
 
 		default:
-			return CWErrorRaise(CW_ERROR_GENERAL, "Error waiting on thread condition");	
+			return CWErrorRaise(CW_ERROR_GENERAL, "Error waiting on thread condition");
 	}
-	
+
 	return CW_TRUE;
 }
 
 // Signal a thread condition (wrapper for pthread_cond_signal)
 void CWSignalThreadCondition(CWThreadCondition *theCondition) {
 	if(theCondition == NULL) return;
-	
+
 	pthread_cond_signal(theCondition);
 }
 
 // Creates a thread mutex (wrapper for pthread_mutex_init)
 CWBool CWCreateThreadMutex(CWThreadMutex *theMutex) {
 	if(theMutex == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	switch(pthread_mutex_init(theMutex, NULL)) {
 		case 0: // success
 			break;
@@ -176,7 +176,7 @@ void CWThreadMutexUnlock(CWThreadMutex *theMutex) {
 // creates a semaphore
 CWBool CWThreadCreateSem(CWThreadSem *semPtr, int value) {
 	if(semPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	// we use named semaphore on platforms that support only them (e.g. Mac OS X)
 	#ifdef CW_USE_NAMED_SEMAPHORES
 	{
@@ -195,7 +195,7 @@ CWBool CWThreadCreateSem(CWThreadSem *semPtr, int value) {
 			CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 		}
 	#endif
-	
+
 	return CW_TRUE;
 }
 
@@ -206,7 +206,7 @@ void CWThreadDestroySem(CWThreadSem *semPtr) {
 #else
 	if(semPtr == NULL) return;
 #endif
-	
+
 	#ifdef CW_USE_NAMED_SEMAPHORES
 		sem_close(semPtr->semPtr);
 	#else
@@ -223,7 +223,7 @@ CWBool CWThreadSemWait(CWThreadSem *semPtr) {
 #endif
 
 	//CWDebugLog("Sem Wait");
-	
+
 #ifdef CW_USE_NAMED_SEMAPHORES
 	while(sem_wait(semPtr->semPtr) < 0 ) {
 #else
@@ -234,7 +234,7 @@ CWBool CWThreadSemWait(CWThreadSem *semPtr) {
 			CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 		}
 	}
-	
+
 	return CW_TRUE;
 }
 
@@ -253,7 +253,7 @@ CWBool CWThreadSemPost(CWThreadSem *semPtr) {
 #endif
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	return CW_TRUE;
 }
 
@@ -277,16 +277,16 @@ CWBool CWThreadSemGetValue(CWThreadSem *semPtr, int *valuePtr) {
 	if(*valuePtr < 0 ) {
 		*valuePtr = 0;
 	}
-	
+
 	return CW_TRUE;
 }
 
 
 __inline__ sem_t *CWThreadGetSemT(CWThreadSem *semPtr) {
 	#ifdef CW_USE_NAMED_SEMAPHORES
-		return (semPtr->semPtr);		
-	#else		
-		return semPtr;	
+		return (semPtr->semPtr);
+	#else
+		return semPtr;
 	#endif
 }
 
@@ -299,30 +299,30 @@ CWBool CWThreadCreateTimedSem(CWThreadTimedSem *semPtr, int value) {
 #else
 	// if we don't have sem_timedwait(), the timed semaphore is a pair of unix domain sockets.
 	// We write a dummy packet on a socket (client) when we want to post, and select() with timer on the other socket
-	// when we want to wait. 
+	// when we want to wait.
 	struct sockaddr_un serverAddr, clientAddr;
 	int i;
-	
+
 	if(semPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	if((((*semPtr)[0] = socket(AF_LOCAL, SOCK_DGRAM, 0)) < 0) ||
 		(((*semPtr)[1] = socket(AF_LOCAL, SOCK_DGRAM, 0)) < 0)) { // create a pair of datagram unix domain socket
 		close((*semPtr)[0]);
 		CWErrorRaiseSystemError(CW_ERROR_CREATING);
 	}
-	
+
 	CW_ZERO_MEMORY(&serverAddr, sizeof(serverAddr));
 	serverAddr.sun_family = AF_LOCAL;
 	if(tmpnam((char*) &(serverAddr.sun_path)) == NULL) {
 		CWErrorRaiseSystemError(CW_ERROR_CREATING);
 	}
-	
+
 	CW_ZERO_MEMORY(&clientAddr, sizeof(clientAddr));
 	clientAddr.sun_family = AF_LOCAL;
 	if(tmpnam((char*) &(clientAddr.sun_path)) == NULL) {
 		CWErrorRaiseSystemError(CW_ERROR_CREATING);
 	}
-	
+
 	if(	(bind((*semPtr)[0], (struct sockaddr*) &serverAddr, sizeof(serverAddr)) < 0) ||
 		(bind((*semPtr)[1], (struct sockaddr*) &clientAddr, sizeof(clientAddr)) < 0) ||
 		(connect((*semPtr)[1], (struct sockaddr*) &serverAddr, sizeof(serverAddr)) < 0) || // connect each socket to the other
@@ -332,11 +332,11 @@ CWBool CWThreadCreateTimedSem(CWThreadTimedSem *semPtr, int value) {
 		close((*semPtr)[1]);
 		CWErrorRaiseSystemError(CW_ERROR_CREATING);
 	}
-	
+
 	for(i = 0; i < value; i++) {
 		if(!CWThreadTimedSemPost(semPtr)) return CW_FALSE;
 	}
-	
+
 	return CW_TRUE;
 #endif
 }
@@ -346,22 +346,22 @@ CWBool CWThreadTimedSemIsZero(CWThreadTimedSem *semPtr) {
 #ifdef HAVE_SEM_TIMEDWAIT
 	int value;
 	if(!CWThreadSemGetValue(semPtr, &value)) return CW_FALSE;
-	
+
 	return (value==0) ? CW_TRUE : CW_FALSE;
 #else
 	fd_set fset;
 	int r;
 	struct timeval timeout;
-	
+
 	if(semPtr == NULL) return CW_FALSE;
 
 	FD_ZERO(&fset);
 	FD_SET((*semPtr)[0], &fset);
 	FD_SET((*semPtr)[1], &fset);
-	
+
 	timeout.tv_sec = 0; // poll
 	timeout.tv_usec = 0;
-	
+
 	while((r=select(max((*semPtr)[1], (*semPtr)[0])+1, &fset, NULL, NULL, &timeout)) < 0) {
 		if(errno == EINTR) {
 			timeout.tv_sec = 0;
@@ -370,7 +370,7 @@ CWBool CWThreadTimedSemIsZero(CWThreadTimedSem *semPtr) {
 		}
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	return (r==0) ? CW_TRUE : CW_FALSE;
 #endif
 }
@@ -385,16 +385,16 @@ CWBool CWThreadTimedSemSetValue(CWThreadTimedSem *semPtr, int value) {
 	fd_set fset;
 	int r, i;
 	struct timeval timeout;
-	
+
 	if(semPtr == NULL) return CW_FALSE;
 
 	FD_ZERO(&fset);
 	FD_SET((*semPtr)[0], &fset);
 	FD_SET((*semPtr)[1], &fset);
-	
+
 	timeout.tv_sec = 0; // poll
 	timeout.tv_usec = 0;
-	
+
 	// first, remove all the pending packets
 	CW_REPEAT_FOREVER {
 		char dummy;
@@ -406,16 +406,16 @@ CWBool CWThreadTimedSemSetValue(CWThreadTimedSem *semPtr, int value) {
 			}
 			CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 		}
-		
+
 		if(r == 0) break;
-		
+
 		if(FD_ISSET((*semPtr)[0], &fset)) {
 			while(read((*semPtr)[0], &dummy, 1) < 0) {
 				if(errno == EINTR) continue;
 				CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 			}
 		}
-		
+
 		if(FD_ISSET((*semPtr)[1], &fset)) {
 			while(read((*semPtr)[1], &dummy, 1) < 0) {
 				if(errno == EINTR) continue;
@@ -423,12 +423,12 @@ CWBool CWThreadTimedSemSetValue(CWThreadTimedSem *semPtr, int value) {
 			}
 		}
 	}
-	
+
 	// second, send n packets, where n is the value we want to set for the semaphore
 	for(i = 0; i < value; i++) {
 		if(!CWThreadTimedSemPost(semPtr)) return CW_FALSE;
 	}
-	
+
 	return CW_TRUE;
 #endif
 }
@@ -447,20 +447,20 @@ CWBool CWThreadTimedSemWait(CWThreadTimedSem *semPtr, time_t sec, time_t nsec) {
 #ifdef HAVE_SEM_TIMEDWAIT
 	struct timespec timeout;
 	time_t t;
-	
+
 	#ifdef CW_USE_NAMED_SEMAPHORES
 		if(semPtr == NULL || semPtr->semPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 	#else
 		if(semPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 	#endif
-	
+
 	CWDebugLog("Sem Timed Wait");
-	
+
 	time(&t);
 
 	timeout.tv_sec = t + sec;
 	timeout.tv_nsec = nsec;
-	
+
 	#ifdef CW_USE_NAMED_SEMAPHORES
 		while(sem_timedwait(semPtr->semPtr, &timeout) < 0 ) {
 	#else
@@ -474,23 +474,23 @@ CWBool CWThreadTimedSemWait(CWThreadTimedSem *semPtr, time_t sec, time_t nsec) {
 				CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 			}
 		}
-	
+
 #else
 	fd_set fset;
 	int r;
 	struct timeval timeout;
 	char dummy;
-	
+
 	if(semPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWDebugLog("Timed Sem Wait");
-	
+
 	FD_ZERO(&fset);
 	FD_SET((*semPtr)[0], &fset);
-	
+
 	timeout.tv_sec = sec;
 	timeout.tv_usec = nsec / 1000;
-	
+
 	CWDebugLog("Timed Sem Wait Before Select");
 	while((r = select(((*semPtr)[0])+1, &fset, NULL, NULL, &timeout)) <= 0) {
 		CWDebugLog("Timed Sem Wait Select error");
@@ -504,26 +504,26 @@ CWBool CWThreadTimedSemWait(CWThreadTimedSem *semPtr, time_t sec, time_t nsec) {
 		}
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	CWDebugLog("Timed Sem Wait After Select");
-	
+
 	// ready to read
-	
+
 	while(read((*semPtr)[0], &dummy, 1) < 0) {
 		if(errno == EINTR) continue;
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	// send ack (three-way handshake)
-	
+
 	while(send((*semPtr)[0], &dummy, 1, 0) < 0) {
 		if(errno == EINTR) continue;
 		CWErrorRaiseSystemError(CW_ERROR_SENDING);
 	}
-	
+
 	timeout.tv_sec = 2;
 	timeout.tv_usec = 0;
-	
+
 	CWDebugLog("Timed Sem Wait Before Select 2");
 	while((r = select(((*semPtr)[0])+1, &fset, NULL, NULL, &timeout)) <= 0) {
 		CWDebugLog("Timed Sem Wait Select error 2");
@@ -537,20 +537,20 @@ CWBool CWThreadTimedSemWait(CWThreadTimedSem *semPtr, time_t sec, time_t nsec) {
 		}
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	CWDebugLog("Timed Sem Wait After Select 2");
-	
+
 	// read ack
-	
+
 	while(read((*semPtr)[0], &dummy, 1) < 0) {
 		if(errno == EINTR) continue;
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 #endif
-	
+
 	CWDebugLog("End of Timed Sem Wait");
-	
+
 	return CW_TRUE;
 }
 
@@ -562,24 +562,24 @@ CWBool CWThreadTimedSemPost(CWThreadTimedSem *semPtr) {
 	fd_set fset;
 	int r;
 	struct timeval timeout;
-	
+
 	if(semPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWDebugLog("Timed Sem Post");
-	
+
 	while(send((*semPtr)[1], &dummy, 1, 0) < 0) {
 		if(errno == EINTR) continue;
 		CWErrorRaiseSystemError(CW_ERROR_SENDING);
 	}
-	
+
 	// read ack (three-way handshake)
-	
+
 	FD_ZERO(&fset);
 	FD_SET((*semPtr)[1], &fset);
-	
+
 	timeout.tv_sec = 2;
 	timeout.tv_usec = 0;
-	
+
 	CWDebugLog("Timed Sem Post Before Select");
 	while((r = select(((*semPtr)[1])+1, &fset, NULL, NULL, &timeout)) <= 0) {
 		CWDebugLog("Timed Sem Post Select Error");
@@ -595,22 +595,22 @@ CWBool CWThreadTimedSemPost(CWThreadTimedSem *semPtr) {
 		}
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	CWDebugLog("Timed Sem Post After Select");
-	
+
 	while(read((*semPtr)[1], &dummy, 1) < 0) {
 		if(errno == EINTR) continue;
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	// send ack
 	while(send((*semPtr)[1], &dummy, 1, 0) < 0) {
 		if(errno == EINTR) continue;
 		CWErrorRaiseSystemError(CW_ERROR_SENDING);
 	}
-	
+
 	CWDebugLog("End of Sem Post");
-	
+
 	return CW_TRUE;
 #endif
 }
@@ -624,7 +624,7 @@ CWBool CWThreadCreateSpecific(CWThreadSpecific *specPtr, void (*destructor)(void
 		CWDebugLog("Error pthread key create");
 		return CW_FALSE;
 	}
-	
+
 	return CW_TRUE;
 }
 
@@ -649,7 +649,7 @@ CWBool CWThreadSetSpecific(CWThreadSpecific *specPtr, void *valPtr) {
 		default:
 			return CW_FALSE;
 	}
-	
+
 	return CW_TRUE;
 }
 
@@ -664,17 +664,17 @@ void CWExitThread() {
 void CWThreadSetSignals(int how, int num, ...) {
 	sigset_t mask;
 	va_list args;
-	
+
 	sigemptyset(&mask);
-	
+
 	va_start(args, num);
-	
+
 	for(; num > 0; num--) {
 		sigaddset(&mask, va_arg(args, int));
 	}
-	
+
 	CWThreadSigMask(how, &mask, NULL);
-	
+
 	va_end(args);
 }
 
@@ -698,14 +698,14 @@ struct {
 	} requestedOp;
 	CWThread *requestedThreadPtr;
 	int signalToRaise;
-	
+
 	CWBool error;
-	
+
 	CWTimerID timerID;
 } gTimersData;
 
 void CWHandleTimer(CWTimerArg arg) {
-	
+
 	CWThreadTimerArg *a = (CWThreadTimerArg*)arg;
  	CWThread requestedThreadPtr = *(a->requestedThreadPtr);
  	int signalToRaise = a->signalToRaise;
@@ -725,14 +725,14 @@ CWBool CWTimerRequest(int sec, CWThread *threadPtr, CWTimerID *idPtr, int signal
 
 	CWDebugLog("Timer Request");
 	if(sec < 0 || threadPtr == NULL || idPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CW_CREATE_OBJECT_ERR(arg, CWThreadTimerArg, return CW_FALSE;);
 	CW_CREATE_OBJECT_ERR(arg->requestedThreadPtr, CWThread, CW_FREE_OBJECT(arg); return CW_FALSE;);
  	CW_COPY_MEMORY(arg->requestedThreadPtr, threadPtr, sizeof(CWThread));
  	arg->signalToRaise = signalToRaise;
- 			
+
 	CWDebugLog("Timer Request: thread(%d), signal(%d)", *(arg->requestedThreadPtr), arg->signalToRaise);
-	
+
 	if ((*idPtr = timer_add(sec, 0, &CWHandleTimer, arg)) == -1) {
 
 		return CW_FALSE;
@@ -745,9 +745,9 @@ void CWTimerFreeArg(CWTimerArg arg) {
 
 	CWThreadTimerArg *a = (CWThreadTimerArg*)arg;
 
-	/* LE-03-02-2010.01 */ 
+	/* LE-03-02-2010.01 */
 	if (a == NULL) return;
-	
+
 	CW_FREE_OBJECT(a->requestedThreadPtr);
 	CW_FREE_OBJECT(a);
 

@@ -1,9 +1,9 @@
-#include <stdio.h>     
-#include <sys/socket.h> 
-#include <arpa/inet.h>  
-#include <stdlib.h>     
-#include <string.h>    
-#include <unistd.h>     
+#include <stdio.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -53,7 +53,7 @@ int ACServerConnect(char *address, int port)
 {
 	int sockfd, ret;
 	struct sockaddr_in servaddr;
-	
+
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("socket error:");
 		exit(1);
@@ -79,7 +79,7 @@ int ACServerConnect(char *address, int port)
 	} else if (ret != 1) {
 		fprintf(stderr, "Something Wrong Happened While Connecting To The AC Server.\n");
 		exit(1);
-	}	
+	}
 
 	return sockfd;
 }
@@ -90,13 +90,13 @@ void ACServerDisconnect(int acserver)
 	if (Writen(acserver, &msg, 1) != 1) {
 		fprintf(stderr, "Error while sending QUIT message.\n");
 	}
-	
+
 	if (close(acserver) < 0) {
 		perror("close error:");
 	}
 }
 
-struct WTPInfo *ACServerWTPList(int acserver, int *nWTPs) 
+struct WTPInfo *ACServerWTPList(int acserver, int *nWTPs)
 {
 	char msg = LIST_MSG;
 	int activeWTPs, i;
@@ -121,7 +121,7 @@ struct WTPInfo *ACServerWTPList(int acserver, int *nWTPs)
 		readWTPInfo(acserver, WTPList, i);
 	}
 
-	*nWTPs = activeWTPs; 
+	*nWTPs = activeWTPs;
 
 	return WTPList;
 }
@@ -155,7 +155,7 @@ void readWTPInfo(int acserver, struct WTPInfo *WTPInfo, int pos)
 
 err:
 	ACServerDisconnect(acserver);
-	exit(1);		
+	exit(1);
 }
 
 void freeWTPList(struct WTPInfo *wtpList, int nWTPs)
@@ -177,7 +177,7 @@ int WUMGetWTPVersion(int acserver, int wtpId, struct version_info *v_info)
 	msg.cmd_msg = CONF_UPDATE_MSG;
 	msg.msg_elem = MSG_ELEMENT_TYPE_VENDOR_WUM;
 	msg.wtpId = wtpId;
-	msg.wum_type = WTP_VERSION_REQUEST; 
+	msg.wum_type = WTP_VERSION_REQUEST;
 
 	if (WUMSendMessage(acserver, msg) != 0) {
 		fprintf(stderr, "Error while sending WUM message");
@@ -197,8 +197,8 @@ int WUMGetWTPVersion(int acserver, int wtpId, struct version_info *v_info)
 
 	v_info->major = WUMPayloadRetrieve8(&resp);
 	v_info->minor = WUMPayloadRetrieve8(&resp);
-	v_info->revision = WUMPayloadRetrieve8(&resp); 
-	
+	v_info->revision = WUMPayloadRetrieve8(&resp);
+
 	return SUCCESS;
 }
 
@@ -215,48 +215,48 @@ int WUMReadCupVersion(char *cup_pathname, struct version_info *update_v)
 	char *token;
 	struct stat s_buf;
 	FILE *cud;
-	
+
 	snprintf(buf, BUF_SIZE, "tar xzf %s -C /tmp update.cud", cup_pathname);
-	
+
 	ret = system(buf);
-	
+
 	if (ret != 0) return ERROR;
-	
+
 	cud = fopen("/tmp/update.cud", "r");
 	if (cud == NULL) {
 		fprintf(stderr, "Error while opening cud descriptor.\n");
 		return ERROR;
 	}
-	
+
 	while (fgets(buf, BUF_SIZE, cud) != NULL) {
         token = strtok(buf, " ");
-		StringToLower(token);	
+		StringToLower(token);
 		if (strncmp(token, "version", 7) == 0) {
 		    token = strtok(NULL, " ");
 		    if (token == NULL) {
     	            fprintf(stderr, "Error while parsing update version.");
     	            return ERROR;
 		    }
-		    
+
 		    token = strtok(token, ".");
 		    update_v->major = atoi(token);
 		   	token = strtok(NULL, ".");
-		    update_v->minor = atoi(token);	
+		    update_v->minor = atoi(token);
 		    token = strtok(NULL, ".");
-		    update_v->revision = atoi(token);	 	
+		    update_v->revision = atoi(token);
     	}
 	}
-	
+
 	fclose(cud);
 	remove("/tmp/update.cud");
-	
+
 	if (stat(cup_pathname, &s_buf) != 0) {
 		fprintf(stderr, "Stat error!.\n");
 		return ERROR;
 	}
-	
+
 	update_v->size = s_buf.st_size;
-	
+
 	return SUCCESS;
 }
 
@@ -269,7 +269,7 @@ int WUMSendCommitRequest(int acserver, int wtpId)
 	msg.cmd_msg = CONF_UPDATE_MSG;
 	msg.msg_elem = MSG_ELEMENT_TYPE_VENDOR_WUM;
 	msg.wtpId = wtpId;
-	msg.wum_type = WTP_COMMIT_UPDATE; 
+	msg.wum_type = WTP_COMMIT_UPDATE;
 
 	if (WUMSendMessage(acserver, msg) != 0) {
 		fprintf(stderr, "Error while sending WUM message");
@@ -286,7 +286,7 @@ int WUMSendCommitRequest(int acserver, int wtpId)
 		fprintf(stderr, "Received wrong response message!");
 		return ERROR;
 	}
-	
+
 	return resp.resultCode;
 }
 
@@ -300,7 +300,7 @@ int WUMSendCancelRequest(int acserver, int wtpId)
 	msg.cmd_msg = CONF_UPDATE_MSG;
 	msg.msg_elem = MSG_ELEMENT_TYPE_VENDOR_WUM;
 	msg.wtpId = wtpId;
-	msg.wum_type = WTP_CANCEL_UPDATE_REQUEST; 
+	msg.wum_type = WTP_CANCEL_UPDATE_REQUEST;
 
 	if (WUMSendMessage(acserver, msg) != 0) {
 		fprintf(stderr, "Error while sending WUM message");
@@ -317,7 +317,7 @@ int WUMSendCancelRequest(int acserver, int wtpId)
 		fprintf(stderr, "Received wrong response message!");
 		return ERROR;
 	}
-	
+
 	return resp.resultCode;
 }
 
@@ -330,9 +330,9 @@ int WUMSendFragment(int acserver, int wtpId, void *buf, int size, int seq)
 	msg.cmd_msg = CONF_UPDATE_MSG;
 	msg.msg_elem = MSG_ELEMENT_TYPE_VENDOR_WUM;
 	msg.wtpId = wtpId;
-	msg.wum_type = WTP_CUP_FRAGMENT; 
+	msg.wum_type = WTP_CUP_FRAGMENT;
 
-	WUMPayloadStore32(&msg, seq);	
+	WUMPayloadStore32(&msg, seq);
 	WUMPayloadStore32(&msg, size);
 	WUMPayloadStoreRawBytes(&msg, buf, size);
 
@@ -351,7 +351,7 @@ int WUMSendFragment(int acserver, int wtpId, void *buf, int size, int seq)
 		fprintf(stderr, "Received wrong response message!");
 		return ERROR;
 	}
-	
+
 	WUM_DESTROY_MSG(msg);
 	return resp.resultCode;
 }
@@ -359,12 +359,12 @@ int WUMSendFragment(int acserver, int wtpId, void *buf, int size, int seq)
 int WUMUpdate(int acserver, int wtpId, void *cup_buf, struct version_info update_v)
 {
 	int i, left, toSend, sent;
-	
+
 	if (WUMSendUpdateRequest(acserver, wtpId, update_v)) {
 		fprintf(stderr, "Update request failed for WTP: %d\n", wtpId);
 		return ERROR;
 	}
-	
+
 	/* Send update fragments */
 	sent = 0;
 	left = update_v.size;
@@ -376,14 +376,14 @@ int WUMUpdate(int acserver, int wtpId, void *cup_buf, struct version_info update
 		}
 		left -= toSend;
 		sent += toSend;
-		toSend = MIN(FRAGMENT_SIZE, left);	
-	} 
-	
+		toSend = MIN(FRAGMENT_SIZE, left);
+	}
+
 	if (WUMSendCommitRequest(acserver, wtpId)) {
 		fprintf(stderr, "Update request failed for WTP: %d\n", wtpId);
 		return ERROR;
-	}	
-	
+	}
+
 	return SUCCESS;
 }
 
@@ -396,7 +396,7 @@ int WUMSendUpdateRequest(int acserver, int wtpId, struct version_info update_v)
 	msg.cmd_msg = CONF_UPDATE_MSG;
 	msg.msg_elem = MSG_ELEMENT_TYPE_VENDOR_WUM;
 	msg.wtpId = wtpId;
-	msg.wum_type = WTP_UPDATE_REQUEST; 	
+	msg.wum_type = WTP_UPDATE_REQUEST;
 
 	WUMPayloadStore8(&msg, update_v.major);
 	WUMPayloadStore8(&msg, update_v.minor);
@@ -412,7 +412,7 @@ int WUMSendUpdateRequest(int acserver, int wtpId, struct version_info update_v)
 		fprintf(stderr, "Error while reading response message");
 		return ERROR;
 	}
-	
+
 	WUM_DESTROY_MSG(msg)
 	return resp.resultCode;
 
@@ -427,14 +427,14 @@ int WUMSendMessage(int acserver, wum_req_t msg)
 		fprintf(stderr, "Error while sending CONF_UPDATE_MSG message.\n");
 		return ERROR;
 	}
-	
+
 	if (msg.payload_len > 0) {
 		if (Writen(acserver, msg.payload, msg.payload_len) != msg.payload_len) {
 			fprintf(stderr, "Error while sending CONF_UPDATE_MSG message.\n");
 			return ERROR;
 		}
 	}
-	
+
 	return SUCCESS;
 }
 
@@ -453,14 +453,14 @@ int WUMReceiveMessage(int acserver, wum_resp_t *msg)
 		fprintf(stderr, "Error while reading result code.\n");
 		return ERROR;
 	}
-	
+
 	if (Read32(acserver, &(msg->payload_len)) != 4) {
 		fprintf(stderr, "Error while reading payload length.\n");
 		return ERROR;
 	}
 
 	if (msg->payload_len > 0) {
-		
+
 		msg->payload = malloc(msg->payload_len);
 
 		if (Readn(acserver, msg->payload, msg->payload_len) != msg->payload_len) {
@@ -561,12 +561,12 @@ Writen(int fd, void *ptr, size_t nbytes)
 	return n;
 }
 
-int Read32(int fd, int *ptr) 
+int Read32(int fd, int *ptr)
 {
 	int ret;
-	
+
 	ret = Readn(fd, ptr, 4);
-	
+
 	*ptr = ntohl(*ptr);
 
 	return ret;

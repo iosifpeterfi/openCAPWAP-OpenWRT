@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -28,7 +28,7 @@
 
 #ifndef __CAPWAP_CWConfigFile_HEADER__
 #define __CAPWAP_CWConfigFile_HEADER__
- 
+
 typedef char **CWStringArray;
 
 typedef struct {
@@ -37,16 +37,16 @@ typedef struct {
 		CW_STRING,
 		CW_STRING_ARRAY
 	} type;
-	
+
 	union {
 		int int_value;
 		char *str_value;
 		char **str_array_value;
 	} value;
-	
+
 	char *code;
 	char *endCode;
-	
+
 	int count;
 } CWConfigValue;
 

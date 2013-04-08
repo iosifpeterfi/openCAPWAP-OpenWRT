@@ -24,7 +24,7 @@
 
 
 int linux_set_iface_flags(int sock, const char *ifname, int dev_up){
-	
+
 	return 0;
 }
 
@@ -36,7 +36,7 @@ int linux_iface_up(int sock, const char *ifname){
 int linux_get_ifhwaddr(int sock, const char *ifname, u8 *addr){
 
 	int i=2;
-	
+
 	if(i==0){ // TP-LINK (Atheros)
 		addr[0]=0xB0;
 		addr[1]=0x48;
@@ -44,15 +44,15 @@ int linux_get_ifhwaddr(int sock, const char *ifname, u8 *addr){
 		addr[3]=0x93;
 		addr[4]=0x90;
 		addr[5]=0xF8;
-		
-	}else if(i==1){// D-Link 
+
+	}else if(i==1){// D-Link
 		addr[0]=0x28;
 		addr[1]=0x10;
 		addr[2]=0x7B;
 		addr[3]=0x44;
 		addr[4]=0xd0;
 		addr[5]=0xB1;
-		
+
 	}else if(i==2){// TP-LINK (Atheros)
 		addr[0]=0xAA;
 		addr[1]=0xBB;
@@ -60,7 +60,7 @@ int linux_get_ifhwaddr(int sock, const char *ifname, u8 *addr){
 		addr[3]=0xDD;
 		addr[4]=0xEE;
 		addr[5]=0xFF;
-		
+
 	}
 
 	return 0;

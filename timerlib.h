@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2008
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,8 +18,8 @@
  * Author(s): Mauro Bisson
  */
 
-/* 
- * This C module implements a simple timer library. 
+/*
+ * This C module implements a simple timer library.
  */
 
 #ifndef TIMERLIB_H
@@ -48,19 +48,19 @@ void timer_destroy();
  * Remarks: sec and usec must define a future time relative to "now". If
  * one is negative or both equal zero the funtion will return -1. The
  * library don't manipulate in any way the address pointed by "hndlr_arg",
- * it is responsibility of the calling thread to free any memory, if 
+ * it is responsibility of the calling thread to free any memory, if
  * allocated (a good place is at the end of "hndlr" function or when calling
  * "timer_rem()" ;).
  * There is no costraint about relative time definition, you can set a two
  * second timer as (sec,usec)=(2,0) or (sec,usec)=(0,2000000).
  * Since this library implementation do not rely on "sigaction()" syscall,
- * inside "hndlr" it is perfectly legal to call any not signal safe and 
+ * inside "hndlr" it is perfectly legal to call any not signal safe and
  * pthread_* function. The only limitation is that timer_destroy() MUST
  * NOT be called inside hndlr.
- * Note that this fuction can be called inside "hndlr" to create 
+ * Note that this fuction can be called inside "hndlr" to create
  * "chain timers".
  */
-int timer_add(long /*sec*/, long /*usec*/, void(* /*hndlr*/)(void *), 
+int timer_add(long /*sec*/, long /*usec*/, void(* /*hndlr*/)(void *),
 	      void * /*hndlr_arg*/);
 
 /*

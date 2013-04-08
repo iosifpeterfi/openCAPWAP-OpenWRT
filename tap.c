@@ -69,11 +69,11 @@ int tun_alloc(char *dev, int flags) {
 int init_AC_tap_interface(int WTPIndex)
 {
       sprintf(gWTPs[WTPIndex].tap_name,"wtp%d", WTPIndex);
-     
+
       gWTPs[WTPIndex].tap_fd = tun_alloc(gWTPs[WTPIndex].tap_name, IFF_TAP | IFF_NO_PI);
 
       CWDebugLog("gWTPs[%d].tap_name %s,tap_fd %d",WTPIndex,gWTPs[WTPIndex].tap_name,gWTPs[WTPIndex].tap_fd);
-      
+
       return 0;
 }
 

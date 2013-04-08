@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Sotiraq Sima (Sotiraq.Sima@gmail.com)                                         *  
+ * Author :  Sotiraq Sima (Sotiraq.Sima@gmail.com)                                         *
  *                                                                                         *
  *******************************************************************************************/
 
@@ -53,13 +53,13 @@ u8 SET_FRAG = 12; // Typically the range used for fragmentation threshold is 256
 u8 SET_FRAG_R = 13;// ex. "[13]0"
 
 u8 GET_FRAG = 14; // ex. "[14]"   (-1 == off)
-u8 GET_FRAG_R = 15; // ex. "[15]2000" 
+u8 GET_FRAG_R = 15; // ex. "[15]2000"
 
-u8 SET_BITRATE = 16; 
+u8 SET_BITRATE = 16;
 u8 SET_BITRATE_R = 17;
 
-u8 GET_BITRATE = 18; 
-u8 GET_BITRATE_R = 19; 
+u8 GET_BITRATE = 18;
+u8 GET_BITRATE_R = 19;
 
 u8 SET_RTS = 20; // 0-2347 (-1 == off)  ex. "[20]100"  (-1 == off)
 u8 SET_RTS_R = 21;// ex. "[21]0"
@@ -67,10 +67,10 @@ u8 SET_RTS_R = 21;// ex. "[21]0"
 u8 GET_RTS = 22; // ex. "]22]"  (-1 == off)
 u8 GET_RTS_R = 23; // ex. "[23]100"
 
-u8 SET_TXPOWER = 24; 
+u8 SET_TXPOWER = 24;
 u8 SET_TXPOWER_R = 25;
 
-u8 GET_TXPOWER = 26; 
+u8 GET_TXPOWER = 26;
 u8 GET_TXPOWER_R = 27;
 
 
@@ -80,10 +80,10 @@ u8 GET_TXPOWER_R = 27;
  * BE - 2  CWMIN:15  CWMAX:1023  AIFS:3
  * BK - 3  CWMIN:15  CWMAX:1023  AIFS:7
  */
-u8 SET_TXQ = 28; 
-u8 SET_TXQ_R = 29; 
+u8 SET_TXQ = 28;
+u8 SET_TXQ_R = 29;
 
-u8 GET_TXQ = 30; 
+u8 GET_TXQ = 30;
 u8 GET_TXQ_R = 31;
 
 

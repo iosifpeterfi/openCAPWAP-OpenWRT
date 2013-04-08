@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -37,7 +37,7 @@ int get_frag_threshold(int *value);
 
 /*--------------------------- RTS/CTS Threshold ---------------------------*/
 int set_rts_threshold(int value){
-	
+
 	printf("\nRTS/CTS threshold impostato a: %d\n",value);
 	return 1;
 }
@@ -65,7 +65,7 @@ int get_frag_threshold(int *value){
 int set_txq(int code, int cwmin, int cwmax, int aifs, int burst_time){
 	char str[32];
 	sprintf(str,"X%d %d %d %d %d", code, cwmin, cwmax, aifs, burst_time);
-	
+
 	CWWTPsend_command_to_hostapd_SET_TXQ(str, strlen(str));
 	return 1;
 }

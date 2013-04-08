@@ -18,14 +18,14 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
- 
+
 #ifndef __CAPWAP_CWSafeList_HEADER__
 #define __CAPWAP_CWSafeList_HEADER__
 
@@ -72,6 +72,6 @@ CWBool CWAddElementToSafeListTail(CWSafeList safeList, void* pData, int nSize);
 CWBool CWAddElementToSafeListTailwitDataFlag(CWSafeList safeList, void* pData, int nSize,CWBool dataFlag);
 void* CWRemoveTailElementFromSafeList(CWSafeList safeList, int* pSize);
 void CWCleanSafeList(CWSafeList safeList, void (*deleteFunc)(void *));
- 
+
 #endif
- 
+

@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*  
+ * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*
  *           Del Moro Andrea (andrea_delmoro@libero.it)											*
  *           Giovannini Federica (giovannini.federica@gmail.com)								*
  *           Massimo Vellucci (m.vellucci@unicampus.it)											*
@@ -65,7 +65,7 @@
 #define CW_TRANSPORT_HEADER_SNR_START		16
 #define CW_TRANSPORT_HEADER_SNR_LEN		8
 
-// Poiche' nel draft 09 il campo del CAPWAP header Wireless Specific 
+// Poiche' nel draft 09 il campo del CAPWAP header Wireless Specific
 // Information e' stato privato del sottocampo Wireless ID con il
 // conseguente shift a sx di 8 bit dei sottocampi successivi il sottocampo
 // datarate del binding si trova a cavallo tra 2 word da 4 byte quindi
@@ -115,7 +115,7 @@ typedef struct
 	int cwMax;
 	unsigned char  AIFS;
 	unsigned char dot1PTag;
-	unsigned char DSCPTag;	
+	unsigned char DSCPTag;
 } WTPQosValues;
 
 typedef struct

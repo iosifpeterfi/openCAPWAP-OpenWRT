@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -53,12 +53,12 @@ int set_rts_threshold(int value)
 
 	iov_type=malloc(20*sizeof(char));
 	strcpy(iov_type,"rtsthresh");
-	
+
 	 if(wl_iovar_setint(interface, iov_type, value) < 0){
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nRTS/CTS threshold impostato a: %d\n",value);
 	return 1;
 }
@@ -69,12 +69,12 @@ int get_rts_threshold(int *value)
 
 	iov_type=malloc(20*sizeof(char));
 	strcpy(iov_type,"rtsthresh");
-	
+
 	 if(wl_iovar_getint(interface, iov_type, value) < 0){
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nRTS/CTS threshold: %d\n", *value);
 	return 1;
 }
@@ -86,12 +86,12 @@ int set_frag_threshold(int value)
 
 	iov_type=malloc(20*sizeof(char));
 	strcpy(iov_type,"fragthresh");
-	
+
 	 if(wl_iovar_setint(interface, iov_type, value) < 0){
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nFragmentation threshold impostato a: %d\n",value);
 	return 1;
 }
@@ -102,12 +102,12 @@ int get_frag_threshold(int *value)
 
 	iov_type=malloc(20*sizeof(char));
 	strcpy(iov_type,"fragthresh");
-	
+
 	 if(wl_iovar_getint(interface, iov_type, value) < 0){
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nFragmentation threshold: %d\n", *value);
 	return 1;
 }
@@ -120,12 +120,12 @@ int set_maxassoc(int value)
 
 	iov_type=malloc(20*sizeof(char));
 	strcpy(iov_type,"maxassoc");
-	
+
 	 if(wl_iovar_setint(interface, iov_type, value) < 0){
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nMax. number of associated clients impostato a: %d\n",value);
 	return 1;
 }
@@ -136,12 +136,12 @@ int get_maxassoc(int *value)
 
 	iov_type=malloc(20*sizeof(char));
 	strcpy(iov_type,"maxassoc");
-	
+
 	 if(wl_iovar_getint(interface, iov_type, value) < 0){
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nMax. number of associated clients: %d\n", *value);
 	return 1;
 }
@@ -172,7 +172,7 @@ int set_wme_cwmin(int class,int value)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
+	}
 
 	printf("\nCWMIN impostato a: %d\n", value);
 	return 1;
@@ -201,7 +201,7 @@ int set_wme_cwmax(int class,int value)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
+	}
 
 	printf("\nCWMAX impostato a: %d\n", value);
 	return 1;
@@ -230,7 +230,7 @@ int set_wme_aifsn(int class,int value)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
+	}
 
 	printf("\nAIFSN impostato a: %d\n", value);
 	return 1;
@@ -265,8 +265,8 @@ wl_ioctl(char *name, int cmd, void *buf, int len)
 		close(s);
 		return -1;
 	}
-		
-	/* cleanup */	
+
+	/* cleanup */
 	close(s);
 	return ret;
 }

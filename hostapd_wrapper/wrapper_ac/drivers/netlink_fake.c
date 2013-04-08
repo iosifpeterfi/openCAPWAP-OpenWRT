@@ -33,7 +33,7 @@ static void netlink_receive_link(struct netlink_data *netlink,
 					    u8 *buf, size_t len),
 				 struct nlmsghdr *h)
 {
-	
+
 	return;
 }
 
@@ -77,6 +77,6 @@ void netlink_deinit(struct netlink_data *netlink)
 
 int netlink_send_oper_ifla(struct netlink_data *netlink, int ifindex,
 			   int linkmode, int operstate){
-	
+
 	return 0;
 }

@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -38,19 +38,19 @@
 
 int getMacAddr(int sock, char* interface, unsigned char* macAddr)
 {
-	
-	
+
+
 	struct ifreq ethreq;
 	int i;
 
 	memset(&ethreq, 0, sizeof(ethreq));
 	strncpy(ethreq.ifr_name, interface, IFNAMSIZ);
-	if (ioctl(sock, SIOCGIFHWADDR, &ethreq)==-1) 
+	if (ioctl(sock, SIOCGIFHWADDR, &ethreq)==-1)
 	{
 		return 0;
 	}
 
-	for (i=0; i<MAC_ADDR_LEN; i++)	
+	for (i=0; i<MAC_ADDR_LEN; i++)
 	{
 		macAddr[i]=(unsigned char)ethreq.ifr_hwaddr.sa_data[i];
 	}
@@ -64,9 +64,9 @@ int extractFrameInfo(char* buffer, char* RSSI, char* SNR, int* dataRate)
 	int signal, noise;
 
 	*RSSI=buffer[RSSI_BYTE]-ATHEROS_CONV_VALUE;	//RSSI in dBm
-	
-	signal=buffer[SIGNAL_BYTE]-ATHEROS_CONV_VALUE;	
-	noise=buffer[NOISE_BYTE];			
+
+	signal=buffer[SIGNAL_BYTE]-ATHEROS_CONV_VALUE;
+	noise=buffer[NOISE_BYTE];
 	*SNR=(char)signal-noise;			//RSN in dB
 
 	*dataRate=(buffer[DATARATE_BYTE]/2)*10;		//Data rate in Mbps*10
@@ -113,14 +113,14 @@ int macAddrCmp (unsigned char* addr1, unsigned char* addr2)
 	{
 		CWDebugLog("%02x ", addr1[i]);
 	}
-	
+
 	CWDebugLog("\nAddress 2:");
 	for (i=0; i<MAC_ADDR_LEN; i++)
 	{
 		CWDebugLog("%02x ", addr2[i]);
 	}
 	CWDebugLog("\n");*/
-	
+
 	for (i=0; i<MAC_ADDR_LEN; i++)
 	{
 		if (addr1[i]!=addr2[i])
@@ -129,7 +129,7 @@ int macAddrCmp (unsigned char* addr1, unsigned char* addr2)
 
 	if (ok==1) {CWDebugLog("MAC Address test: OK\n");}
 	else {CWDebugLog("MAC Address test: Failed\n");}
-	
+
 	return ok;
 }
 
@@ -138,7 +138,7 @@ extern int wtpInRunState;
 
 CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 {
-	
+
 	const unsigned char VERSION_MASK=3, TYPE_MASK=12, SUBTYPE_MASK=240;
 	const unsigned char MANAGEMENT_TYPE=0, CONTROL_TYPE=4, DATA_TYPE=8;
 	int n;
@@ -156,50 +156,50 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 #endif
 
 	CWThreadSetSignals(SIG_BLOCK, 1, SIGALRM);
-	
-	if ((gRawSock=socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL)))<0) 
+
+	if ((gRawSock=socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL)))<0)
 	{
 		CWDebugLog("THR FRAME: Error creating socket");
 		CWExitThread();
 	}
-	
+
 	 /*
          * BUG - UMR02
          * It is better to zero the sockaddr structure before
-         * passing it to the kernel.    
+         * passing it to the kernel.
          *
          * 19/10/2009 - Donato Capitella
          */
         memset(&addr, 0, sizeof(addr));
-	
+
 	addr.sll_family=AF_PACKET;
 	addr.sll_protocol=htons(ETH_P_ALL);
 	addr.sll_pkttype  = PACKET_HOST;
 	addr.sll_ifindex= if_nametoindex(gInterfaceName);
-	
-	
-	if ((bind(gRawSock, (struct sockaddr*)&addr, sizeof(addr)))<0) 
+
+
+	if ((bind(gRawSock, (struct sockaddr*)&addr, sizeof(addr)))<0)
  	{
  		CWDebugLog("THR FRAME: Error binding socket");
  		CWExitThread();
  	}
- 	
+
 	if (!getMacAddr(gRawSock, gInterfaceName, macAddr))
  	{
  		CWDebugLog("THR FRAME: Ioctl error");
 		EXIT_FRAME_THREAD(gRawSock);
  	}
- 	
+
  #ifdef PROMODE_ON
  	/* Set the network card in promiscuos mode */
  	strncpy(ethreq.ifr_name,gInterfaceName,IFNAMSIZ);
-	if (ioctl(gRawSock,SIOCGIFFLAGS,&ethreq)==-1) 
+	if (ioctl(gRawSock,SIOCGIFFLAGS,&ethreq)==-1)
  	{
  		CWDebugLog("THR FRAME: Error ioctl");
 		EXIT_FRAME_THREAD(gRawSock);
  	}
  	ethreq.ifr_flags|=IFF_PROMISC;
-	if (ioctl(gRawSock,SIOCSIFFLAGS,&ethreq)==-1) 
+	if (ioctl(gRawSock,SIOCSIFFLAGS,&ethreq)==-1)
  	{
  		CWDebugLog("THR FRAME: Error ioctl");
 		EXIT_FRAME_THREAD(gRawSock);
@@ -213,17 +213,17 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 		EXIT_FRAME_THREAD(gRawSock);
  	}
  #endif
- 	
- 	CW_REPEAT_FOREVER 
+
+ 	CW_REPEAT_FOREVER
  	{
 		n = recvfrom(gRawSock,buffer,sizeof(buffer),0,NULL,NULL);
-		
+
 		if (!wtpInRunState){
 			CWLog("WTP is not in RUN state");
 			continue;
 		}
-		
-		if (CHECK_PRISM_HEADER)	
+
+		if (CHECK_PRISM_HEADER)
 		{
 			/*CWDebugLog("----------\n");
 			CWDebugLog("%d bytes read\n",n);
@@ -231,12 +231,12 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 			if (n>PRISMH_LEN)
 			{
 				byte0=*(buffer+PRISMH_LEN);
-				
+
 				version=byte0 & VERSION_MASK;
 				type=byte0 & TYPE_MASK;
 				subtype=byte0 & SUBTYPE_MASK;
 				subtype>>=4;
-				
+
 /*				if(version == (unsigned char) VERSION) {CWDebugLog("Version OK\n");}
 				else {CWDebugLog("Wrong Version");}*/
 				if(type == (unsigned char) MANAGEMENT_TYPE) 		//Management Frame
@@ -245,7 +245,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 					//CWDebugLog("Subtype: %d ", subtype);
 					switch (subtype)
 					{
-						case ASSOCIATION_REQUEST_SUBTYPE: 
+						case ASSOCIATION_REQUEST_SUBTYPE:
 						{
 							if (!extractFrame(&frame, buffer, n))
 							{
@@ -254,28 +254,28 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 							}
 
 							extractAddr(destAddr, sourceAddr, frame->msg);
-							
+
 							int k;
 
-					
+
 							for(k=0;k<MAC_ADDR_LEN;k++)
 							{
-								printf("%02x", sourceAddr[k]);	
+								printf("%02x", sourceAddr[k]);
 								if(k!=MAC_ADDR_LEN-1){printf(":");}
 							}
 							printf("\n");
 							fflush(stdout);
-							
+
 							CW_CREATE_OBJECT_ERR(bindingValuesPtr, CWBindingTransportHeaderValues, EXIT_FRAME_THREAD(gRawSock););
  							extractFrameInfo((char*)buffer, &(bindingValuesPtr->RSSI),  &(bindingValuesPtr->SNR), &(bindingValuesPtr->dataRate));
 							CW_CREATE_OBJECT_ERR(listElement, CWBindingDataListElement, EXIT_FRAME_THREAD(gRawSock););
 							listElement->frame=frame;
 							listElement->bindingValues=bindingValuesPtr;
-							
+
 							//
 							CWLockSafeList(gFrameList);
 							CWAddElementToSafeListTail(gFrameList, listElement, sizeof(CWBindingDataListElement));
-							CWUnlockSafeList(gFrameList);		
+							CWUnlockSafeList(gFrameList);
 
 							break;
 						}
@@ -311,7 +311,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 						default: {CWDebugLog("Unrecognized Frame\n");}
 					}*/
 				}
-				if(type == (unsigned char) DATA_TYPE) 
+				if(type == (unsigned char) DATA_TYPE)
 				{
 /*					CWDebugLog("Data Frame\n");
 					//CWDebugLog("Subtype: %d ", subtype);
@@ -333,7 +333,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 			}
 			else CWDebugLog("Malformed Frame");
 		}
-		else 
+		else
 		{
 			//Assume it is 802.3
 			if (n <= (gCWForceMTU-20)){
@@ -346,7 +346,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 				CW_CREATE_OBJECT_ERR(listElement, CWBindingDataListElement, EXIT_FRAME_THREAD(gRawSock););
 				listElement->frame=frame;
 				listElement->bindingValues=NULL;
-				
+
 				//
 				CWLockSafeList(gFrameList);
 				CWAddElementToSafeListTail(gFrameList, listElement, sizeof(CWBindingDataListElement));
@@ -356,7 +356,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
  			}
  		}
  	}
- 	
+
 	close(gRawSock);
 	return(NULL);
 }

@@ -29,7 +29,7 @@ int GetEapol_Frame( unsigned char *sa,  unsigned char *buf, int len){
 int isEAPOL_Frame( unsigned char *buf, int len){
 	unsigned char rfc1042_header[6] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00 };
 	int i;
-	
+
 	for(i=0; i<6; i++)if(rfc1042_header[i]!=buf[i + HLEN_80211])return 0;
 	return 1;
 }
@@ -43,7 +43,7 @@ void stampa_mac(char *s,  unsigned char *mac){
 
 void stamp_all_max( unsigned char *buf,  unsigned char *own_mac){
 	struct ieee80211_hdr *hdr;
-	
+
 	hdr = (struct ieee80211_hdr *) buf;
 
 	stampa_mac("addr1 ",hdr->addr1);
@@ -57,7 +57,7 @@ int isCallBackFrame( unsigned char *buf, int len,  unsigned char *own_mac){
 	// return 0 if is NOT CALL Back Frame
 	struct ieee80211_hdr *hdr;
 	u16 fc;
-	
+
 	hdr = (struct ieee80211_hdr *) buf;
 	fc = le_to_host16(hdr->frame_control);
 
@@ -68,20 +68,20 @@ int isCallBackFrame( unsigned char *buf, int len,  unsigned char *own_mac){
 int AC_get_SubType( unsigned char *buf, int len){
 	struct ieee80211_hdr *hdr;
 	u16 fc;
-	
+
 	hdr = (struct ieee80211_hdr *) buf;
 	fc = le_to_host16(hdr->frame_control);
-	
+
 	return WLAN_FC_GET_STYPE(fc);
 }
 
 int AC_get_Type( unsigned char *buf, int len){
 	struct ieee80211_hdr *hdr;
 	u16 fc;
-	
+
 	hdr = (struct ieee80211_hdr *) buf;
 	fc = le_to_host16(hdr->frame_control);
-	
+
 	return WLAN_FC_GET_TYPE(fc);
 }
 

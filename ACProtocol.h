@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -30,14 +30,14 @@
 #define __CAPWAP_ACProtocol_HEADER__
 
 //#define UNUSED_RADIO_ID 	1000
- 
+
  typedef struct{
  	char *locationData;
 	char *name;
 	char *sessionID;
 	CWWTPDescriptor descriptor;
 	struct sockaddr_in ipv4Address;
-	
+
 	CWWTPRadiosInfo radiosInfo;
 
 	char *ACName;
@@ -45,7 +45,7 @@
 	CWRadiosAdminInfo radioAdminInfo;
 	int StatisticsTimer;
 	CWWTPVendorInfos WTPBoardData;
-	//CWRadiosInformation WTPRadioInfo;	
+	//CWRadiosInformation WTPRadioInfo;
 	WTPRebootStatisticsInfo *WTPRebootStatistics;
 
 	void* bindingValuesPtr;
@@ -61,7 +61,7 @@ typedef struct {
 	CWframeTunnelMode frameTunnelMode;
 	CWMACType MACType;
 
-	
+
 } CWProtocolJoinRequestValues;
 
 
@@ -72,7 +72,7 @@ typedef struct {
 	CWRadioAdminInfoValues *radioAdminInfo;
 	int StatisticsTimer;
 	WTPRebootStatisticsInfo *WTPRebootStatistics;
-	
+
 } CWProtocolConfigureRequestValues;
 
 typedef struct {
@@ -151,23 +151,23 @@ CWBool CWParseMsgElemDataTransferData(CWProtocolMessage *msgPtr, int len, CWProt
 CWBool CWParseDiscoveryType(CWProtocolMessage *msgPtr, int len, CWDiscoveryRequestValues *valPtr);			//20
 CWBool CWParseMsgElemDuplicateIPv4Address(CWProtocolMessage *msgPtr, int len, WTPDuplicateIPv4 *valPtr); 		//21
 CWBool CWParseLocationData(CWProtocolMessage *msgPtr, int len, char **valPtr);						//27
-CWBool CWParseWTPRadioAdminState (CWProtocolMessage *msgPtr, int len, CWRadioAdminInfoValues *valPtr);		//29 
-CWBool CWParseWTPStatisticsTimer(CWProtocolMessage *msgPtr, int len, int *valPtr);					//33 
-CWBool CWParseWTPBoardData(CWProtocolMessage *msgPtr, int len, CWWTPVendorInfos *valPtr);				//35 
-CWBool CWParseWTPDescriptor(CWProtocolMessage *msgPtr, int len, CWWTPDescriptor *valPtr);				//37 
+CWBool CWParseWTPRadioAdminState (CWProtocolMessage *msgPtr, int len, CWRadioAdminInfoValues *valPtr);		//29
+CWBool CWParseWTPStatisticsTimer(CWProtocolMessage *msgPtr, int len, int *valPtr);					//33
+CWBool CWParseWTPBoardData(CWProtocolMessage *msgPtr, int len, CWWTPVendorInfos *valPtr);				//35
+CWBool CWParseWTPDescriptor(CWProtocolMessage *msgPtr, int len, CWWTPDescriptor *valPtr);				//37
 CWBool CWParseWTPFrameTunnelMode(CWProtocolMessage *msgPtr, int len, CWframeTunnelMode *valPtr);			//38
-CWBool CWParseWTPIPv4Address(CWProtocolMessage *msgPtr, int len, CWProtocolJoinRequestValues *valPtr);			//39 
+CWBool CWParseWTPIPv4Address(CWProtocolMessage *msgPtr, int len, CWProtocolJoinRequestValues *valPtr);			//39
 CWBool CWParseWTPMACType(CWProtocolMessage *msgPtr, int len, CWMACType *valPtr);				//40
 CWBool CWParseWTPName(CWProtocolMessage *msgPtr, int len, char **valPtr);						//41
 CWBool CWParseWTPOperationalStatistics(CWProtocolMessage *msgPtr, int len, WTPOperationalStatisticsValues *valPtr);	//42
 CWBool CWParseWTPRadioStatistics(CWProtocolMessage *msgPtr, int len, WTPRadioStatisticsValues *valPtr); 		//43
-CWBool CWParseWTPRebootStatistics(CWProtocolMessage *msgPtr, int len, WTPRebootStatisticsInfo *valPtr);			//44 
+CWBool CWParseWTPRebootStatistics(CWProtocolMessage *msgPtr, int len, WTPRebootStatisticsInfo *valPtr);			//44
 CWBool CWParseMsgElemDecryptErrorReport(CWProtocolMessage *msgPtr, int len, CWDecryptErrorReportValues *valPtr);
 CWBool CWParseMsgElemDuplicateIPv6Address(CWProtocolMessage *msgPtr, int len, WTPDuplicateIPv6 *valPtr);
 CWBool CWParseWTPRadioInformation(CWProtocolMessage *msgPtr, int len, unsigned char *valPtr);	//1048
 CWBool CWParseWTPSupportedRates(CWProtocolMessage *msgPtr, int len, unsigned char *valPtr);	//1040
 CWBool CWParseWTPMultiDomainCapability(CWProtocolMessage *msgPtr, int len, char *valPtr);	//1032
-//CWBool CWParseWTPRadioInfo(CWProtocolMessage *msgPtr, int len, CWRadiosInformation *valPtr, int radioIndex);	
+//CWBool CWParseWTPRadioInfo(CWProtocolMessage *msgPtr, int len, CWRadiosInformation *valPtr, int radioIndex);
 
 //---------------------------------------------------------/
 CWBool CWACGetACIPv4List(int **listPtr, int *countPtr);

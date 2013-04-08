@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -47,14 +47,14 @@
 int set_freq(int sock, struct iwreq wrq, int value)
 {
 	wrq.u.freq.m=value;		//in Ghz/10
-	wrq.u.freq.e=1;		
-	
+	wrq.u.freq.e=1;
+
       	if(ioctl(sock, SIOCSIWFREQ, &wrq) < 0)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nFrequenza impostata a: %d\n", wrq.u.freq.m);
 
 	return 1;
@@ -66,8 +66,8 @@ int get_freq(int sock, struct iwreq* wrq)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nFrequenza: %d\n", wrq->u.freq.m);
 
 	return 1;
@@ -78,13 +78,13 @@ int set_bitrate(int sock, struct iwreq wrq, int value)
 {
 	wrq.u.bitrate.value=value;
 	wrq.u.bitrate.fixed=1;
-	
+
       	if(ioctl(sock, SIOCSIWRATE, &wrq) < 0)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nBit rate impostato a: %d\n", wrq.u.bitrate.value);
 
 	return 1;
@@ -96,8 +96,8 @@ int get_bitrate(int sock, struct iwreq* wrq)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nBit rate: %d\n", wrq->u.bitrate.value);
 
 	return 1;
@@ -107,14 +107,14 @@ int get_bitrate(int sock, struct iwreq* wrq)
 int set_rts_cts(int sock, struct iwreq wrq, int value)
 {
 	if (value!=0) {wrq.u.rts.value=value;}
-	else {wrq.u.rts.disabled=1;}	
+	else {wrq.u.rts.disabled=1;}
 
       	if(ioctl(sock, SIOCSIWRTS, &wrq) < 0)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nRTS/CTS threshold impostato a: %d\n", wrq.u.rts.value);
 
 	return 1;
@@ -126,8 +126,8 @@ int get_rts_cts(int sock, struct iwreq* wrq)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	if (wrq->u.rts.disabled!=1) {printf("\nRTS/CTS threshold: %d\n", wrq->u.rts.value);}
 	else {printf("\nRTS/CTS threshold off\n");}
 
@@ -138,14 +138,14 @@ int get_rts_cts(int sock, struct iwreq* wrq)
 int set_frag(int sock, struct iwreq wrq, int value)
 {
 	if (value!=0) {wrq.u.frag.value=value;}
-	else {wrq.u.frag.disabled=1;}	
+	else {wrq.u.frag.disabled=1;}
 
       	if(ioctl(sock, SIOCSIWFRAG, &wrq) < 0)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nFragmentation threshold impostato a: %d\n", wrq.u.frag.value);
 
 	return 1;
@@ -157,8 +157,8 @@ int get_frag(int sock, struct iwreq* wrq)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	if (wrq->u.frag.disabled!=1) {printf("\nFragmentation threshold: %d\n", wrq->u.frag.value);}
 	else {printf("\nFragmentation threshold off\n");}
 
@@ -168,15 +168,15 @@ int get_frag(int sock, struct iwreq* wrq)
 /*--------------------------- Transmit Power ---------------------------*/
 int set_txpower(int sock, struct iwreq wrq, int value)
 {
-	wrq.u.txpower.value=value; 
+	wrq.u.txpower.value=value;
 	wrq.u.txpower.fixed=1;
 
       	if(ioctl(sock, SIOCSIWTXPOW, &wrq) < 0)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nTransmit power impostato a: %d\n", wrq.u.txpower.value);
 
 	return 1;
@@ -188,8 +188,8 @@ int get_txpower(int sock, struct iwreq* wrq)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	if (wrq->u.txpower.disabled!=1) {printf("\nTransmit power: %d\n", wrq->u.txpower.value);}
 	else {printf("\nTransmit power off\n");}
 
@@ -212,7 +212,7 @@ int set_cwmin(int sock, struct iwreq wrq, int acclass, int sta, int value)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
+	}
 
 	printf("\nCWMIN impostato a: %d\n", value);
 
@@ -232,8 +232,8 @@ int get_cwmin(int sock, struct iwreq* wrq, int acclass, int sta)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 //	printf("\nCWMIN: %d\n", wrq->u.param.value);
 
 	return 1;
@@ -254,8 +254,8 @@ int set_cwmax(int sock, struct iwreq wrq, int acclass, int sta, int value)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nCWMAX impostato a: %d\n", value);
 
 	return 1;
@@ -274,8 +274,8 @@ int get_cwmax(int sock, struct iwreq* wrq, int acclass, int sta)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	//printf("\nCWMAX: %d\n", wrq->u.param.value);
 
 	return 1;
@@ -296,8 +296,8 @@ int set_aifs(int sock, struct iwreq wrq, int acclass, int sta, int value)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	printf("\nAIFS impostato a: %d\n", value);
 
 	return 1;
@@ -316,8 +316,8 @@ int get_aifs(int sock, struct iwreq* wrq, int acclass, int sta)
 	{
 		perror("Ioctl error");
 		return(0);
-	}	
-	
+	}
+
 	//printf("\nAIFS: %d\n", wrq->u.param.value);
 
 	return 1;

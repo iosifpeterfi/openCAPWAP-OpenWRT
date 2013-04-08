@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -26,7 +26,7 @@
  *           Antonio Davoli (antonio.davoli@gmail.com)                                     *
  *******************************************************************************************/
 
- 
+
 #ifndef __CAPWAP_CWCommon_HEADER__
 #define __CAPWAP_CWCommon_HEADER__
 
@@ -87,7 +87,7 @@ extern const char *CW_CONFIG_FILE;
 extern int gCWForceMTU;
 extern int gCWRetransmitTimer;
 extern int gCWNeighborDeadInterval;
-extern int gCWMaxRetransmit; 
+extern int gCWMaxRetransmit;
 extern int gMaxLogFileSize;
 extern int gEnabledLog;
 

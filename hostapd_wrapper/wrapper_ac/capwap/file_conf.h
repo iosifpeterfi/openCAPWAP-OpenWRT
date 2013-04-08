@@ -1,5 +1,5 @@
 #define CONFIGFILE "hostapd_ac.conf"
-#define VARLENGTH 1024 
+#define VARLENGTH 1024
 
 struct config_ac {
 	int ac_port;
@@ -34,7 +34,7 @@ int StartWith(char String1[],char String2[]){
 	int len1=countString(String1);
 	int len2=countString(String2);
 	int i;
-	
+
 	for( i=0; i<len2;i++ ){
 
 		if ( String1[i]!=String2[i] )return 0;
@@ -43,7 +43,7 @@ int StartWith(char String1[],char String2[]){
 	return 1;
 }
 
-void ReplaceString(char *String1,char *rep,char *String2){	
+void ReplaceString(char *String1,char *rep,char *String2){
 	if(isEqualString(String1,rep)){
 		String1[0]=0;
 		return;
@@ -56,11 +56,11 @@ void ReplaceString(char *String1,char *rep,char *String2){
 	for(i=0;i<=strlen(String1)-1;i++){
 		if(strlen(rep)>=1)b=1;
 		for(j=0;j<=strlen(rep)-1;j++){
-			if(String1[i+j]!=rep[j]){ 
-				b=0; 
-				break; 
+			if(String1[i+j]!=rep[j]){
+				b=0;
+				break;
 			}
-		}	
+		}
 		if(b){
 			for(k=0;k<i;k++)tmp[k]=String1[k];
 			if(strlen(String2)>0){
@@ -71,7 +71,7 @@ void ReplaceString(char *String1,char *rep,char *String2){
 
 			for(k=0;k<strlen(tmp);k++)String1[k]=tmp[k];
 			if (String1[k-1]==10)String1[k-1]=0;
-			else 	String1[k]=0;	
+			else 	String1[k]=0;
 		}
 	}
 }
@@ -82,7 +82,7 @@ void ReadConfiguration(struct config_ac *con_ac){
     file=fopen(CONFIGFILE,"r");
 
 	char ss[VARLENGTH];
-	
+
 	sprintf(con_ac->ip_ac,"");
 	sprintf(con_ac->path_unix_socket,"");
 	con_ac->ac_port=0;
@@ -97,14 +97,14 @@ void ReadConfiguration(struct config_ac *con_ac){
 			ReplaceString(ss, "\n", "");
 			ReplaceString(ss, " ", "");
 			sprintf(con_ac->ip_ac, "%s", ss);
-			
+
 		}else if(StartWith(ss,"sock_path_ac")){
 			ReplaceString(ss, "sock_path_ac", "");
 			ReplaceString(ss, "=", "");
 			ReplaceString(ss, "\n", "");
 			ReplaceString(ss, " ", "");
 			sprintf(con_ac->path_unix_socket, "%s", ss);
-			
+
 		}else if(StartWith(ss,"port_daemon_ac")){
 			ReplaceString(ss, "port_daemon_ac","");
 			ReplaceString(ss, "\n", "");

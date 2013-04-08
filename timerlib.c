@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2008
  *
  * This program is free software; you can redistribute it and/or modify
@@ -44,7 +44,7 @@
 #define TIMER_KIND	ITIMER_REAL
 #define SIG_TO_WAIT	SIGALRM
 
-/* 
+/*
  * evals true if struct timeval t1 defines a time strictly before t2;
  * false otherwise.
  */
@@ -52,9 +52,9 @@
 				(((t1).tv_sec == (t2).tv_sec) &&\
 				 ((t1).tv_usec < (t2).tv_usec)))
 
-/* 
+/*
  * Assign struct timeval tgt the time interval between the absolute
- * times t1 and t2. 
+ * times t1 and t2.
  * IT IS ASSUMED THAT t1 > t2, use TV_LESS_THAN macro to test it.
  */
 #define TV_MINUS(t1,t2,tgt)	if ((t1).tv_usec >= (t2).tv_usec) {\
@@ -76,7 +76,7 @@ static void timer_free(tl_timer_t * /*t*/);
 static void timer_dequeue(tl_timer_t * /*t*/);
 static void timer_start(struct timeval * /*abs_to*/);
 static void *cronometer(void * /*arg*/);
-			
+
 struct timer {
 
 	struct timeval	timeout;
@@ -126,11 +126,11 @@ static void timer_dequeue(tl_timer_t *t) {
 	return;
 }
 
-/* 
+/*
  * Set a timer with setititmer syscall to expire on abs_to time.
  * The parameter abs_to is an absolute time as those returned with
  * gettimeofday (since epoch).
- * If abs_to refers to a time in the past the timer will be set to 
+ * If abs_to refers to a time in the past the timer will be set to
  * expire in 1 millisecond.
  * This function has to be called in a critical section.
  */
@@ -149,7 +149,7 @@ static void timer_start(struct timeval *abs_to) {
 		TV_MINUS(*abs_to,abs_now,relative.it_value);
 	}
 	else {
-		/* 
+		/*
 		 * ouch, timeout is in the past! Let's set it
 		 * to a very near future value.
 		 */
@@ -178,7 +178,7 @@ static void *cronometer(void *arg) {
 	sigemptyset(&mask);
 	sigaddset(&mask, SIG_TO_WAIT);
 
-	/* 
+	/*
 	 * Set this thread to be cancelled only in the cancellation
 	 * points (pthread_cond_wait() and sigwait()).
 	 */
@@ -200,26 +200,26 @@ static void *cronometer(void *arg) {
 
 		timer_start(&(timerq.first->timeout));
 		timerq.first->in_use = 1;
-		
+
 		pthread_mutex_unlock(&timerq.mutex);
-		
+
 		/* wait for a pending SIGALRM */
 		sigwait(&mask, &sig);
-		/* 
-		 * Poiche' un timer non puo' mai scadere prima del tempo 
+		/*
+		 * Poiche' un timer non puo' mai scadere prima del tempo
 		 * (semmai dopo), all'uscita della sigwait() timerq.first
 		 * punta sempre al tl_timer_t per il quale e' stato ricevuto
-		 * il segnale. Nel caso in cui venga aggiunto un timer con 
-		 * scadenza precedente al tempo di attesa rimasto per il 
-		 * corrente la funzione timer_add() provvede a risettare il 
-		 * timer al valore del nuovo, piu' corto, e ad inserire 
+		 * il segnale. Nel caso in cui venga aggiunto un timer con
+		 * scadenza precedente al tempo di attesa rimasto per il
+		 * corrente la funzione timer_add() provvede a risettare il
+		 * timer al valore del nuovo, piu' corto, e ad inserire
 		 * quest'ultimo come primo della coda.
 		 * Se invece il timer corrente viene eliminato con timer_rem()
 		 * la struttura non verra' eliminata ma verra' solo settato il
 		 * suo flag "cancelled" ad 1.
 		 */
 		pthread_mutex_lock(&timerq.mutex);
-		
+
 		if (timerq.first->cancelled == 1) {
 
 			timer_dequeue(timerq.first);
@@ -234,8 +234,8 @@ static void *cronometer(void *arg) {
 		hdl = timerq.first->handler;
 		hdl_arg = timerq.first->handler_arg;
 		timer_dequeue(timerq.first);
-		/* 
-		 * unlock the mutex before executing an handler to avoid 
+		/*
+		 * unlock the mutex before executing an handler to avoid
 		 * possible deadlock inside it.
 		 */
 		pthread_mutex_unlock(&timerq.mutex);
@@ -263,7 +263,7 @@ int timer_init() {
 
 	rv = pthread_cond_init(&timerq.cond, NULL);
 	if (rv != 0) {
-		
+
 		pthread_mutex_destroy(&timerq.mutex);
 		return 0;
 	}
@@ -275,7 +275,7 @@ int timer_init() {
 
 	rv = pthread_create(&timerq.ticker, NULL, cronometer, NULL);
 	if (rv != 0) {
-		
+
 		pthread_mutex_unlock(&timerq.mutex);
 		pthread_mutex_destroy(&timerq.mutex);
 		pthread_cond_destroy(&timerq.cond);
@@ -298,7 +298,7 @@ int timer_init() {
 		pthread_cond_destroy(&timerq.cond);
 		return 0;
 	}
-	
+
  	/*
          * BUG.TRL02
          * Here we have to detach the thread in oder to avoid memory leakage.
@@ -308,14 +308,14 @@ int timer_init() {
         pthread_detach(timerq.ticker);
 
 	pthread_mutex_unlock(&timerq.mutex);
-	
+
 	return 1;
 }
 
 void timer_destroy() {
 
 	tl_timer_t	*t;
-	
+
 	pthread_cancel(timerq.ticker);
 	pthread_join(timerq.ticker, NULL);
 
@@ -329,7 +329,7 @@ void timer_destroy() {
 
 	pthread_mutex_destroy(&timerq.mutex);
 	pthread_cond_destroy(&timerq.cond);
-	
+
 	return;
 }
 
@@ -342,7 +342,7 @@ int timer_add(long sec, long usec, void(*hndlr)(void *), void *hndlr_arg) {
 
 	if (hndlr == NULL) return -1;
 
-	/* ensure timeout is in the future */	
+	/* ensure timeout is in the future */
 	if ((sec < 0) || (usec < 0) || ((sec == 0) && (usec ==0))) return -1;
 
 	pthread_mutex_lock(&timerq.mutex);
@@ -369,7 +369,7 @@ int timer_add(long sec, long usec, void(*hndlr)(void *), void *hndlr_arg) {
 	id = timerq.cur_id++;
 	app->id = id;
 	app->in_use = 0;
-	app->cancelled = 0;	
+	app->cancelled = 0;
 
 	if (timerq.first == NULL) {
 		/* timer queue empty */
@@ -381,16 +381,16 @@ int timer_add(long sec, long usec, void(*hndlr)(void *), void *hndlr_arg) {
 		pthread_mutex_unlock(&timerq.mutex);
 		return id;
 	}
-	
+
 	/* there is at least a timer in the queue */
 	tmp = timerq.first;
-	
+
 	/* find the first timer that expires before app */
 	while (tmp != NULL) {
 
-		if (TV_LESS_THAN(app->timeout, tmp->timeout)) 
+		if (TV_LESS_THAN(app->timeout, tmp->timeout))
 			break;
-	
+
 		tmp = tmp->next;
 	}
 
@@ -404,14 +404,14 @@ int timer_add(long sec, long usec, void(*hndlr)(void *), void *hndlr_arg) {
 		pthread_mutex_unlock(&timerq.mutex);
 		return id;
 	}
-	
+
 	if (tmp->prev == NULL) {
 		/* app is the shoprtest timer */
 		app->prev = NULL;
 		app->next = tmp;
 		tmp->prev = app;
 		timerq.first = app;
-		
+
 		/* start app timer */
 		app->in_use = 1;
 		tmp->in_use = 0;
@@ -423,7 +423,7 @@ int timer_add(long sec, long usec, void(*hndlr)(void *), void *hndlr_arg) {
 		tmp->prev->next = app;
 		tmp->prev = app;
 	}
-	
+
 	pthread_mutex_unlock(&timerq.mutex);
 	return id;
 }
@@ -440,8 +440,8 @@ void timer_rem(int id, void(* free_arg)(void *)) {
 
 		if (t->id == id) break;
 		t = t->next;
-	}	
-	
+	}
+
 	if (t == NULL) {
 		/* timer id is not in queue (maybe empty) */
 		pthread_mutex_unlock(&timerq.mutex);
@@ -449,16 +449,16 @@ void timer_rem(int id, void(* free_arg)(void *)) {
 	}
 
 	if (t->in_use == 1) {
-		/* 
+		/*
 		 * timer id has been already activated, so just set
 		 * its "cancelled" flag (ticker thread will remove it)
 		 */
-	
+
 		/* LE-03-02-2010.01
 		 * We have to set handler_arg to NULL, otherwise we
 		 * risk to free it more than one time.
 		 */
-		if (free_arg) { 
+		if (free_arg) {
 			free_arg(t->handler_arg);
 			t->handler_arg = NULL;
 		}
@@ -466,7 +466,7 @@ void timer_rem(int id, void(* free_arg)(void *)) {
 		pthread_mutex_unlock(&timerq.mutex);
 		return;
 	}
-	
+
 	/* timer id is in the queue and has not been activated */
 	if (free_arg) free_arg(t->handler_arg);
 	timer_dequeue(t);
@@ -474,7 +474,7 @@ void timer_rem(int id, void(* free_arg)(void *)) {
 	pthread_mutex_unlock(&timerq.mutex);
 	return;
 }
-	
+
 void timer_print() {
 
 	tl_timer_t *t;

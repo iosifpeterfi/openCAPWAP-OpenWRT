@@ -18,14 +18,14 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
- 
+
 #include "CWWTP.h"
 
 #ifdef DMALLOC
@@ -62,10 +62,10 @@ CWStateTransition CWWTPEnterJoin() {
 	CWTimerID waitJoinTimer;
 	int seqNum;
 	CWProtocolJoinResponseValues values;
-	
+
 	CWLog("\n");
 	CWLog("######### Join State #########");
-	
+
 	/* reset Join state */
 	CWNetworkCloseSocket(gWTPSocket);
 	CWSecurityDestroySession(gWTPSession);
@@ -75,7 +75,7 @@ CWStateTransition CWWTPEnterJoin() {
 
 	/* Initialize gACInfoPtr */
 	gACInfoPtr->ACIPv4ListInfo.ACIPv4ListCount=0;
-	gACInfoPtr->ACIPv4ListInfo.ACIPv4List=NULL;	
+	gACInfoPtr->ACIPv4ListInfo.ACIPv4List=NULL;
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount=0;
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6List=NULL;
 
@@ -84,18 +84,18 @@ CWStateTransition CWWTPEnterJoin() {
 	}
 
 	if(gWTPForceACAddress != NULL) {
-		CW_CREATE_OBJECT_ERR(gACInfoPtr, 
+		CW_CREATE_OBJECT_ERR(gACInfoPtr,
 				     CWACInfoValues,
-				     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););	
-		CWNetworkGetAddressForHost(gWTPForceACAddress, 
+				     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+		CWNetworkGetAddressForHost(gWTPForceACAddress,
 					   &(gACInfoPtr->preferredAddress));
 		gACInfoPtr->security = gWTPForceSecurity;
 	}
-	
+
 	/* Init DTLS session */
 	if(!CWErr(CWNetworkInitSocketClient(&gWTPSocket,
 					    &(gACInfoPtr->preferredAddress))) ) {
-		
+
 		timer_rem(waitJoinTimer, NULL);
 		return CW_ENTER_DISCOVERY;
 	}
@@ -113,13 +113,13 @@ CWStateTransition CWWTPEnterJoin() {
 						"prova",
 						CW_TRUE,
 						NULL))) {
-			
+
 			timer_rem(waitJoinTimer, NULL);
 			CWNetworkCloseSocket(gWTPSocket);
 			gWTPSecurityContext = NULL;
 			return CW_ENTER_DISCOVERY;
 		}
-	} else { 
+	} else {
 		/* pre-shared keys */
 		if(!CWErr(CWSecurityInitContext(&gWTPSecurityContext,
 						NULL,
@@ -127,7 +127,7 @@ CWStateTransition CWWTPEnterJoin() {
 						NULL,
 						CW_TRUE,
 						NULL))) {
-			
+
 			timer_rem(waitJoinTimer, NULL);
 			CWNetworkCloseSocket(gWTPSocket);
 			gWTPSecurityContext = NULL;
@@ -136,10 +136,10 @@ CWStateTransition CWWTPEnterJoin() {
 	}
 #endif
 	CWThread thread_receiveFrame;
-	if(!CWErr(CWCreateThread(&thread_receiveFrame, 
+	if(!CWErr(CWCreateThread(&thread_receiveFrame,
 				 CWWTPReceiveDtlsPacket,
 				 (void*)gWTPSocket))) {
-		
+
 		CWLog("Error starting Thread that receive DTLS packet");
 		timer_rem(waitJoinTimer, NULL);
 		CWNetworkCloseSocket(gWTPSocket);
@@ -152,14 +152,14 @@ CWStateTransition CWWTPEnterJoin() {
 	}
 
 	CWThread thread_receiveDataFrame;
-	if(!CWErr(CWCreateThread(&thread_receiveDataFrame, 
+	if(!CWErr(CWCreateThread(&thread_receiveDataFrame,
 				 CWWTPReceiveDataPacket,
 				 (void*)gWTPDataSocket))) {
-		
+
 		CWLog("Error starting Thread that receive data packet");
 		return CW_ENTER_DISCOVERY;
 	}
-		
+
 #ifndef CW_NO_DTLS
 
 	if(!CWErr(CWSecurityInitSessionClient(gWTPSocket,
@@ -167,10 +167,10 @@ CWStateTransition CWWTPEnterJoin() {
 					      gPacketReceiveList,
 					      gWTPSecurityContext,
 					      &gWTPSession,
-					      &gWTPPathMTU))) { 
-		
+					      &gWTPPathMTU))) {
+
 		/* error setting up DTLS session */
-		timer_rem(waitJoinTimer, NULL);		
+		timer_rem(waitJoinTimer, NULL);
 		CWNetworkCloseSocket(gWTPSocket);
 		CWSecurityDestroyContext(gWTPSecurityContext);
 		gWTPSecurityContext = NULL;
@@ -181,9 +181,9 @@ CWStateTransition CWWTPEnterJoin() {
 	if(gCWForceMTU > 0) {
 		gWTPPathMTU = gCWForceMTU;
 	}
-	
+
 	CWDebugLog("Path MTU for this Session: %d", gWTPPathMTU);
-	
+
 	/* send Join Request */
 	seqNum = CWGetSeqNum();
 
@@ -204,27 +204,27 @@ cw_join_err:
 #endif
 		return CW_ENTER_DISCOVERY;
 	}
-	
+
 	timer_rem(waitJoinTimer, NULL);
-	
-	if(!gSuccessfulHandshake) { 
+
+	if(!gSuccessfulHandshake) {
 		/* timer expired */
 		goto cw_join_err;
 	}
 
 	CWLog("Join Completed");
-	
+
 	return CW_ENTER_CONFIGURE;
 }
 
 void CWWTPWaitJoinExpired(CWTimerArg arg) {
-	
+
 	CWLog("WTP Wait Join Expired");
 	gSuccessfulHandshake = CW_FALSE;
 	CWNetworkCloseSocket(gWTPSocket);
 }
 
-CWBool CWAssembleJoinRequest(CWProtocolMessage **messagesPtr, 
+CWBool CWAssembleJoinRequest(CWProtocolMessage **messagesPtr,
 			     int *fragmentsNumPtr,
 			     int PMTU,
 			     int seqNum,
@@ -235,18 +235,18 @@ CWBool CWAssembleJoinRequest(CWProtocolMessage **messagesPtr,
 	CWProtocolMessage 	*msgElemsBinding= NULL;
 	const int 		msgElemBindingCount=0;
 	int 			k = -1;
-	
-	if(messagesPtr == NULL || fragmentsNumPtr == NULL) 
+
+	if(messagesPtr == NULL || fragmentsNumPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems,
 					 msgElemCount,
-					 return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););	
-		
+					 return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+
 	CWLog("Sending Join Request...");
-	
+
 	/* Assemble Message Elements */
-	if ( 
+	if (
 		 (!(CWAssembleMsgElemLocationData(&(msgElems[++k])))) ||
 	     (!(CWAssembleMsgElemWTPBoardData(&(msgElems[++k])))) ||
 	     (!(CWAssembleMsgElemWTPDescriptor(&(msgElems[++k])))) ||
@@ -258,14 +258,14 @@ CWBool CWAssembleJoinRequest(CWProtocolMessage **messagesPtr,
 	     (!(CWAssembleMsgElemWTPRadioInformation(&(msgElems[++k]))))
 	) {
 		int i;
-		for(i = 0; i <= k; i++) { 
+		for(i = 0; i <= k; i++) {
 			CW_FREE_PROTOCOL_MESSAGE(msgElems[i]);
 		}
 		CW_FREE_OBJECT(msgElems);
 		/* error will be handled by the caller */
 		return CW_FALSE;
 	}
-	
+
 	return CWAssembleMessage(messagesPtr,
 				 fragmentsNumPtr,
 				 PMTU,
@@ -284,7 +284,7 @@ CWBool CWAssembleJoinRequest(CWProtocolMessage **messagesPtr,
 }
 
 
-/* 
+/*
  * Parse Join Response and return informations in *valuesPtr.
  */
 CWBool CWParseJoinResponseMessage(char *msg,
@@ -296,28 +296,28 @@ CWBool CWParseJoinResponseMessage(char *msg,
 	CWProtocolMessage 	completeMsg;
 	int 			offsetTillMessages;
 	char tmp_ABGNTypes;
-	if (msg == NULL || valuesPtr == NULL) 
+	if (msg == NULL || valuesPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWDebugLog("Parsing Join Response...");
-	
+
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
-	
+
 	/* error will be handled by the caller */
 	if(!(CWParseControlHeader(&completeMsg, &controlVal))) return CW_FALSE;
 
 	if(controlVal.messageTypeValue != CW_MSG_TYPE_VALUE_JOIN_RESPONSE)
-		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, 
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
 				    "Message is not Join Response as Expected");
-	
-	if(controlVal.seqNum != seqNum) 
+
+	if(controlVal.seqNum != seqNum)
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
 				    "Different Sequence Number");
-	
+
 	/* skip timestamp */
 	controlVal.msgElemsLen -= CW_CONTROL_HEADER_OFFSET_FOR_MSG_ELEMS;
-	
+
 	offsetTillMessages = completeMsg.offset;
 
 	/* Mauro */
@@ -328,8 +328,8 @@ CWBool CWParseJoinResponseMessage(char *msg,
 	while((completeMsg.offset-offsetTillMessages) < controlVal.msgElemsLen) {
 		unsigned short int type=0;
 		unsigned short int len=0;
-		
-		CWParseFormatMsgElem(&completeMsg,&type,&len);		
+
+		CWParseFormatMsgElem(&completeMsg,&type,&len);
 
 		CWDebugLog("Parsing Message Element: %u, len: %u", type, len);
 		/*
@@ -340,7 +340,7 @@ CWBool CWParseJoinResponseMessage(char *msg,
 		valuesPtr->ACIPv4ListInfo.ACIPv4List=NULL;
 		valuesPtr->ACIPv6ListInfo.ACIPv6ListCount=0;
 		valuesPtr->ACIPv6ListInfo.ACIPv6List=NULL;
-	
+
 		switch(type) {
 			case CW_MSG_ELEMENT_AC_DESCRIPTOR_CW_TYPE:
 				/* will be handled by the caller */
@@ -364,17 +364,17 @@ CWBool CWParseJoinResponseMessage(char *msg,
 				if(!(CWParseACName(&completeMsg, len, &(valuesPtr->ACInfoPtr.name)))) return CW_FALSE;
 				break;
 			case CW_MSG_ELEMENT_CW_CONTROL_IPV4_ADDRESS_CW_TYPE:
-				/* 
+				/*
 				 * just count how many interfacess we
-				 * have, so we can allocate the array 
+				 * have, so we can allocate the array
 				 */
 				valuesPtr->ACInfoPtr.IPv4AddressesCount++;
 				completeMsg.offset += len;
 				break;
 			case CW_MSG_ELEMENT_CW_CONTROL_IPV6_ADDRESS_CW_TYPE:
-				/* 
+				/*
 				 * just count how many interfacess we
-				 * have, so we can allocate the array 
+				 * have, so we can allocate the array
 				 */
 				valuesPtr->ACInfoPtr.IPv6AddressesCount++;
 				completeMsg.offset += len;
@@ -382,7 +382,7 @@ CWBool CWParseJoinResponseMessage(char *msg,
  			/*
  			case CW_MSG_ELEMENT_SESSION_ID_CW_TYPE:
  				if(!(CWParseSessionID(&completeMsg, len, valuesPtr))) return CW_FALSE;
- 				break;	
+ 				break;
  			*/
 			default:
 				return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Unrecognized Message Element");
@@ -390,17 +390,17 @@ CWBool CWParseJoinResponseMessage(char *msg,
 
 		/* CWDebugLog("bytes: %d/%d", (completeMsg.offset-offsetTillMessages), controlVal.msgElemsLen); */
 	}
-	
-	if(completeMsg.offset != len) 
-		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, 
+
+	if(completeMsg.offset != len)
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
 				    "Garbage at the End of the Message");
-	
+
 	/* actually read each interface info */
-	CW_CREATE_ARRAY_ERR(valuesPtr->ACInfoPtr.IPv4Addresses, 
+	CW_CREATE_ARRAY_ERR(valuesPtr->ACInfoPtr.IPv4Addresses,
 			    valuesPtr->ACInfoPtr.IPv4AddressesCount,
 			    CWProtocolIPv4NetworkInterface,
 			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	if(valuesPtr->ACInfoPtr.IPv6AddressesCount > 0) {
 
 		CW_CREATE_ARRAY_ERR(valuesPtr->ACInfoPtr.IPv6Addresses,
@@ -411,18 +411,18 @@ CWBool CWParseJoinResponseMessage(char *msg,
 
 	int i = 0;
 	int j = 0;
-	
+
 	completeMsg.offset = offsetTillMessages;
 	while((completeMsg.offset-offsetTillMessages) < controlVal.msgElemsLen) {
 		unsigned short int type=0;	/* = CWProtocolRetrieve32(&completeMsg); */
 		unsigned short int len=0;	/* = CWProtocolRetrieve16(&completeMsg); */
-		
-		CWParseFormatMsgElem(&completeMsg,&type,&len);		
-		
+
+		CWParseFormatMsgElem(&completeMsg,&type,&len);
+
 		switch(type) {
 			case CW_MSG_ELEMENT_CW_CONTROL_IPV4_ADDRESS_CW_TYPE:
 				/* will be handled by the caller */
-				if(!(CWParseCWControlIPv4Addresses(&completeMsg, 
+				if(!(CWParseCWControlIPv4Addresses(&completeMsg,
 								   len,
 								   &(valuesPtr->ACInfoPtr.IPv4Addresses[i]))))
 				       	return CW_FALSE;
@@ -452,9 +452,9 @@ CWBool CWSaveJoinResponseMessage(CWProtocolJoinResponseValues *joinResponse) {
    if((joinResponse->code == CW_PROTOCOL_SUCCESS) ||
       (joinResponse->code == CW_PROTOCOL_SUCCESS_NAT)) {
 
-	if(gACInfoPtr == NULL) 
+	if(gACInfoPtr == NULL)
 		return CWErrorRaise(CW_ERROR_NEED_RESOURCE, NULL);
-	
+
 	gACInfoPtr->stations = (joinResponse->ACInfoPtr).stations;
 	gACInfoPtr->limit = (joinResponse->ACInfoPtr).limit;
 	gACInfoPtr->activeWTPs = (joinResponse->ACInfoPtr).activeWTPs;
@@ -477,35 +477,35 @@ CWBool CWSaveJoinResponseMessage(CWProtocolJoinResponseValues *joinResponse) {
 
 
 	gACInfoPtr->vendorInfos = (joinResponse->ACInfoPtr).vendorInfos;
-	
+
 	if(joinResponse->ACIPv4ListInfo.ACIPv4ListCount >0) {
 
-		gACInfoPtr->ACIPv4ListInfo.ACIPv4ListCount = joinResponse->ACIPv4ListInfo.ACIPv4ListCount; 
-		gACInfoPtr->ACIPv4ListInfo.ACIPv4List = joinResponse->ACIPv4ListInfo.ACIPv4List; 
+		gACInfoPtr->ACIPv4ListInfo.ACIPv4ListCount = joinResponse->ACIPv4ListInfo.ACIPv4ListCount;
+		gACInfoPtr->ACIPv4ListInfo.ACIPv4List = joinResponse->ACIPv4ListInfo.ACIPv4List;
 	}
-	
+
 	if(joinResponse->ACIPv6ListInfo.ACIPv6ListCount >0) {
 
-		gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount = joinResponse->ACIPv6ListInfo.ACIPv6ListCount; 
-		gACInfoPtr->ACIPv6ListInfo.ACIPv6List = joinResponse->ACIPv6ListInfo.ACIPv6List; 
+		gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount = joinResponse->ACIPv6ListInfo.ACIPv6ListCount;
+		gACInfoPtr->ACIPv6ListInfo.ACIPv6List = joinResponse->ACIPv6ListInfo.ACIPv6List;
 	}
-	
-	/* 
+
+	/*
          * This field name was allocated for storing the AC name; however, it
          * doesn't seem to be used and it is certainly lost when we exit
          * CWWTPEnterJoin() as joinResponse is actually a local variable of that
          * function.
          *
-         * Thus, it seems good to free it now.   
-         * 
-         * BUG ML03  
+         * Thus, it seems good to free it now.
+         *
+         * BUG ML03
          * 16/10/2009 - Donato Capitella
          */
         CW_FREE_OBJECT(joinResponse->ACInfoPtr.name);
         /* BUG ML08 */
         CW_FREE_OBJECT(joinResponse->ACInfoPtr.IPv4Addresses);
 
-	CWDebugLog("Join Response Saved");	
+	CWDebugLog("Join Response Saved");
 	return CW_TRUE;
    }
    else {

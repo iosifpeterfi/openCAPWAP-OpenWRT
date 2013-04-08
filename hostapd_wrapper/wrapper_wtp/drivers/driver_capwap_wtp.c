@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/socket.h>
-#include <netinet/ip.h> 
+#include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -61,7 +61,7 @@
 
 #define BUFFER_SIZE 65000
 //u8 tap_buffer[BUFFER_SIZE];
- 
+
 struct wtp_info {
 	char *tap_interface;
 	char *wlan_interface;
@@ -75,7 +75,7 @@ struct priv_params {
 	unsigned char ssid[32];
 	int ssid_len;
 	unsigned char capa_buf[21];
-	
+
 };
 
 struct priv_params ac_params;
@@ -90,7 +90,7 @@ void stampa_buffer(u8 *buf, int len){
 
 void WTP_inject_frame_in_air(void *priv, unsigned char *buf, int len);
 
-	
+
 
 struct wtp_info generic_wtp_info;
 
@@ -162,30 +162,30 @@ struct capwap_handles {
 static int nl_create_handles(struct capwap_handles *handles, struct nl_cb *cb,
 			     const char *dbg)
 {
-	
+
 	if (!handles)
 		return -1;
 
 	handles->handle = capwap_handle_alloc(cb);
-	
+
 	if (handles->handle == NULL) {
 		wpa_printf(MSG_ERROR, "capwap: Failed to allocate netlink "
 			   "callbacks (%s)", dbg);
 		return -1;
 	}
-	
+
 	if (genl_connect(handles->handle)) {
 		wpa_printf(MSG_ERROR, "capwap: Failed to connect to generic "
 			   "netlink (%s)", dbg);
 		goto err;
 	}
-	
+
 	if (genl_ctrl_alloc_cache(handles->handle, &handles->cache) < 0) {
 		wpa_printf(MSG_ERROR, "capwap: Failed to allocate generic "
 			   "netlink cache (%s)", dbg);
 		goto err;
 	}
-	
+
 	return 0;
 err:
 	capwap_handle_destroy(handles->handle);
@@ -419,33 +419,33 @@ static int send_and_recv(struct wpa_driver_capwap_data *drv,
 			 int (*valid_handler)(struct nl_msg *, void *),
 			 void *valid_data)
 {
-	
+
 	struct nl_cb *cb;
 	int err = -ENOMEM;
 
 	cb = nl_cb_clone(drv->global->nl_cb);
 	if (!cb)
 		goto out;
- 
+
 	err = nl_send_auto_complete(nl_handle, msg);
 	if (err < 0)
 		goto out;
- 
+
 	err = 1;
 
 	nl_cb_err(cb, NL_CB_CUSTOM, error_handler, &err);
 	nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, finish_handler, &err);
 	nl_cb_set(cb, NL_CB_ACK, NL_CB_CUSTOM, ack_handler, &err);
- 
+
 	if (valid_handler)
 		nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM,
 			  valid_handler, valid_data);
- 
+
 	while (err > 0)
 		nl_recvmsgs(nl_handle, cb);
-		
+
  out:
- 
+
 	nl_cb_put(cb);
 	nlmsg_free(msg);
 	return err;
@@ -457,7 +457,7 @@ static int send_and_recv_msgs(struct wpa_driver_capwap_data *drv,
 			      int (*valid_handler)(struct nl_msg *, void *),
 			      void *valid_data)
 {
-	
+
 	return send_and_recv(drv, drv->global->nl.handle, msg, valid_handler,
 			     valid_data);
 }
@@ -503,7 +503,7 @@ static int family_handler(struct nl_msg *msg, void *arg)
 static int nl_get_multicast_id(struct wpa_driver_capwap_data *drv,
 			       const char *family, const char *group)
 {
-	
+
 	struct nl_msg *msg;
 	int ret = -1;
 	struct family_data res = { group, -ENOENT };
@@ -532,17 +532,17 @@ nla_put_failure:
 static void * capwap_cmd(struct wpa_driver_capwap_data *drv,
 			  struct nl_msg *msg, int flags, uint8_t cmd)
 {
-	
-	
+
+
 	return genlmsg_put(msg, 0, 0, genl_family_get_id(drv->global->capwap),
 			   0, flags, cmd, 0);
-   
+
 }
 
 
 static int wpa_driver_capwap_get_bssid(void *priv, u8 *bssid)
 {
-	
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	if (!drv->associated)
@@ -562,7 +562,7 @@ static int wpa_driver_capwap_get_ssid(void *priv, u8 *ssid)
 		return -1;
 //	os_memcpy(ssid, drv->ssid, drv->ssid_len);
 	os_memcpy(ssid, ac_params.ssid, ac_params.ssid_len);
-	
+
 	return ac_params.ssid_len;
 }
 
@@ -617,7 +617,7 @@ static void wpa_driver_capwap_event_link(struct wpa_driver_capwap_data *drv,
 static int wpa_driver_capwap_own_ifname(struct wpa_driver_capwap_data *drv,
 					 u8 *buf, size_t len)
 {
-	
+
 	int attrlen, rta_len;
 	struct rtattr *attr;
 
@@ -677,7 +677,7 @@ static void wpa_driver_capwap_event_rtm_newlink(void *ctx,
 						 struct ifinfomsg *ifi,
 						 u8 *buf, size_t len)
 {
-	
+
 	struct capwap_global *global = ctx;
 	struct wpa_driver_capwap_data *drv;
 	int attrlen, rta_len;
@@ -851,7 +851,7 @@ static void mlme_event_auth(struct wpa_driver_capwap_data *drv,
 
 static unsigned int capwap_get_assoc_freq(struct wpa_driver_capwap_data *drv)
 {
-	
+
 	struct nl_msg *msg;
 	int ret;
 	struct capwap_bss_info_arg arg;
@@ -932,7 +932,7 @@ static void mlme_event_connect(struct wpa_driver_capwap_data *drv,
 			       struct nlattr *addr, struct nlattr *req_ie,
 			       struct nlattr *resp_ie)
 {
-	
+
 	union wpa_event_data event;
 
 	if (drv->capa.flags & WPA_DRIVER_FLAGS_SME) {
@@ -1029,7 +1029,7 @@ static void mlme_timeout_event(struct wpa_driver_capwap_data *drv,
 static void mlme_event_mgmt(struct wpa_driver_capwap_data *drv,
 			    struct nlattr *freq, const u8 *frame, size_t len)
 {
-	
+
 	const struct ieee80211_mgmt *mgmt;
 	union wpa_event_data event;
 	u16 fc, stype;
@@ -1389,7 +1389,7 @@ static void send_scan_event(struct wpa_driver_capwap_data *drv, int aborted,
 
 static int get_link_signal(struct nl_msg *msg, void *arg)
 {
-	
+
 	struct nlattr *tb[NL80211_ATTR_MAX + 1];
 	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
 	struct nlattr *sinfo[NL80211_STA_INFO_MAX + 1];
@@ -1967,7 +1967,7 @@ static void wpa_driver_capwap_event_receive(int sock, void *eloop_ctx,
  */
 static int wpa_driver_capwap_set_country(void *priv, const char *alpha2_arg)
 {
-	 
+
 
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
@@ -2003,7 +2003,7 @@ struct wiphy_info_data {
 
 static int wiphy_info_handler(struct nl_msg *msg, void *arg)
 {
-	
+
 	struct nlattr *tb[NL80211_ATTR_MAX + 1];
 	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
 	struct wiphy_info_data *info = arg;
@@ -2210,7 +2210,7 @@ static int wpa_driver_capwap_get_info(struct wpa_driver_capwap_data *drv,
 	if (send_and_recv_msgs(drv, msg, wiphy_info_handler, info) == 0)
 		return 0;
 	msg = NULL;
-	
+
 nla_put_failure:
 	nlmsg_free(msg);
 	return -1;
@@ -2619,11 +2619,11 @@ static int
 wpa_driver_capwap_finish_drv_init(struct wpa_driver_capwap_data *drv)
 {
 	wpa_printf(MSG_DEBUG, "						3.wpa_driver_capwap_finish_drv_init\n");
-	
+
 	struct i802_bss *bss = &drv->first_bss;
 	int send_rfkill_event = 0;
-	
-	
+
+
 	drv->ifindex = if_nametoindex(bss->ifname);
 	drv->first_bss.ifindex = drv->ifindex;
 
@@ -2668,7 +2668,7 @@ wpa_driver_capwap_finish_drv_init(struct wpa_driver_capwap_data *drv)
 		return -1;
 
 	memcpy(generic_wtp_info.own_mac_addr,drv->addr,ETH_ALEN);
-	
+
 	if (capwap_register_action_frames(drv) < 0) {
 		wpa_printf(MSG_DEBUG, "capwap: Failed to register Action "
 			   "frame processing - ignore for now");
@@ -2715,7 +2715,7 @@ static int wpa_driver_capwap_del_beacon(struct wpa_driver_capwap_data *drv)
  */
 static void wpa_driver_capwap_deinit(void *priv)
 {
-	
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 
@@ -2845,14 +2845,14 @@ static int wpa_driver_capwap_scan(void *priv,
 
 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, drv->ifindex);
 
-	
+
 		wpa_hexdump_ascii(MSG_MSGDUMP, "capwap: Scan SSID",
 				  ac_params.ssid,
 				  ac_params.ssid_len);
 		NLA_PUT(ssids, 1, ac_params.ssid_len,
 			ac_params.ssid);
-	
-	
+
+
 	for (i = 1; i < params->num_ssids; i++) {
 		wpa_hexdump_ascii(MSG_MSGDUMP, "capwap: Scan SSID",
 				  params->ssids[i].ssid,
@@ -3011,13 +3011,13 @@ static int wpa_driver_capwap_sched_scan(void *priv,
 			       match_sets);
 		nlmsg_free(match_sets);
 	}
-	
-		
+
+
 	wpa_hexdump_ascii(MSG_MSGDUMP, "capwap: Sched scan SSID",
 				  ac_params.ssid,
 				  ac_params.ssid_len);
 	NLA_PUT(ssids,   1, ac_params.ssid_len,	ac_params.ssid);
-	
+
 
 	for (i = 1; i < params->num_ssids; i++) {
 		wpa_hexdump_ascii(MSG_MSGDUMP, "capwap: Sched scan SSID",
@@ -3736,7 +3736,7 @@ static int wpa_driver_capwap_mlme(struct wpa_driver_capwap_data *drv,
 				   const u8 *addr, int cmd, u16 reason_code,
 				   int local_state_change)
 {
-	
+
 	int ret = -1;
 	struct nl_msg *msg;
 
@@ -3872,7 +3872,7 @@ retry:
 		NLA_PUT(msg, NL80211_ATTR_SSID, ac_params.ssid_len,
 			ac_params.ssid);
 	}
-	
+
 	wpa_hexdump(MSG_DEBUG, "  * IEs", params->ie, params->ie_len);
 	if (params->ie)
 		NLA_PUT(msg, NL80211_ATTR_IE, params->ie_len, params->ie);
@@ -3933,7 +3933,7 @@ struct phy_info_arg {
 
 static int phy_info_handler(struct nl_msg *msg, void *arg)
 {
-	
+
 	struct nlattr *tb_msg[NL80211_ATTR_MAX + 1];
 	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
 	struct phy_info_arg *phy_info = arg;
@@ -4328,7 +4328,7 @@ static int capwap_set_ht40_flags(struct wpa_driver_capwap_data *drv,
 static struct hostapd_hw_modes *
 wpa_driver_capwap_get_hw_feature_data(void *priv, u16 *num_modes, u16 *flags)
 {
-	
+
 	wpa_printf(MSG_DEBUG,"					1.wpa_driver_capwap_get_hw_feature_data \n");
 
 	struct i802_bss *bss = priv;
@@ -4364,10 +4364,10 @@ wpa_driver_capwap_get_hw_feature_data(void *priv, u16 *num_modes, u16 *flags)
 
 int wpa_driver_capwap_send_frame(struct wpa_driver_capwap_data *drv,const void *data, size_t len,int encrypt){
 
-	unsigned char buf[3000]; 
-	
+	unsigned char buf[3000];
+
 	//flush_pcap(len,data,WTP_LOG);
-	
+
 	__u8 rtap_hdr[] = {
 		0x00, 0x00, /* radiotap version */
 		0x0e, 0x00, /* radiotap length */
@@ -4421,7 +4421,7 @@ int wpa_driver_capwap_send_frame(struct wpa_driver_capwap_data *drv,const void *
 static int wpa_driver_capwap_send_mlme(void *priv, const u8 *data,
 					size_t data_len)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct ieee80211_mgmt *mgmt;
@@ -4429,8 +4429,8 @@ static int wpa_driver_capwap_send_mlme(void *priv, const u8 *data,
 	u16 fc;
 
 	mgmt = (struct ieee80211_mgmt *) data;
-	
-	
+
+
 	fc = le_to_host16(mgmt->frame_control);
 
 	if (is_sta_interface(drv->nlmode) &&
@@ -4522,7 +4522,7 @@ static int capwap_set_bss(struct i802_bss *bss, int cts, int preamble,
 static int wpa_driver_capwap_set_ap(void *priv,
 				     struct wpa_driver_ap_params *params)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -4741,7 +4741,7 @@ static u32 sta_flags_capwap(int flags)
 static int wpa_driver_capwap_sta_add(void *priv,
 				      struct hostapd_sta_add_params *params)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -4757,16 +4757,16 @@ static int wpa_driver_capwap_sta_add(void *priv,
 
 	if (!msg)
 		return -ENOMEM;
- 
+
 	capwap_cmd(drv, msg, 0, params->set ? NL80211_CMD_SET_STATION :
 		    NL80211_CMD_NEW_STATION);
- 
+
 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, if_nametoindex(bss->ifname));
- 
+
 	NLA_PUT(msg, NL80211_ATTR_MAC, ETH_ALEN, params->addr);
- 
+
 	NLA_PUT(msg, NL80211_ATTR_STA_SUPPORTED_RATES, params->supp_rates_len,params->supp_rates);
- 
+
 	if (!params->set) {
 		NLA_PUT_U16(msg, NL80211_ATTR_STA_AID, params->aid);
 		NLA_PUT_U16(msg, NL80211_ATTR_STA_LISTEN_INTERVAL,
@@ -4777,7 +4777,7 @@ static int wpa_driver_capwap_sta_add(void *priv,
 			sizeof(*params->ht_capabilities),
 			params->ht_capabilities);
 	}
- 
+
 	os_memset(&upd, 0, sizeof(upd));
 	upd.mask = sta_flags_capwap(params->flags);
 	upd.set = upd.mask;
@@ -4785,7 +4785,7 @@ static int wpa_driver_capwap_sta_add(void *priv,
 
 
 	ret = send_and_recv_msgs(drv, msg, NULL, NULL);
-	
+
 	msg = NULL;
 	if (ret)
 		wpa_printf(MSG_DEBUG, "capwap: NL80211_CMD_%s_STATION "
@@ -4801,7 +4801,7 @@ static int wpa_driver_capwap_sta_add(void *priv,
 
 static int wpa_driver_capwap_sta_remove(void *priv, const u8 *addr)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -4980,7 +4980,7 @@ static void handle_tx_callback(void *ctx, u8 *buf, size_t len, int ok)
 
 	hdr = (struct ieee80211_hdr *) buf;
 	fc = le_to_host16(hdr->frame_control);
-	
+
 	os_memset(&event, 0, sizeof(event));
 	event.tx_status.type = WLAN_FC_GET_TYPE(fc);
 	event.tx_status.stype = WLAN_FC_GET_STYPE(fc);
@@ -4989,7 +4989,7 @@ static void handle_tx_callback(void *ctx, u8 *buf, size_t len, int ok)
 	event.tx_status.data_len = len;
 	event.tx_status.ack = ok;
 	wpa_supplicant_event(ctx, EVENT_TX_STATUS, &event);
-	
+
 }
 
 
@@ -5017,7 +5017,7 @@ static void from_unknown_sta(struct wpa_driver_capwap_data *drv,
 static void handle_frame(struct wpa_driver_capwap_data *drv,
 			 u8 *buf, size_t len, int datarate, int ssi_signal)
 {
-	
+
 	struct ieee80211_hdr *hdr;
 	u16 fc;
 	union wpa_event_data event;
@@ -5041,14 +5041,14 @@ static void handle_frame(struct wpa_driver_capwap_data *drv,
 		break;
 	case WLAN_FC_TYPE_DATA:
 		from_unknown_sta(drv, buf, len);
-		
+
 		break;
 	}
 }
- 
+
 
 static void handle_monitor_read(int sock, void *eloop_ctx, void *sock_ctx){
-	
+
 	struct wpa_driver_capwap_data *drv = eloop_ctx;
 	int len;
 	unsigned char buf[3000];
@@ -5060,19 +5060,19 @@ static void handle_monitor_read(int sock, void *eloop_ctx, void *sock_ctx){
 	len = recv(sock, buf, sizeof(buf), 0);
 
 	/* Scarto i pacchetti Beacon ricevutti */
-	if(buf[14]==0x80 )return;// Beacon Frame 
-	
+	if(buf[14]==0x80 )return;// Beacon Frame
+
 	if (len < 0) {
 		perror("recv");
 		return;
 	}
-	
-	
+
+
 	if (ieee80211_radiotap_iterator_init(&iter, (void*)buf, len)) {
 		wpa_printf(MSG_DEBUG, "received invalid radiotap frame\n");
 		return;
 	}
-	
+
 	while (1) {
 		ret = ieee80211_radiotap_iterator_next(&iter);
 		if (ret == -ENOENT)
@@ -5107,63 +5107,63 @@ static void handle_monitor_read(int sock, void *eloop_ctx, void *sock_ctx){
 			break;
 		}
 	}
-	
- 
-	
+
+
+
 		int type = WTP_get_Type(buf + iter.max_length,len - iter.max_length);
-		
+
 		if(type == WLAN_FC_TYPE_DATA){
 			wpa_printf(MSG_DEBUG, "EAPOL Data Frame 3 (%d)\n",len - iter.max_length);
-						
+
 			ipc_send_80211_to_ac(generic_wtp_info.fd_ipc, buf  + iter.max_length,len - iter.max_length);
-			 
+
 			return;
-			
+
 		}else if(type == WLAN_FC_TYPE_MGMT){
-			
+
 			int stype = WTP_get_SubType(buf + iter.max_length,len - iter.max_length);
 
-			if( stype == WLAN_FC_STYPE_BEACON ){										
+			if( stype == WLAN_FC_STYPE_BEACON ){
 				return;
-				
-			}else if( stype == WLAN_FC_STYPE_PROBE_REQ ){					
+
+			}else if( stype == WLAN_FC_STYPE_PROBE_REQ ){
 				prob_request_recv = 1;
-				
-			}else if( stype == WLAN_FC_STYPE_PROBE_RESP ){					
+
+			}else if( stype == WLAN_FC_STYPE_PROBE_RESP ){
 				/* Probe Response (only from Call Back) */
-			
+
 			}else if(stype==WLAN_FC_STYPE_ASSOC_RESP || stype==WLAN_FC_STYPE_REASSOC_RESP){
- 
+
 				ipc_send_80211_to_ac(generic_wtp_info.fd_ipc, buf  + iter.max_length,len - iter.max_length);
  				return;
-				
+
 			}else{												// All other packet sent to AC
 				ipc_send_80211_to_ac(generic_wtp_info.fd_ipc,buf  + iter.max_length,len - iter.max_length);
  				return;
 			}
-			
+
 		}else{
 			wpa_printf(MSG_ERROR, "ERROR RECV CONTROLL TRAFIC on MONITOR INTERFACE");
 			return;
 		}
-	
-	
+
+
 	if (rxflags && injected)
 		return;
-		
-  
+
+
 	if (!injected)
 		handle_frame(drv, buf + iter.max_length,
 			     len - iter.max_length, datarate, ssi_signal);
 	else
 		handle_tx_callback(drv->ctx, buf + iter.max_length,
 				   len - iter.max_length, !failed);
-	
+
 
 	if(prob_request_recv){
 		ipc_send_80211_to_ac(generic_wtp_info.fd_ipc, buf  + iter.max_length,len - iter.max_length);
- 	} 
-	
+ 	}
+
 }
 
 
@@ -5321,7 +5321,7 @@ static int add_monitor_filter(int s)
 static void capwap_remove_monitor_interface(
 	struct wpa_driver_capwap_data *drv)
 {
-	
+
 	if (drv->monitor_ifidx >= 0) {
 		capwap_remove_iface(drv, drv->monitor_ifidx);
 		drv->monitor_ifidx = -1;
@@ -5398,15 +5398,15 @@ static int capwap_create_monitor_interface(struct wpa_driver_capwap_data *drv){
 	    (drv->monitor_sock, SOL_SOCKET, SO_PRIORITY, &optval, optlen)) {
 		perror("Failed to set socket priority");
 		goto error;
-	}	
-		
+	}
+
 	if (eloop_register_read_sock(drv->monitor_sock, handle_monitor_read,
 					drv, NULL)) {
 		wpa_printf(MSG_DEBUG, "Could not register monitor read socket\n");
 		goto error;
 	}
-	
-	
+
+
 	return 0;
  error:
 	capwap_remove_monitor_interface(drv);
@@ -5439,10 +5439,10 @@ static int wpa_driver_capwap_hapd_send_eapol(
 	void *priv, const u8 *addr, const u8 *data,
 	size_t data_len, int encrypt, const u8 *own_addr, u32 flags)
 {
-	
+
 	wpa_printf(MSG_DEBUG, "-------------- wpa_driver_capwap_hapd_send_eapol\n");
 	return;
- 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct ieee80211_hdr *hdr;
@@ -6064,7 +6064,7 @@ nla_put_failure:
 static int capwap_set_mode(struct wpa_driver_capwap_data *drv,
 			    int ifindex, enum capwap_iftype mode)
 {
-	
+
 	wpa_printf(MSG_DEBUG, "						1.wpa_driver_capwap_set_mode\n");
 	struct nl_msg *msg;
 	int ret = -ENOBUFS;
@@ -6087,8 +6087,8 @@ static int capwap_set_mode(struct wpa_driver_capwap_data *drv,
 
 	if (!ret)
 		return 0;
-		
-		
+
+
 nla_put_failure:
 	nlmsg_free(msg);
 	wpa_printf(MSG_DEBUG, "capwap: Failed to set interface %d to mode %d:"
@@ -6100,7 +6100,7 @@ nla_put_failure:
 static int wpa_driver_capwap_set_mode(struct i802_bss *bss,
 				       enum capwap_iftype nlmode)
 {
-	
+
 	wpa_printf(MSG_DEBUG, "					6.wpa_driver_capwap_set_mode\n");
 
 	struct wpa_driver_capwap_data *drv = bss->drv;
@@ -6206,7 +6206,7 @@ static int wpa_driver_capwap_get_capa(void *priv,
 
 static int wpa_driver_capwap_set_operstate(void *priv, int state)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 
@@ -6220,7 +6220,7 @@ static int wpa_driver_capwap_set_operstate(void *priv, int state)
 
 static int wpa_driver_capwap_set_supp_port(void *priv, int authorized)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -6294,7 +6294,7 @@ static int get_key_handler(struct nl_msg *msg, void *arg)
 static int i802_get_seqnum(const char *iface, void *priv, const u8 *addr,
 			   int idx, u8 *seq)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -6322,7 +6322,7 @@ static int i802_get_seqnum(const char *iface, void *priv, const u8 *addr,
 static int i802_set_rate_sets(void *priv, int *supp_rates, int *basic_rates,
 			      int mode)
 {
- 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -6419,7 +6419,7 @@ nla_put_failure:
 
 static int i802_flush(void *priv)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -6498,7 +6498,7 @@ static int get_sta_handler(struct nl_msg *msg, void *arg)
 static int i802_read_sta_data(void *priv, struct hostap_sta_driver_data *data,
 			      const u8 *addr)
 {
-	 
+
 
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
@@ -6524,15 +6524,15 @@ static int i802_read_sta_data(void *priv, struct hostap_sta_driver_data *data,
 static int i802_set_tx_queue_params(void *priv, int queue, int aifs,
 				    int cw_min, int cw_max, int burst_time)
 {
-	 
-	
+
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
 	struct nlattr *txq, *params;
-	
+
 	flush_SET_TXQ_handle(generic_wtp_info.fd_ipc, drv->ctx);
-	
+
 	msg = nlmsg_alloc();
 	if (!msg)
 		return -1;
@@ -6587,7 +6587,7 @@ static int i802_set_tx_queue_params(void *priv, int queue, int aifs,
 static int i802_set_sta_vlan(void *priv, const u8 *addr,
 			     const char *ifname, int vlan_id)
 {
- 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -6621,7 +6621,7 @@ static int i802_set_sta_vlan(void *priv, const u8 *addr,
 
 static int i802_get_inact_sec(void *priv, const u8 *addr)
 {
-	 
+
 	struct hostap_sta_driver_data data;
 	int ret;
 
@@ -6666,7 +6666,7 @@ static int i802_sta_deauth(void *priv, const u8 *own_addr, const u8 *addr,
 static int i802_sta_disassoc(void *priv, const u8 *own_addr, const u8 *addr,
 			     int reason)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct ieee80211_mgmt mgmt;
 
@@ -6752,7 +6752,7 @@ static int have_ifidx(struct wpa_driver_capwap_data *drv, int ifidx)
 static int i802_set_wds_sta(void *priv, const u8 *addr, int aid, int val,
                             const char *bridge_ifname)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	char name[IFNAMSIZ + 1];
@@ -6783,48 +6783,48 @@ static int i802_set_wds_sta(void *priv, const u8 *addr, int aid, int val,
 
 static void handle_eapol(int sock, void *eloop_ctx, void *sock_ctx)
 {
-	
-	
- 
+
+
+
 
 	struct wpa_driver_capwap_data *drv = eloop_ctx;
 	struct sockaddr_ll lladdr;
 	unsigned char buf[3000];
 	int len;
-	
-	
-	
+
+
+
 	socklen_t fromlen = sizeof(lladdr);
 
 	len = recvfrom(sock, buf, sizeof(buf), 0,
 		       (struct sockaddr *)&lladdr, &fromlen);
-		       
-   
+
+
     if (len < 0) {
 		perror("recv");
 		return;
 	}
-	
+
 	wpa_printf(MSG_DEBUG, "%d, %d", len,have_ifidx(drv, lladdr.sll_ifindex));
 	int i; wpa_printf(MSG_DEBUG, "  EAPOL MAC: ");
 	for(i=0; i<6; i++ )wpa_printf(MSG_DEBUG, "%02X ",lladdr.sll_addr[i]);printf("\n");
-	
-	
+
+
     u8 outbuf_8022[BUFFER_SIZE];
     u8 outbuf_80211[BUFFER_SIZE];
     int outlen_8022 = add_8022_header(buf, len, outbuf_8022);
     int outlen_80211 = add_80211_Data_header(generic_wtp_info.own_mac_addr, lladdr.sll_addr, generic_wtp_info.own_mac_addr, 1, 0, outbuf_8022, outlen_8022, outbuf_80211);
-    
+
    wpa_printf(MSG_DEBUG, "EAPOL Data Frame 5 (%d)\n",outlen_80211);
-    
+
    // flush_pcap(outlen_80211,outbuf_80211,WTP_LOG);
-   
-   
+
+
 		ipc_send_80211_to_ac(generic_wtp_info.fd_ipc, outbuf_80211, outlen_80211);
 		//WTP_handle_send_data_to_AC(outbuf_80211, outlen_80211);
 		return;
-	
-	
+
+
 	if (have_ifidx(drv, lladdr.sll_ifindex))
 		drv_event_eapol_rx(drv->ctx, lladdr.sll_addr, buf, len);
 }
@@ -6885,8 +6885,8 @@ static int i802_check_bridge(struct wpa_driver_capwap_data *drv,
 }
 
 void AC_popu_capa_info(struct i802_bss *bss, char *mac_addr){
-		 
-		
+
+
 		struct hostapd_hw_modes *tmp_modes;
 		u16 num_modes1, flags1;
 		tmp_modes = wpa_driver_capwap_get_hw_feature_data(bss, &num_modes1, &flags1);
@@ -6896,29 +6896,29 @@ void AC_popu_capa_info(struct i802_bss *bss, char *mac_addr){
 		}
 		int cnt_indx;
 		for(cnt_indx=0; cnt_indx<21; cnt_indx++) ac_params.capa_buf[cnt_indx] = 0;
-		
+
 		for(cnt_indx=0; cnt_indx<num_modes1; cnt_indx++){
 			struct hostapd_hw_modes *fe = &tmp_modes[cnt_indx];
 			ac_params.capa_buf[10] = fe->channels[0].chan;
 			ac_params.capa_buf[12] = fe->num_channels;
 			ac_params.capa_buf[14] = fe->channels[0].max_tx_power;
-			
+
 			int kk;
 			for(kk=0; kk<fe->num_rates && kk<8 ;kk++){
-				
+
 				int tmp_sup_rate = (unsigned char)(fe->rates[kk] / 5);
 				if(fe->mode == HOSTAPD_MODE_IEEE80211B) tmp_sup_rate |= 0x80;
 				if(tmp_sup_rate > ac_params.capa_buf[kk]) ac_params.capa_buf[kk] = tmp_sup_rate;
-				
+
 			}
-			
+
 			if(fe->mode == HOSTAPD_MODE_IEEE80211B ) ac_params.capa_buf[8] |= 1;
 			if(fe->mode == HOSTAPD_MODE_IEEE80211A ) ac_params.capa_buf[8] |= 2;
 			if(fe->mode == HOSTAPD_MODE_IEEE80211G ) ac_params.capa_buf[8] |= 4;
 		}
 		memcpy(ac_params.capa_buf + 15, bss->drv->addr, 6);
-		
-	
+
+
 }
 
 static void *i802_init(struct hostapd_data *hapd,
@@ -7012,15 +7012,15 @@ static void *i802_init(struct hostapd_data *hapd,
 			       params->own_addr))
 		goto failed;
 
-	
+
 		wpa_printf(MSG_DEBUG, "iFace: %s  TapInterface: %s \n",params->ifname,params->tap);
-		
+
 		generic_wtp_info.wlan_interface = params->ifname;
 		generic_wtp_info.tap_interface = params->tap;
 		generic_wtp_info.br_interface = params->br_name;
 
 		AC_popu_capa_info(bss,params->own_addr);
-		
+
 		wpa_printf(MSG_DEBUG, "%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
 					ac_params.capa_buf[0],
 					ac_params.capa_buf[1],
@@ -7043,8 +7043,8 @@ static void *i802_init(struct hostapd_data *hapd,
 					ac_params.capa_buf[18],
 					ac_params.capa_buf[19],
 					ac_params.capa_buf[20]);
-	
-		
+
+
 		void (*pointer_WTP_inject_frame_in_air)(void*,unsigned char*,int);
 		pointer_WTP_inject_frame_in_air = WTP_inject_frame_in_air;
 
@@ -7053,17 +7053,17 @@ static void *i802_init(struct hostapd_data *hapd,
 											&(ac_params.ssid_len),
 											pointer_WTP_inject_frame_in_air,
 											ac_params.capa_buf);
-		
+
 
 		memcpy(params->ssid, ac_params.ssid, ac_params.ssid_len);
 		params->ssid_len = ac_params.ssid_len;
-		
-		
-		if(generic_wtp_info.fd_ipc<=0){	
+
+
+		if(generic_wtp_info.fd_ipc<=0){
 			wpa_printf(MSG_ERROR, "Error: start_ipc");
 			return;
 		}
-	
+
 	return bss;
 
 failed:
@@ -7077,7 +7077,7 @@ static void i802_deinit(void *priv)
 	wpa_printf(MSG_DEBUG, "> i802_deinit \n");
 
 	end_ipc(generic_wtp_info.fd_ipc);
-	
+
 	wpa_driver_capwap_deinit(priv);
 }
 
@@ -7151,7 +7151,7 @@ static int wpa_driver_capwap_if_add(void *priv, enum wpa_driver_if_type type,
 				     char *force_ifname, u8 *if_addr,
 				     const char *bridge)
 {
- 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	int ifidx;
@@ -7510,7 +7510,7 @@ nla_put_failure:
 
 static int wpa_driver_capwap_probe_req_report(void *priv, int report)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 
@@ -7612,7 +7612,7 @@ nla_put_failure:
 
 static int wpa_driver_capwap_deinit_ap(void *priv)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	if (!is_ap_interface(drv->nlmode))
@@ -7624,7 +7624,7 @@ static int wpa_driver_capwap_deinit_ap(void *priv)
 
 static int wpa_driver_capwap_deinit_p2p_cli(void *priv)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	if (drv->nlmode != NL80211_IFTYPE_P2P_CLIENT)
@@ -7635,7 +7635,7 @@ static int wpa_driver_capwap_deinit_p2p_cli(void *priv)
 
 static void wpa_driver_capwap_resume(void *priv)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	if (linux_set_iface_flags(drv->global->ioctl_sock, bss->ifname, 1)) {
@@ -7648,7 +7648,7 @@ static void wpa_driver_capwap_resume(void *priv)
 static int capwap_send_ft_action(void *priv, u8 action, const u8 *target_ap,
 				  const u8 *ies, size_t ies_len)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	int ret;
@@ -7699,7 +7699,7 @@ static int capwap_send_ft_action(void *priv, u8 action, const u8 *target_ap,
 
 static int capwap_signal_monitor(void *priv, int threshold, int hysteresis)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg, *cqm = NULL;
@@ -7736,7 +7736,7 @@ nla_put_failure:
 
 static int capwap_signal_poll(void *priv, struct wpa_signal_info *si)
 {
- 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	int res;
@@ -7753,7 +7753,7 @@ static int capwap_signal_poll(void *priv, struct wpa_signal_info *si)
 static int capwap_send_frame(void *priv, const u8 *data, size_t data_len,
 			      int encrypt)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	return wpa_driver_capwap_send_frame(drv, data, data_len, encrypt);
@@ -7762,7 +7762,7 @@ static int capwap_send_frame(void *priv, const u8 *data, size_t data_len,
 
 static int capwap_set_param(void *priv, const char *param)
 {
-	 
+
 	wpa_printf(MSG_DEBUG, "capwap: driver param='%s'", param);
 	if (param == NULL)
 		return 0;
@@ -7825,7 +7825,7 @@ err:
 
 static void capwap_global_deinit(void *priv)
 {
-	 
+
 	struct capwap_global *global = priv;
 	if (global == NULL)
 		return;
@@ -7854,7 +7854,7 @@ static void capwap_global_deinit(void *priv)
 
 static const char * capwap_get_radio_name(void *priv)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	return drv->phyname;
@@ -7887,7 +7887,7 @@ static int capwap_pmkid(struct i802_bss *bss, int cmd, const u8 *bssid,
 
 static int capwap_add_pmkid(void *priv, const u8 *bssid, const u8 *pmkid)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	wpa_printf(MSG_DEBUG, "capwap: Add PMKID for " MACSTR, MAC2STR(bssid));
 	return capwap_pmkid(bss, NL80211_CMD_SET_PMKSA, bssid, pmkid);
@@ -7896,7 +7896,7 @@ static int capwap_add_pmkid(void *priv, const u8 *bssid, const u8 *pmkid)
 
 static int capwap_remove_pmkid(void *priv, const u8 *bssid, const u8 *pmkid)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	wpa_printf(MSG_DEBUG, "capwap: Delete PMKID for " MACSTR,
 		   MAC2STR(bssid));
@@ -7906,7 +7906,7 @@ static int capwap_remove_pmkid(void *priv, const u8 *bssid, const u8 *pmkid)
 
 static int capwap_flush_pmkid(void *priv)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	wpa_printf(MSG_DEBUG, "capwap: Flush PMKIDs");
 	return capwap_pmkid(bss, NL80211_CMD_FLUSH_PMKSA, NULL, NULL);
@@ -7916,7 +7916,7 @@ static int capwap_flush_pmkid(void *priv)
 static void capwap_set_rekey_info(void *priv, const u8 *kek, const u8 *kck,
 				   const u8 *replay_ctr)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nlattr *replay_nested;
@@ -7951,7 +7951,7 @@ static void capwap_set_rekey_info(void *priv, const u8 *kek, const u8 *kck,
 static void capwap_poll_client(void *priv, const u8 *own_addr, const u8 *addr,
 				int qos)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct {
 		struct ieee80211_hdr hdr;
@@ -7992,7 +7992,7 @@ static int capwap_send_tdls_mgmt(void *priv, const u8 *dst, u8 action_code,
 				  u8 dialog_token, u16 status_code,
 				  const u8 *buf, size_t len)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -8025,7 +8025,7 @@ nla_put_failure:
 
 static int capwap_tdls_oper(void *priv, enum tdls_oper oper, const u8 *peer)
 {
-	 
+
 	struct i802_bss *bss = priv;
 	struct wpa_driver_capwap_data *drv = bss->drv;
 	struct nl_msg *msg;
@@ -8084,7 +8084,7 @@ void WTP_inject_frame_in_air(void *priv, u8 *buf, int len){
 	int type = WTP_get_Type(buf ,len );
 
 	if( type == WLAN_FC_TYPE_DATA){
-		
+
 		if( isEAPOL_Frame(buf, len) ){
 			wpa_printf(MSG_DEBUG, "EAPOL Data Frame 2 (%d)\n",len);
 			return wpa_driver_capwap_send_frame(drv,buf,len,0);
@@ -8092,17 +8092,17 @@ void WTP_inject_frame_in_air(void *priv, u8 *buf, int len){
 		}else{
 			wpa_printf(MSG_DEBUG, "ERROR Data Frame in hostapd WTP");
 		}
-		
+
 	}else if( type == WLAN_FC_TYPE_MGMT ){
-		
+
 		wpa_driver_capwap_send_frame(drv,buf,len,0);
-		
+
 	}else{
-		
+
 		wpa_printf(MSG_ERROR, "ERROR: Received invalid/controlo 802.11 header type");
-				
+
 	}
-	
+
 }
 
 
@@ -8137,7 +8137,7 @@ const struct wpa_driver_ops wpa_driver_capwap_wtp_ops = {
 	.sta_remove = wpa_driver_capwap_sta_remove,
 	.hapd_send_eapol = wpa_driver_capwap_hapd_send_eapol,
 	.sta_set_flags = wpa_driver_capwap_sta_set_flags,
-	
+
 #ifdef HOSTAPD
 	.hapd_init = i802_init,
 	.hapd_deinit = i802_deinit,

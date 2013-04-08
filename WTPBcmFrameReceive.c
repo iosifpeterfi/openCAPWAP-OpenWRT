@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -34,7 +34,7 @@
 
 
 
-int extractFrame(CWProtocolMessage** frame, unsigned char* buffer, int len)	//len: frame length 
+int extractFrame(CWProtocolMessage** frame, unsigned char* buffer, int len)	//len: frame length
 {
 	CW_CREATE_OBJECT_ERR(*frame, CWProtocolMessage, return 0;);
 	CWProtocolMessage *auxPtr = *frame;
@@ -57,7 +57,7 @@ int get_mac(u_char *buf)
 		return errno;
 	}
 
-	
+
 	strncpy(ifr.ifr_name, WL_DEVICE, IFNAMSIZ);
 	//ifr.ifr_data = (caddr_t) buf;
 	if ((ioctl(s, SIOCGIFHWADDR, &ifr)) < 0) {
@@ -67,7 +67,7 @@ int get_mac(u_char *buf)
 		return 0;
 	}
 
-	
+
 	/* cleanup */
 	close(s);
 	memcpy(buf, &(ifr.ifr_hwaddr.sa_data), MAC_ADDR_LEN);
@@ -84,20 +84,20 @@ int macAddrCmp (unsigned char* addr1, unsigned char* addr2)
 	{
 		CWDebugLog("%02x ", addr1[i]);
 	}
-	
+
 	CWDebugLog("\nAddress 2:");
 	for (i=0; i<MAC_ADDR_LEN; i++)
 	{
 		CWDebugLog("%02x ", addr2[i]);
 	}
 	CWDebugLog("\n");*/
-	
+
 	for (i=0; i<MAC_ADDR_LEN; i++)
 	{
 		if (addr1[i]!=addr2[i])
 		{ok=0;}
 	}
-	
+
 	return ok;
 }
 
@@ -133,14 +133,14 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
   	int i;
 	printf("2: CWWTPReceiveFrame\n");
 	CWThreadSetSignals(SIG_BLOCK, 1, SIGALRM);
-	
+
 	//Get interface mac address
 	if(!get_mac(wl0_mac_address)) {
 
 		CWDebugLog("THR FRAME: Failure to get interface mac address");
 		EXIT_THREAD
     	}
-	
+
 	/*Set interface in a special monitor mode throws WL_GET_MAGIC & WLC_GET_MONITOR*/
 	wl_ioctl(WL_DEVICE, WLC_GET_MAGIC, &i, 4);
 	if (i != WLC_IOCTL_MAGIC) {
@@ -158,21 +158,21 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
   	handle = pcap_open_live(dev, BUFSIZ, 1, 0, errbuf);
 
 	if (!handle) {
-	
+
 		CWDebugLog("THR FRAME: Failure to open pcap!");
 		EXIT_THREAD
     	}
-	
+
 	CW_REPEAT_FOREVER {
-		
+
 		packet = pcap_next(handle, &header);
 		if (!packet) break;
 		dealWithPacket(&header, packet,wl0_mac_address);
 	}
 
 	wl_ioctl(WL_DEVICE, WLC_SET_MONITOR, &oldMonitor, 4);
-	pcap_close(handle);		
-	
+	pcap_close(handle);
+
 	return(NULL);
 }
 
@@ -223,7 +223,7 @@ void dealWithPacket(struct pcap_pkthdr * header, const u_char * packet, u_char *
 				CW_CREATE_OBJECT_ERR(bindingValuesPtr, CWBindingTransportHeaderValues, EXIT_THREAD);
 				bindingValuesPtr->RSSI=RSSI;
 				bindingValuesPtr->SNR=SNR;
-				bindingValuesPtr->dataRate=data_rate;	
+				bindingValuesPtr->dataRate=data_rate;
 				CW_CREATE_OBJECT_ERR(listElement, CWBindingDataListElement, EXIT_THREAD);
 				if (!extractFrame(&frame, buffer,packet_len - sizeof(prism_hdr)))
 						{
@@ -232,12 +232,12 @@ void dealWithPacket(struct pcap_pkthdr * header, const u_char * packet, u_char *
 						}
 				listElement->frame=frame;
 				listElement->bindingValues=bindingValuesPtr;
-							
+
 				CWLockSafeList(gFrameList);
 				CWAddElementToSafeListTail(gFrameList, listElement, sizeof(CWBindingDataListElement));
-				CWUnlockSafeList(gFrameList);		
+				CWUnlockSafeList(gFrameList);
 				break;
-  	
+
 	case mgt_assocResponse: break;
   	case mgt_reassocRequest: break;
   	case mgt_reassocResponse: break;

@@ -47,7 +47,7 @@ CWBool CWSecurityInitSessionClient(CWSocket sock,
 				   int *PMTUPtr);
 
 CWBool CWSecuritySend(CWSecuritySession session, const char *buf, int len);
-CWBool CWSecurityReceive(CWSecuritySession session, 
+CWBool CWSecurityReceive(CWSecuritySession session,
 			 char *buf,
 			 int len,
 			 int *readBytesPtr);

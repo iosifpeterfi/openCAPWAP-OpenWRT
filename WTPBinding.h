@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*  
+ * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*
  *           Del Moro Andrea (andrea_delmoro@libero.it)											*
  *           Giovannini Federica (giovannini.federica@gmail.com)								*
  *           Massimo Vellucci (m.vellucci@unicampus.it)											*
@@ -73,7 +73,7 @@ CWBool CWBindingSetQosValues(int qosCount, RadioQosValues *radioQosValues, CWPro
 CWBool CWBindingParseConfigurationUpdateRequest (char *msg, int len, void **valuesPtr);
 CWBool CWBindingParseConfigureResponse (char *msg, int len, void **valuesPtr);
 /****************************************************
- * 2009 Updates: (SaveConfiguration)				*	
+ * 2009 Updates: (SaveConfiguration)				*
  *				Prototype Modification (int * added)*
  ****************************************************/
 CWBool CWBindingSaveConfigurationUpdateRequest(void* bindingValuesPtr, CWProtocolResultCode* resultCode, int *updateRequestType);

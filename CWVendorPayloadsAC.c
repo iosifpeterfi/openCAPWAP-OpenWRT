@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Matteo Latini (mtylty@gmail.com)													*  
+ * Authors : Matteo Latini (mtylty@gmail.com)													*
  *
  ************************************************************************************************/
 
@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <unistd.h> 
+#include <unistd.h>
 #include <signal.h>
 
 #ifdef DMALLOC
@@ -99,12 +99,12 @@ CWBool CWAssembleWTPVendorPayloadWUM(CWProtocolMessage *msgPtr) {
 	valuesPtr =gWTPs[*iPtr].vendorValues;
 	switch (valuesPtr->vendorPayloadType){
 			case CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_WUM:
-				/* 
-				 * Here we assemble the WTP Update Messages. 
+				/*
+				 * Here we assemble the WTP Update Messages.
  				 */
 				msgType = CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_WUM;
                                 wumPtr = (CWVendorWumValues*) valuesPtr->payload;
-				
+
 				switch(wumPtr->type) {
 				case WTP_VERSION_REQUEST:
 				case WTP_COMMIT_UPDATE:
@@ -125,10 +125,10 @@ CWBool CWAssembleWTPVendorPayloadWUM(CWProtocolMessage *msgPtr) {
                                 CWProtocolStore16(msgPtr, (unsigned short) msgType);
                                 CWProtocolStore8(msgPtr, (unsigned char) wumPtr->type);
 				if (wumPtr->type == WTP_UPDATE_REQUEST) {
-					CWProtocolStore8(msgPtr, wumPtr->_major_v_);	
-					CWProtocolStore8(msgPtr, wumPtr->_minor_v_);	
-					CWProtocolStore8(msgPtr, wumPtr->_revision_v_);	
-					CWProtocolStore32(msgPtr, wumPtr->_pack_size_);	
+					CWProtocolStore8(msgPtr, wumPtr->_major_v_);
+					CWProtocolStore8(msgPtr, wumPtr->_minor_v_);
+					CWProtocolStore8(msgPtr, wumPtr->_revision_v_);
+					CWProtocolStore32(msgPtr, wumPtr->_pack_size_);
 				} else if (wumPtr->type == WTP_CUP_FRAGMENT) {
 					CWProtocolStore32(msgPtr, wumPtr->_seq_num_);
 					CWProtocolStore32(msgPtr, wumPtr->_cup_fragment_size_);

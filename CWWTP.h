@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -104,7 +104,7 @@ CWBool CWWTPInitConfiguration();
 void CWWTPResetRadioStatistics(WTPRadioStatisticsInfo *radioStatistics);
 CWBool CWReceiveMessage(CWProtocolMessage *msgPtr);
 CWBool CWWTPSendAcknowledgedPacket(int seqNum,
-				   CWList msgElemlist, 
+				   CWList msgElemlist,
 				   CWBool (assembleFunc)(CWProtocolMessage **, int *, int, int, CWList),
 				   CWBool (parseFunc)(char*, int, int, void*),
 				   CWBool (saveFunc)(void*),
@@ -157,7 +157,7 @@ CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage *pendingRequestMsgs,
 			     int retransmission,
 			     CWProtocolMessage *msgElems,
 			     int fragmentsNum);
-			     
+
 
 #ifdef SOFTMAC
 //in WTPmacDriverInteraction.c
@@ -200,7 +200,7 @@ CWBool CWStartNeighborDeadTimer();
 CWBool CWStopNeighborDeadTimer();
 CWBool CWResetTimers();
 
-void CWWTPHeartBeatTimerExpiredHandler(void *arg); 
+void CWWTPHeartBeatTimerExpiredHandler(void *arg);
 void CWWTPRetransmitTimerExpiredHandler(CWTimerArg arg);
 
 extern CWBool WTPExitOnUpdateCommit;

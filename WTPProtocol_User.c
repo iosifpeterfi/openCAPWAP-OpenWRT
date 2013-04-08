@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -33,7 +33,7 @@
 #ifdef DMALLOC
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
- 
+
 __inline__ int CWWTPGetDiscoveryType() {
 	return CW_MSG_ELEMENT_DISCOVERY_TYPE_CONFIGURED;
 }
@@ -42,13 +42,13 @@ __inline__ int CWWTPGetMaxRadios() {
 	return 1;
 }
 
-__inline__ int CWWTPGetRadiosInUse() 
+__inline__ int CWWTPGetRadiosInUse()
 {
 	/*for (i=0; i<gRadiosInfo.radioCount; i++)
 	{
 		if((gRadiosInfo.radiosInfo[i].operationalState) == ENABLED)
 			active++;
-	}	
+	}
 	return active;
 	*/
 	return gRadiosInfo.radioCount;
@@ -64,7 +64,7 @@ CWBool CWWTPGetBoardData(CWWTPVendorInfos *valPtr) {
 
 	valPtr->vendorInfosCount = 2; // we fill 2 information (just the required ones)
 	CW_CREATE_ARRAY_ERR((valPtr->vendorInfos), valPtr->vendorInfosCount, CWWTPVendorInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	// my vendor identifier (IANA assigned "SMI Network Management Private Enterprise Code")
 	(valPtr->vendorInfos)[0].vendorIdentifier = 23456;
 	(valPtr->vendorInfos)[0].type = CW_WTP_MODEL_NUMBER;
@@ -78,16 +78,16 @@ CWBool CWWTPGetBoardData(CWWTPVendorInfos *valPtr) {
 	(valPtr->vendorInfos)[1].length = sizeof(long int); // just one int
 	CW_CREATE_OBJECT_SIZE_ERR(( ( (valPtr->vendorInfos)[1] ).valuePtr), (valPtr->vendorInfos)[1].length, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	*(int *)(((valPtr->vendorInfos)[1]).valuePtr) = 123456; // SERIAL NUMBER
-	
+
 	return CW_TRUE;
 }
 
 CWBool CWWTPGetVendorInfos(CWWTPVendorInfos *valPtr) {
 	if(valPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	valPtr->vendorInfosCount = 3; // we fill 3 information (just the required ones)
 	CW_CREATE_ARRAY_ERR((valPtr->vendorInfos), valPtr->vendorInfosCount, CWWTPVendorInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	// my vendor identifier (IANA assigned "SMI Network Management Private Enterprise Code")
 	(valPtr->vendorInfos)[0].vendorIdentifier = 23456;
 	(valPtr->vendorInfos)[0].type = CW_WTP_HARDWARE_VERSION;
@@ -101,32 +101,32 @@ CWBool CWWTPGetVendorInfos(CWWTPVendorInfos *valPtr) {
 	((valPtr->vendorInfos)[1]).length = sizeof(long int); // just one int
 	CW_CREATE_OBJECT_SIZE_ERR(( ( (valPtr->vendorInfos)[1] ).valuePtr), (valPtr->vendorInfos)[1].length, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	*(int *)(((valPtr->vendorInfos)[1]).valuePtr) = 12347; // SW version
-	
+
 	// my vendor identifier (IANA assigned "SMI Network Management Private Enterprise Code")
 	(valPtr->vendorInfos)[2].vendorIdentifier = 23456;
 	(valPtr->vendorInfos)[2].type = CW_BOOT_VERSION;
 	(valPtr->vendorInfos)[2].length = sizeof(long int); // just one int
 	CW_CREATE_OBJECT_SIZE_ERR(( ( (valPtr->vendorInfos)[2] ).valuePtr), (valPtr->vendorInfos)[2].length, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	*(int *)(((valPtr->vendorInfos)[2]).valuePtr) = 1234568; // Boot version
-	
+
 	return CW_TRUE;
 }
 
 __inline__ void CWWTPDestroyVendorInfos(CWWTPVendorInfos *valPtr) {
 	int i;
-	
+
 	if(valPtr == NULL) return;
-	
+
 	for(i = 0; i < valPtr->vendorInfosCount; i++) {
 		CW_FREE_OBJECT((valPtr->vendorInfos)[i].valuePtr);
 	}
-	
+
 	CW_FREE_OBJECT(valPtr->vendorInfos);
 }
 
 __inline__ int CWWTPGetFrameTunnelMode() {
 	//it may be also 802.3_FrameTunnelMode - NativeFrameTunnelMode - All
-	
+
 #ifdef SOFTMAC
 	return CW_NATIVE_BRIDGING;
 #else
@@ -136,7 +136,7 @@ __inline__ int CWWTPGetFrameTunnelMode() {
 }
 
 __inline__ int CWWTPGetMACType() {
-	
+
 
 #ifdef SOFTMAC
 	return CW_SPLIT_MAC;
@@ -157,19 +157,19 @@ __inline__ int CWWTPGetSessionID() {
 __inline__ int CWWTPGetIPv4Address() {
 	struct sockaddr_in myAddr;
 	unsigned int len = sizeof(myAddr);
-	
+
 	//CWDebugLog("WTPGetIPv4Address");
 
 	/* assume the socket is connected */
 	getsockname(gWTPSocket, (struct sockaddr*) &myAddr, &len);
-	
+
 	return ntohl(myAddr.sin_addr.s_addr); 	// TO-DO: this is garbage if we are an IPv6 client
 }
 
 __inline__ void CWWTPGetIPv6Address(struct sockaddr_in6* myAddr) {
-	
+
 	unsigned int len = sizeof(*myAddr);
-	
+
 	/* assume the socket is connected */
 	getsockname(gWTPSocket, (struct sockaddr*) myAddr, &len);
 }
@@ -188,39 +188,39 @@ __inline__ char *CWWTPGetName() {
 
 /*CWBool CWWTPGetRadiosInformation(CWRadiosInformation *valPtr) {
 	if(valPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	valPtr->radiosCount = 2;
-	
+
 	CW_CREATE_ARRAY_ERR(valPtr->radios, valPtr->radiosCount, CWRadioInformationValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	(valPtr->radios)[0].ID = 0; // first radio
 	(valPtr->radios)[0].type = CW_802_DOT_11b;
-	
+
 	(valPtr->radios)[1].ID = 1; // second radio
 	(valPtr->radios)[1].type = CW_802_DOT_11b;
-	
+
 	return CW_TRUE;
 }
 */
 
 /* L'AC ha la funzione ridefinita */
-CWBool CWGetWTPRadiosAdminState(CWRadiosAdminInfo *valPtr) 
+CWBool CWGetWTPRadiosAdminState(CWRadiosAdminInfo *valPtr)
 {
 	int i;
 
 	if(valPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	valPtr->radiosCount = gRadiosInfo.radioCount;
-	
+
 	CW_CREATE_ARRAY_ERR(valPtr->radios, valPtr->radiosCount, CWRadioAdminInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	for (i=0; i<gRadiosInfo.radioCount; i++)
 	{
 		(valPtr->radios)[i].ID = gRadiosInfo.radiosInfo[i].radioID; // first radio
 		(valPtr->radios)[i].state = gRadiosInfo.radiosInfo[i].adminState;
 		(valPtr->radios)[i].cause = gRadiosInfo.radiosInfo[i].adminCause;
 	}
-		
+
 	return CW_TRUE;
 }
 
@@ -230,21 +230,21 @@ CWBool CWGetWTPRadiosOperationalState(int radioID, CWRadiosOperationalInfo *valP
 	CWBool found = CW_FALSE;
 
 	if(valPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	if(radioID<0) {
-		
+
 		valPtr->radiosCount = gRadiosInfo.radioCount;
-		
+
 		CW_CREATE_ARRAY_ERR(valPtr->radios, valPtr->radiosCount, CWRadioOperationalInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 		for (i=0; i<gRadiosInfo.radioCount; i++)
-		{	
+		{
 			(valPtr->radios)[i].ID = gRadiosInfo.radiosInfo[i].radioID;
 			(valPtr->radios)[i].state = gRadiosInfo.radiosInfo[i].operationalState;
 			(valPtr->radios)[i].cause = gRadiosInfo.radiosInfo[i].operationalCause;
 		}
-		return CW_TRUE;	
-	}	
+		return CW_TRUE;
+	}
 	else {
 		for (i=0; i<gRadiosInfo.radioCount; i++)
 		{
@@ -267,7 +267,7 @@ CWBool CWGetDecryptErrorReport(int radioID, CWDecryptErrorReportInfo *valPtr)
 {
 	int i;
 	CWBool found = CW_FALSE;
-	
+
 	/*
 	CWMACAddress add, add2;
 	for(i=0; i<6; i++) add[i]=i;
@@ -276,22 +276,22 @@ CWBool CWGetDecryptErrorReport(int radioID, CWDecryptErrorReportInfo *valPtr)
 	elem.data = add;
 	elem.next = &elem2;
 	elem2.data = &add2;
-	elem2.next = NULL; 
+	elem2.next = NULL;
 	gRadiosInfo.radiosInfo[0].decryptErrorMACAddressList = &elem;
 	*/
 
 	if(valPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	valPtr->radios=NULL;
-	
+
 	if(radioID<0) {
-		
+
 		valPtr->radiosCount = gRadiosInfo.radioCount;
-		
+
 		CW_CREATE_ARRAY_ERR(valPtr->radios, valPtr->radiosCount, CWDecryptErrorReportValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-		
+
 		for (i=0; i<gRadiosInfo.radioCount; i++)
-		{	
+		{
 			(valPtr->radios)[i].ID = gRadiosInfo.radiosInfo[i].radioID;
 			(valPtr->radios)[i].numEntries = CWCountElementInList(gRadiosInfo.radiosInfo[i].decryptErrorMACAddressList);
 			(valPtr->radios[i]).decryptErrorMACAddressList = NULL;
@@ -305,8 +305,8 @@ CWBool CWGetDecryptErrorReport(int radioID, CWDecryptErrorReportInfo *valPtr)
 				temp = temp->next;
 			}
 		}
-		return CW_TRUE;	
-	}	
+		return CW_TRUE;
+	}
 	else {
 		for (i=0; i<gRadiosInfo.radioCount; i++)
 		{
@@ -324,7 +324,7 @@ CWBool CWGetDecryptErrorReport(int radioID, CWDecryptErrorReportInfo *valPtr)
 				temp = gRadiosInfo.radiosInfo[0].decryptErrorMACAddressList;
 				for(j=0; j<(valPtr->radios[0]).numEntries; j++)
 				{
-					CW_COPY_MEMORY((valPtr->radios[0]).decryptErrorMACAddressList[j],temp->data, 6);	
+					CW_COPY_MEMORY((valPtr->radios[0]).decryptErrorMACAddressList[j],temp->data, 6);
 					temp = temp->next;
 				}
 			}
@@ -351,18 +351,18 @@ int CWWTPGetStatisticsTimer ()
 CWBool CWWTPGetACNameWithIndex (CWACNamesWithIndex *ACsInfo)
 {
 	if(ACsInfo == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	ACsInfo->count = 2;
-	
+
 	CW_CREATE_ARRAY_ERR(ACsInfo->ACNameIndex, ACsInfo->count, CWACNameWithIndexValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	(ACsInfo->ACNameIndex)[0].index = 0; // first radio
 	CW_CREATE_STRING_FROM_STRING_ERR((ACsInfo->ACNameIndex)[0].ACName, "ACPrimary", return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
-	
+
+
 	(ACsInfo->ACNameIndex)[1].index = 1; // first radio
 	CW_CREATE_STRING_FROM_STRING_ERR((ACsInfo->ACNameIndex)[1].ACName, "ACSecondary", return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););;
-	
+
 	return CW_TRUE;
 }
 
@@ -373,10 +373,10 @@ int getInterfaceMacAddr(char* interface, unsigned char* macAddr)
 
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sock < 0) {
-		CWLog("Error Creating Socket for ioctl"); 
+		CWLog("Error Creating Socket for ioctl");
 		return -1;
 	}
-	
+
 	memset(&ethreq, 0, sizeof(ethreq));
 	strncpy(ethreq.ifr_name, interface, IFNAMSIZ);
 	if (ioctl(sock, SIOCGIFHWADDR, &ethreq)==-1) {
@@ -411,7 +411,7 @@ int initWTPSessionID(char * sessionID)
 		if (i%16==0) printf("\n%04x:   ", i);
 		printf("%02x:", buffer[i]);
 	}
-	printf("\n");	
+	printf("\n");
 
 	return 0;
 }

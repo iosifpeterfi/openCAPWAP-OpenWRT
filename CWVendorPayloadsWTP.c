@@ -19,7 +19,7 @@
  * Project:  Capwap																				*
  *																								*
  * Authors : Matteo Latini (mtylty@gmail.com)
- *           Donato Capitella (d.capitella@gmail.com)  
+ *           Donato Capitella (d.capitella@gmail.com)
  *
  ************************************************************************************************/
 
@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <unistd.h> 
+#include <unistd.h>
 #include <signal.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
@@ -47,18 +47,18 @@
 
 CWBool CWParseUCIPayload(CWProtocolMessage *msgPtr, CWVendorUciValues **payloadPtr) {
 	int argsLen;
-	CWVendorUciValues* uciPayload = NULL; 
+	CWVendorUciValues* uciPayload = NULL;
 
 	CW_CREATE_OBJECT_ERR(uciPayload, CWVendorUciValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	uciPayload->command = (unsigned char) CWProtocolRetrieve8(msgPtr);
 	uciPayload->response = NULL;
-	argsLen = (unsigned int) CWProtocolRetrieve32(msgPtr);	
+	argsLen = (unsigned int) CWProtocolRetrieve32(msgPtr);
 	if (argsLen != 0) {
 		CW_CREATE_STRING_ERR(uciPayload->commandArgs, argsLen, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 		uciPayload->commandArgs = CWProtocolRetrieveStr(msgPtr, argsLen);
-	} else 
+	} else
 		uciPayload->commandArgs = NULL;
-	
+
 	*payloadPtr = uciPayload;
 
 	CWLog("Parsed UCI Vendor Payload...");
@@ -70,7 +70,7 @@ CWBool CWParseWUMPayload(CWProtocolMessage *msgPtr, CWVendorWumValues **payloadP
 
         CW_CREATE_OBJECT_ERR(wumPayload, CWVendorWumValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
         wumPayload->type = (unsigned char) CWProtocolRetrieve8(msgPtr);
-       
+
        	/*
 	 * According to the type of the message, retrive additional fields
 	 */
@@ -163,7 +163,7 @@ struct WUMState wumState = {
  *
  * After a WTP_UPDATE_REQUEST, calling this function prepares the update system
  * to accept CUP fragments and reassemble them into a temp file. If something goes
- * wrong, it returns CW_FALSE; otherwise it returns CW_TRUE, the wumState changes 
+ * wrong, it returns CW_FALSE; otherwise it returns CW_TRUE, the wumState changes
  * to BUSY and we are ready to store the fragments we've received.
  */
 CWBool WUMPrepareForUpdate(int size)
@@ -174,7 +174,7 @@ CWBool WUMPrepareForUpdate(int size)
 	}
 
 	wumState.cupTmp = fopen(CUP_TMP_FILE, "w");
-	
+
 	if (wumState.cupTmp == NULL) {
 		CWLog("Can't open temp file %s for writing.\n", CUP_TMP_FILE);
 		return CW_FALSE;
@@ -185,7 +185,7 @@ CWBool WUMPrepareForUpdate(int size)
 	if (size % CUP_FRAGMENT_SIZE > 0)
 		wumState.total_fragments++;
 	wumState.received_fragments = 0;
-	
+
 	wumState.state = WUM_STATE_BUSY;
 
 	return CW_TRUE;
@@ -221,7 +221,7 @@ CWBool WUMStoreFragment(CWVendorWumValues *wumValues)
 		CWLog("Error while writing CUP tmp file.\n");
 		return CW_FALSE;
 	}
-	
+
 	CW_FREE_OBJECT(wumValues->_cup_);
 
 	wumState.received_fragments++;
@@ -270,10 +270,10 @@ CWBool WUMCancel()
 /*
  * CWWTPCheckVersion - checks if we are already updated.
  */
-CWBool CWWTPCheckVersion(CWVendorWumValues *wumPayload) 
+CWBool CWWTPCheckVersion(CWVendorWumValues *wumPayload)
 {
 	int ret = CW_FALSE;
-	
+
 	if (wumPayload->_major_v_ > WTP_VERSION_MAJOR)
 		ret = CW_TRUE;
 	else if (wumPayload->_major_v_ == WTP_VERSION_MAJOR){
@@ -294,11 +294,11 @@ CWBool StartWUA()
     struct flock fl;
 
     /* The following lock in set just for synchronization purposes */
-    fl.l_type   = F_WRLCK; 
+    fl.l_type   = F_WRLCK;
     fl.l_whence = SEEK_SET;
-    fl.l_start  = 0;       
-    fl.l_len    = 0;        
-    fl.l_pid    = getpid(); 
+    fl.l_start  = 0;
+    fl.l_len    = 0;
+    fl.l_pid    = getpid();
 
     fd = open(WTP_LOCK_FILE, O_CREAT | O_WRONLY, S_IRWXU);
 
@@ -318,7 +318,7 @@ CWBool StartWUA()
 }
 
 /*
- * Returns CW_TRUE if the required space is available on the 
+ * Returns CW_TRUE if the required space is available on the
  * filesystem where the /tmp dir is mounted.
  */
 CWBool check_free_space(int bytes)
@@ -332,12 +332,12 @@ CWBool check_free_space(int bytes)
 
 	if (diskStat.f_bsize * diskStat.f_bfree > bytes)
 		return CW_TRUE;
-	
+
 	return CW_FALSE;
 }
 
-CWBool CWWTPSaveWUMValues(CWVendorWumValues *wumPayload, CWProtocolResultCode *resultCode) 
-{	
+CWBool CWWTPSaveWUMValues(CWVendorWumValues *wumPayload, CWProtocolResultCode *resultCode)
+{
     /* guards on input values */
 	if (wumPayload == NULL) {return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);}
 
@@ -360,23 +360,23 @@ CWBool CWWTPSaveWUMValues(CWVendorWumValues *wumPayload, CWProtocolResultCode *r
 
 			if (!CWWTPCheckVersion(wumPayload)) {
 				CWLog("WTP already up to date.\n");
-				*resultCode = CW_PROTOCOL_FAILURE;	
+				*resultCode = CW_PROTOCOL_FAILURE;
 			} else if (!check_free_space(wumPayload->_pack_size_)) {
 				CWLog("No disk space available.\n");
-				*resultCode = CW_PROTOCOL_FAILURE;	
+				*resultCode = CW_PROTOCOL_FAILURE;
 			} else if ( WUMPrepareForUpdate(wumPayload->_pack_size_) == CW_FALSE ) {
-				*resultCode = CW_PROTOCOL_FAILURE;	
+				*resultCode = CW_PROTOCOL_FAILURE;
 			}
 
 			break;
 		case WTP_CUP_FRAGMENT:
 			wumPayload->type = WTP_CUP_ACK;
-			
+
 			if (!WUMStoreFragment(wumPayload)) {
 				*resultCode = CW_PROTOCOL_FAILURE;
 			}
-			
-			/* if this is the last fragment, close temp file and 
+
+			/* if this is the last fragment, close temp file and
 			 * pass to the READY state. */
 			if (WUMIsComplete()) {
 				WUMCloseFile();
@@ -384,15 +384,15 @@ CWBool CWWTPSaveWUMValues(CWVendorWumValues *wumPayload, CWProtocolResultCode *r
 			break;
 		case WTP_COMMIT_UPDATE:
 		    wumPayload->type = WTP_COMMIT_ACK;
-		    
+
 			/* Check if we are in the correct state */
 			if (wumState.state != WUM_STATE_READY) {
 				*resultCode = CW_PROTOCOL_FAILURE;
 			}
-			
+
 			/* Start the Update Agent */
 			StartWUA();
-			
+
 			/* Remember to exit after sending the WTP_COMMIT_ACK */
 			WTPExitOnUpdateCommit = CW_TRUE;
 			break;
@@ -427,26 +427,26 @@ CWBool CWWTPSaveUCIValues(CWVendorUciValues *uciPayload, CWProtocolResultCode *r
 	struct sockaddr_in serv_addr;
 	int sendSock, slen = sizeof(serv_addr), responseSize, responseCode;
 	unsigned int ArgsSize, response = 0, ArgsSizeNet;
-	char * bufferMessage;   
+	char * bufferMessage;
 
 	if ((sendSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) ==-1 ) {
 		CWLog("[CWSaveUCIValues]: Error on creation of socket.");
 		return CWErrorRaise(CW_ERROR_GENERAL, NULL);
 	}
-	
+
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = htons(UCI_SERVER_PORT);
-	
+
 	if ( inet_aton("127.0.0.1", &serv_addr.sin_addr)==0 ) {
 	  CWLog("[CWSaveUCIValues]: Error on aton function.");
 	  close(sendSock);
 	  return CWErrorRaise(CW_ERROR_GENERAL, NULL);
 	}
 
-	if (uciPayload->commandArgs == NULL) 
+	if (uciPayload->commandArgs == NULL)
 		ArgsSize = 0;
-	else 
+	else
 		ArgsSize = strlen(uciPayload->commandArgs);
 
 	if ( ( bufferMessage = malloc(ArgsSize + sizeof(unsigned char) + sizeof(unsigned int)) ) != NULL ) {
@@ -454,7 +454,7 @@ CWBool CWWTPSaveUCIValues(CWVendorUciValues *uciPayload, CWProtocolResultCode *r
 		ArgsSizeNet = htonl(ArgsSize);
 		memcpy(bufferMessage+sizeof(unsigned char), &ArgsSizeNet, sizeof(unsigned int)); /* Second Field */
 		if (uciPayload->commandArgs != NULL)
-			memcpy(bufferMessage+(sizeof(unsigned char)+sizeof(unsigned int)), uciPayload->commandArgs, ArgsSize); /* Third Field */	
+			memcpy(bufferMessage+(sizeof(unsigned char)+sizeof(unsigned int)), uciPayload->commandArgs, ArgsSize); /* Third Field */
 
 		/*Send conf request to uci daemon */
 		if ( sendto(sendSock, bufferMessage, sizeof(unsigned char), 0, (struct sockaddr *) &serv_addr, slen) < 0 ) {
@@ -534,7 +534,7 @@ CWBool CWWTPSaveUCIValues(CWVendorUciValues *uciPayload, CWProtocolResultCode *r
 	}
 
 	response = htonl(1);
-	
+
 	if ( sendto(sendSock, &response, sizeof(unsigned int), 0, (struct sockaddr *) &serv_addr, slen) < 0 ) {
 		CWLog("[CWSaveUCIValues]: Error on sendto function.");
 		close(sendSock);
@@ -544,7 +544,7 @@ CWBool CWWTPSaveUCIValues(CWVendorUciValues *uciPayload, CWProtocolResultCode *r
 
 	responseCode = ntohl(responseCode);
 
-	if (responseCode != 0) 
+	if (responseCode != 0)
 		/*If we have an error*/
 		*resultCode = CW_PROTOCOL_FAILURE;
 	else {
@@ -604,7 +604,7 @@ CWBool CWWTPSaveUCIValues(CWVendorUciValues *uciPayload, CWProtocolResultCode *r
 	}
 
 	CWLog("Saved UCI Vendor Payload...");
-	close(sendSock);	
+	close(sendSock);
 	CW_FREE_OBJECT(bufferMessage);
-	return CW_TRUE;		
+	return CW_TRUE;
 }

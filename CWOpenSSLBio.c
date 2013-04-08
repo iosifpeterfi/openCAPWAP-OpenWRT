@@ -18,14 +18,14 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
- 
+
 #include "CWCommon.h"
 
 #ifdef DMALLOC
@@ -75,7 +75,7 @@ BIO* BIO_new_memory(CWSocket sock, CWNetworkLev4Address* pSendAddress, CWSafeLis
 	BIO_memory_data* pData;
 
 	ret = BIO_new(BIO_s_memory());
-	if (ret == NULL) 
+	if (ret == NULL)
 		return NULL;
 
 	//
@@ -99,7 +99,7 @@ static int memory_new(BIO *bi)
 
 static int memory_free(BIO *a)
 {
-	if (a == NULL) 
+	if (a == NULL)
 		return 0;
 
 	free(a->ptr);
@@ -132,7 +132,7 @@ static int memory_read(BIO *b, char *out, int outl)
 		CWLog("Warning empty buffer");
 	else
 	{
-		ret = ((size < outl) ? size : outl) - 4;	
+		ret = ((size < outl) ? size : outl) - 4;
 		memcpy(out, buf + 4, ret);
 		CW_FREE_OBJECT(buf);
 	}
@@ -145,7 +145,7 @@ static int memory_write(BIO *b, const char *in, int inl)
 	int ret = -1;
 	char strBuffer[MAX_UDP_PACKET_SIZE];
 	BIO_memory_data* pData = (BIO_memory_data*)b->ptr;
-	
+
 	//
 	strBuffer[0] = (char)(CW_PROTOCOL_VERSION << 4) | (char)(CW_PACKET_CRYPT);
 	strBuffer[1] = strBuffer[2] = strBuffer[3] = 0;
@@ -161,13 +161,13 @@ static int memory_write(BIO *b, const char *in, int inl)
 	if (ret <= 0)
 	{
 		if (errno == EINTR)
-			BIO_set_retry_write(b);  
+			BIO_set_retry_write(b);
 	}
 	else
 	{
 		ret -= 4;
 	}
-	
+
 	return ret;
 }
 
@@ -183,7 +183,7 @@ static long memory_ctrl(BIO *b, int cmd, long num, void *ptr)
 		case BIO_CTRL_RESET:
 			ret = 0;
 			break;
-		
+
 		case BIO_CTRL_EOF:
 			ret = 0;
 			break;
@@ -202,7 +202,7 @@ static long memory_ctrl(BIO *b, int cmd, long num, void *ptr)
 		case BIO_CTRL_WPENDING:
 			ret = 0;
 			break;
-	
+
 		case BIO_CTRL_PENDING:
 			ret = 0;
 			break;
@@ -226,8 +226,8 @@ static long memory_ctrl(BIO *b, int cmd, long num, void *ptr)
 		{
          	sockopt_len = sizeof(sockopt_val);
 			if ((ret = getsockopt(pData->sock, IPPROTO_IP, IP_MTU, (void *)&sockopt_val, &sockopt_len)) < 0 || sockopt_val < 0)
-			{ 
-				ret = 0; 
+			{
+				ret = 0;
 			}
 			else
 			{
@@ -235,13 +235,13 @@ static long memory_ctrl(BIO *b, int cmd, long num, void *ptr)
 				ret = sockopt_val;
 			}
 
-			break;	
+			break;
 		}
 
 		case BIO_CTRL_DGRAM_GET_MTU:
 			ret = pData->nMtu;
 			break;
-	
+
 		case BIO_CTRL_DGRAM_SET_MTU:
 			pData->nMtu = num;
 			ret = num;

@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*  
+ * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*
  *           Del Moro Andrea (andrea_delmoro@libero.it)											*
  *           Giovannini Federica (giovannini.federica@gmail.com)								*
  *           Massimo Vellucci (m.vellucci@unicampus.it)											*
@@ -30,12 +30,12 @@
 #ifndef __CAPWAP_CWProtocol_HEADER__
 #define __CAPWAP_CWProtocol_HEADER__
 
-//#define CWSetField32(obj, start, val)	((obj)[start/64]) |= ((val) << (start%64))	
+//#define CWSetField32(obj, start, val)	((obj)[start/64]) |= ((val) << (start%64))
 //#define CWGetField32(obj, start, len)	(((obj)[start/64]) & ((0xFFFFFFFFFFFFFFFF >> (64-(len))) << (start%64)) ) >> (start%64)
 
 /*_____________________________________________________*/
 /*  *******************___MACRO___*******************  */
-//#define CWSetField32(obj, start, val)					((obj)[start/32]) |= ((val) << (start%32))	
+//#define CWSetField32(obj, start, val)					((obj)[start/32]) |= ((val) << (start%32))
 //#define CWGetField32(obj, start, len)					(((obj)[start/32]) & ((0xFFFFFFFFUL >> (32-(len))) << (start%32)) ) >> (start%32)
 
 #define CWSetField32(src,start,len,val)					src |= ((~(0xFFFFFFFF << len)) & val) << (32 - start - len)
@@ -61,11 +61,11 @@
 
 #define		CW_FREE_PROTOCOL_MESSAGE(mess)				CW_FREE_OBJECT(((mess).msg));								\
 									(mess).offset = 0;
-															
+
 #define		CWParseMessageElementStart()				int oldOffset;												\
 									if(msgPtr == NULL || valPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);	\
 									oldOffset = msgPtr->offset
-						
+
 #define		CWParseMessageElementEnd()				CWDebugLog(NULL);											\
 									return ((msgPtr->offset) - oldOffset) == len ? CW_TRUE :	\
 									CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Message Element Malformed");
@@ -79,7 +79,7 @@
 #define		CW_CONTROL_PORT						5246
 #define		CW_DATA_PORT						5247
 #define		CW_PROTOCOL_VERSION					0
-#define		CW_IANA_ENTERPRISE_NUMBER				13277	
+#define		CW_IANA_ENTERPRISE_NUMBER				13277
 #define		CW_IANA_ENTERPRISE_NUMBER_VENDOR_IANA			18357
 #define 	CW_CONTROL_HEADER_OFFSET_FOR_MSG_ELEMS			3		//Offset "Seq Num" - "Message Elements"
 #define		CW_MAX_SEQ_NUM						255
@@ -109,7 +109,7 @@
 #define 	CW_TRANSPORT_HEADER_RID_START				13
 #define 	CW_TRANSPORT_HEADER_RID_LEN				5
 
-// Length of CAPWAP tunnel header in 4 byte words 
+// Length of CAPWAP tunnel header in 4 byte words
 #define 	CW_TRANSPORT_HEADER_HLEN_START				8
 #define 	CW_TRANSPORT_HEADER_HLEN_LEN				5
 
@@ -149,7 +149,7 @@
 #define 	CW_TRANSPORT_HEADER_FRAGMENT_ID_START			0
 #define 	CW_TRANSPORT_HEADER_FRAGMENT_ID_LEN			16
 
-// Position of this fragment in the group 
+// Position of this fragment in the group
 #define 	CW_TRANSPORT_HEADER_FRAGMENT_OFFSET_START		16
 #define 	CW_TRANSPORT_HEADER_FRAGMENT_OFFSET_LEN			13
 
@@ -240,7 +240,7 @@
 #define 	CW_MSG_ELEMENT_WTP_REBOOT_STATISTICS_CW_TYPE		48
 #define 	CW_MSG_ELEMENT_WTP_STATIC_IP_CW_TYPE			49
 /*Update 2009:
-		Message type to return a payload together with the 
+		Message type to return a payload together with the
 		configuration update response*/
 #define 	CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_CW_TYPE		57
 #define 	CW_MSG_ELEMENT_RESULT_CODE_CW_TYPE_WITH_PAYLOAD		58
@@ -324,7 +324,7 @@ typedef enum {
 	CW_PROTOCOL_FAILURE_BINDING_UNSUPP		= 9, // Binding not supported
 	CW_PROTOCOL_FAILURE_UNABLE_TO_RESET		= 10, // Unable to reset
 	CW_PROTOCOL_FAILURE_FIRM_WRT_ERROR		= 11, // Firmware write error
-	CW_PROTOCOL_FAILURE_SERVICE_PROVIDED_ANYHOW	= 12, // Unable to apply requested configuration 
+	CW_PROTOCOL_FAILURE_SERVICE_PROVIDED_ANYHOW	= 12, // Unable to apply requested configuration
 	CW_PROTOCOL_FAILURE_SERVICE_NOT_PROVIDED	= 13, // Unable to apply requested configuration
 	CW_PROTOCOL_FAILURE_INVALID_CHECKSUM		= 14, // Image Data Error: invalid checksum
 	CW_PROTOCOL_FAILURE_INVALID_DATA_LEN		= 15, // Image Data Error: invalid data length
@@ -341,7 +341,7 @@ typedef enum {
 typedef struct {
 	char *msg;
 	int offset;
-	int data_msgType; 
+	int data_msgType;
 } CWProtocolMessage;
 
 
@@ -613,7 +613,7 @@ typedef struct {
 	CWList decryptErrorMACAddressList;
 
 	unsigned int reportInterval;
-	
+
 	CWstate adminState;
 	CWAdminCause adminCause;
 
@@ -623,8 +623,8 @@ typedef struct {
 	unsigned int TxQueueLevel;
 	unsigned int wirelessLinkFramesPerSec;
 
-	WTPRadioStatisticsInfo statistics;	
-	
+	WTPRadioStatisticsInfo statistics;
+
 	void* bindingValuesPtr;
 } CWWTPRadioInfoValues;
 
@@ -634,7 +634,7 @@ typedef struct {
 } CWWTPRadiosInfo;
 
 /*Update 2009:
-	Helper structure to keep track of 
+	Helper structure to keep track of
 	requested UCI commands (via Vendor specific
 	message)*/
 typedef struct {

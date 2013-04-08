@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -37,9 +37,9 @@
 
 CWBool CWWTPCheckForBindingFrame()
 {
-	//	
+	//
 	CWLockSafeList(gFrameList);
-	
+
 	while (CWGetCountElementFromSafeList(gFrameList) > 0)
 	{
 		CWBindingDataListElement* dataFirstElem = CWRemoveHeadElementFromSafeList(gFrameList, NULL);
@@ -48,20 +48,20 @@ CWBool CWWTPCheckForBindingFrame()
 			int k;
 			int fragmentsNum = 0;
 			CWProtocolMessage *completeMsgPtr = NULL;
-			
-			if (!CWAssembleDataMessage(&completeMsgPtr, 
-						   &fragmentsNum, 
-						   gWTPPathMTU, 
-						   dataFirstElem->frame, 
+
+			if (!CWAssembleDataMessage(&completeMsgPtr,
+						   &fragmentsNum,
+						   gWTPPathMTU,
+						   dataFirstElem->frame,
 						   dataFirstElem->bindingValues,
  			       			   CW_PACKET_PLAIN
-						   ,0))			  
-			{	
+						   ,0))
+			{
 				for(k = 0; k < fragmentsNum; k++)
 				{
 					CW_FREE_PROTOCOL_MESSAGE(completeMsgPtr[k]);
 				}
-				
+
 				CW_FREE_OBJECT(completeMsgPtr);
 				CW_FREE_PROTOCOL_MESSAGE(*(dataFirstElem->frame));
 				CW_FREE_OBJECT(dataFirstElem->frame);
@@ -69,8 +69,8 @@ CWBool CWWTPCheckForBindingFrame()
 				CW_FREE_OBJECT(dataFirstElem);
 				continue;
 			}
-								
-			for (k = 0; k < fragmentsNum; k++) 
+
+			for (k = 0; k < fragmentsNum; k++)
 			{
 				if (!CWNetworkSendUnsafeConnected(gWTPDataSocket, completeMsgPtr[k].msg, completeMsgPtr[k].offset)) {
 					CWDebugLog("Failure sending Request");
@@ -78,22 +78,22 @@ CWBool CWWTPCheckForBindingFrame()
 				}
 				CWDebugLog("Sending binding Request to AC");
 			}
-			
+
 			for (k = 0; k < fragmentsNum; k++)
 			{
 				CW_FREE_PROTOCOL_MESSAGE(completeMsgPtr[k]);
 			}
-			
-			CW_FREE_OBJECT(completeMsgPtr);				
+
+			CW_FREE_OBJECT(completeMsgPtr);
 			CW_FREE_PROTOCOL_MESSAGE(*(dataFirstElem->frame));
 			CW_FREE_OBJECT(dataFirstElem->frame);
 			CW_FREE_OBJECT(dataFirstElem->bindingValues);
 			CW_FREE_OBJECT(dataFirstElem);
-		}	
+		}
 	}
 
-	CWUnlockSafeList(gFrameList);	
-	
+	CWUnlockSafeList(gFrameList);
+
 	return CW_TRUE;
 }
 
@@ -101,20 +101,20 @@ CWBool CWWTPCheckForWTPEventRequest(){
 
 	CWLog("\n");
 	CWLog("#________ WTP Event Request Message (Run) ________#");
-	
+
 	/* Send WTP Event Request */
 	CWList msgElemList = NULL;
 	CWProtocolMessage *messages = NULL;
 	int fragmentsNum = 0;
 	int seqNum;
 	int *pendingReqIndex;
-		
+
 	seqNum = CWGetSeqNum();
 
 	CW_CREATE_OBJECT_ERR(pendingReqIndex, int, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	CW_CREATE_OBJECT_ERR(msgElemList, CWListElement, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	CW_CREATE_OBJECT_ERR(msgElemList->data, CWMsgElemData, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););	
+	CW_CREATE_OBJECT_ERR(msgElemList->data, CWMsgElemData, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	msgElemList->next= NULL;
 	//Change type and value to change the msg elem to send
 	((CWMsgElemData*)(msgElemList->data))->type = CW_MSG_ELEMENT_CW_DECRYPT_ER_REPORT_CW_TYPE;
@@ -125,11 +125,11 @@ CWBool CWWTPCheckForWTPEventRequest(){
 		if(messages)
 			for(i = 0; i < fragmentsNum; i++) {
 				CW_FREE_PROTOCOL_MESSAGE(messages[i]);
-			}	
+			}
 		CW_FREE_OBJECT(messages);
 		return CW_FALSE;
 	}
-	
+
 	*pendingReqIndex = CWSendPendingRequestMessage(gPendingRequestMsgs,messages,fragmentsNum);
 	if (*pendingReqIndex<0) {
 		CWDebugLog("Failure sending WTP Event Request");
@@ -150,7 +150,7 @@ CWBool CWWTPCheckForWTPEventRequest(){
 			      0,
 			      messages,
 			      fragmentsNum);
-	
+
 	CWDeleteList(&msgElemList, CWProtocolDestroyMsgElemData);
 
 	return CW_TRUE;
@@ -162,7 +162,7 @@ void CWWTPRetransmitTimerExpiredHandler(CWTimerArg arg, CWTimerID id)
 	CWThreadSetSignals(SIG_BLOCK, 1, SIGALRM);
 
 	CWDebugLog("Retransmit Timer Expired for Thread: %08x", (unsigned int)CWThreadSelf());
-	
+
 	if(gPendingRequestMsgs[arg].retransmission == gCWMaxRetransmit) {
 		CWDebugLog("Peer is Dead");
 		CWThreadSetSignals(SIG_UNBLOCK, 1, SIGALRM);
@@ -171,7 +171,7 @@ void CWWTPRetransmitTimerExpiredHandler(CWTimerArg arg, CWTimerID id)
 	}
 
 	CWDebugLog("Retransmission Count increases to %d", gPendingRequestMsgs[arg].retransmission);
-	
+
 	int i;
 	for(i = 0; i < gPendingRequestMsgs[arg].fragmentsNum; i++) {
 		if(!CWSecuritySend(gWTPSession, gPendingRequestMsgs[arg].msgElems[i].msg, gPendingRequestMsgs[arg].msgElems[i].offset)){
@@ -179,18 +179,18 @@ void CWWTPRetransmitTimerExpiredHandler(CWTimerArg arg, CWTimerID id)
 			int k;
 			for(k = 0; k < gPendingRequestMsgs[arg].fragmentsNum; k++) {
 				CW_FREE_PROTOCOL_MESSAGE(gPendingRequestMsgs[arg].msgElems[k]);
-			}	
+			}
 			CW_FREE_OBJECT(gPendingRequestMsgs[arg].msgElems);
 			CWThreadSetSignals(SIG_UNBLOCK, 1, SIGALRM);
 			return;
 		}
-	}	
+	}
 	gPendingRequestMsgs[arg].retransmission++;
 
 	if(!CWTimerCreate(gPendingRequestMsgs[arg].timer_sec, &(gPendingRequestMsgs[arg].timer), gPendingRequestMsgs[arg].timer_hdl, gPendingRequestMsgs[arg].timer_arg)) {
 		CWThreadSetSignals(SIG_UNBLOCK, 1, SIGALRM);
 		return;
-	}	
+	}
 
 	CWThreadSetSignals(SIG_UNBLOCK, 1, SIGALRM);
 
@@ -203,7 +203,7 @@ void CWWTPRetransmitTimerExpiredHandler(CWTimerArg hdl_arg)
 	int index = *((int *)hdl_arg);
 
 	CWDebugLog("Retransmit Timer Expired for Thread: %08x", (unsigned int)CWThreadSelf());
-	
+
 	if(gPendingRequestMsgs[index].retransmission == gCWMaxRetransmit) {
 		CWDebugLog("Peer is Dead");
 		//_CWCloseThread(*iPtr);
@@ -211,15 +211,15 @@ void CWWTPRetransmitTimerExpiredHandler(CWTimerArg hdl_arg)
 	}
 
 	CWDebugLog("Retransmission Count increases to %d", gPendingRequestMsgs[index].retransmission);
-	
+
 	int i;
 	for(i = 0; i < gPendingRequestMsgs[index].fragmentsNum; i++) {
 #ifdef CW_NO_DTLS
-		if (!CWNetworkSendUnsafeConnected(gWTPSocket, 
+		if (!CWNetworkSendUnsafeConnected(gWTPSocket,
 						  gPendingRequestMsgs[index].msgElems[i].msg,
 						  gPendingRequestMsgs[index].msgElems[i].offset)) {
 #else
-		if (!CWSecuritySend(gWTPSession, 
+		if (!CWSecuritySend(gWTPSession,
 				    gPendingRequestMsgs[index].msgElems[i].msg,
 				    gPendingRequestMsgs[index].msgElems[i].offset)){
 #endif
@@ -227,16 +227,16 @@ void CWWTPRetransmitTimerExpiredHandler(CWTimerArg hdl_arg)
 			int k;
 			for(k = 0; k < gPendingRequestMsgs[index].fragmentsNum; k++) {
 				CW_FREE_PROTOCOL_MESSAGE(gPendingRequestMsgs[index].msgElems[k]);
-			}	
+			}
 			CW_FREE_OBJECT(gPendingRequestMsgs[index].msgElems);
 			CW_FREE_OBJECT(hdl_arg);
 			return;
 		}
-	}	
+	}
 	gPendingRequestMsgs[index].retransmission++;
 
-	gPendingRequestMsgs[index].timer = timer_add(gPendingRequestMsgs[index].timer_sec, 
-						   0, 
+	gPendingRequestMsgs[index].timer = timer_add(gPendingRequestMsgs[index].timer_sec,
+						   0,
 						   gPendingRequestMsgs[index].timer_hdl,
 						   gPendingRequestMsgs[index].timer_arg);
 	CW_FREE_OBJECT(hdl_arg);

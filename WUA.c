@@ -21,7 +21,7 @@
  *                                                                                         *
  * Author: Donato Capitella (d.capitella@gmail.com)                                        *
  *                                            				                     		   *
- *******************************************************************************************/ 
+ *******************************************************************************************/
 
 #include <unistd.h>
 #include <wait.h>
@@ -40,7 +40,7 @@
 #define WTP_DIR_VAR     "WTP_DIR"
 #define CUP_DIR_VAR     "CUP_DIR"
 
-/* Execute the system() function 
+/* Execute the system() function
  * and return CW_FALSE in case of failure. */
 #define SYSTEM_ERR(cmd) \
 do {  \
@@ -67,7 +67,7 @@ struct CWUpdateDescriptor cud = {
 /* Function prototypes */
 CWBool Unzip(char *filename, char *destdir);
 CWBool MakeDir(char *dirname);
-CWBool BackupCurrentWTP(char *WTPDir); 
+CWBool BackupCurrentWTP(char *WTPDir);
 CWBool CheckCUPIntegrity();
 CWBool ParseCUD();
 
@@ -107,19 +107,19 @@ int main(int argc, char *argv[])
  * This function executes an update session, which is divided
  * into three stages:
  *
- *   - Stage 1: preparation for the update (unpack CUP and 
+ *   - Stage 1: preparation for the update (unpack CUP and
  *     backup current WTP)
  *
- *   - Stage 2: executes pre-update script, copies new files, 
+ *   - Stage 2: executes pre-update script, copies new files,
  *     then executes post-update script
  *
- *   - Final Stage: cleans temp files and start new WTP 
+ *   - Final Stage: cleans temp files and start new WTP
  */
 void WTPUpdateAgent(char *CupPath)
 {
     int exit_status = EXIT_SUCCESS;
     char WTPDir[BUF_SIZE];
-    
+
     if ( !WUAInitLog(LOG_FILE) ) {
         goto quit_wua;
     }
@@ -138,7 +138,7 @@ void WTPUpdateAgent(char *CupPath)
         exit_status = EXIT_FAILURE;
 	goto quit_wua;
     }
-    
+
     if ( !WUAStage2(WTPDir) ) {
         exit_status = EXIT_FAILURE;
         if ( !RestoreBackupWTP(WTPDir) ) {
@@ -158,7 +158,7 @@ quit_wua:
 }
 
 /*
- * WaitForWTPTermination 
+ * WaitForWTPTermination
  * This function returns when the WTP terminates. A lock on a file
  * is used for synchronization purposes.
  */
@@ -166,7 +166,7 @@ void WaitForWTPTermination()
 {
     struct flock fl;
     int fd;
-    
+
     /* The following lock in set just for synchronization purposes */
     fl.l_type   = F_WRLCK;
     fl.l_whence = SEEK_SET;
@@ -179,7 +179,7 @@ void WaitForWTPTermination()
     }
 
     fcntl(fd, F_SETLKW, &fl);
-   
+
     close(fd);
     remove(WTP_LOCK_FILE);
 
@@ -190,7 +190,7 @@ void WaitForWTPTermination()
  * State 1 of the update process
  *
  * - Unpack & Check CUP file
- * - Backup current WTP  
+ * - Backup current WTP
  */
 CWBool WUAStage1(char *CupPath, char *WTPDir)
 {
@@ -199,7 +199,7 @@ CWBool WUAStage1(char *CupPath, char *WTPDir)
     if (!MakeDir(CUP_UNPACK_DIR)) {
         return CW_FALSE;
     }
-    
+
     if (!Unzip(CupPath, CUP_UNPACK_DIR)) {
         WUALog("Something wrong happened while unzipping the CUP archive.");
         return CW_FALSE;
@@ -209,7 +209,7 @@ CWBool WUAStage1(char *CupPath, char *WTPDir)
         WUALog("Problems with the CUP archive.");
         return CW_FALSE;
     }
-  */ 
+  */
     if (!ParseCUD()) {
         WUALog("Error while parsing CUD.");
         return CW_FALSE;
@@ -227,7 +227,7 @@ CWBool WUAStage1(char *CupPath, char *WTPDir)
     }
 
     WUALog("Stage 1 completed successfully...");
-    
+
     return CW_TRUE;
 }
 
@@ -237,9 +237,9 @@ CWBool WUAStage1(char *CupPath, char *WTPDir)
  * - Set scripts variables
  * - Execute preupdate script
  * - Copy new files
- * - Execute postupdate script  
+ * - Execute postupdate script
  */
-CWBool WUAStage2(char *WTPDir) 
+CWBool WUAStage2(char *WTPDir)
 {
     int ret;
     char cmd_buf[BUF_SIZE];
@@ -247,13 +247,13 @@ CWBool WUAStage2(char *WTPDir)
     WUALog("Entering Stage 2...");
 
     /* Prepare env variables for the scripts */
-    ret = setenv(WTP_DIR_VAR, WTPDir, 1);   
+    ret = setenv(WTP_DIR_VAR, WTPDir, 1);
     if (ret != 0) {
         WUALog("Error while setting env variable.");
         return CW_FALSE;
     }
 
-    ret = setenv(CUP_DIR_VAR, CUP_UNPACK_DIR, 1);   
+    ret = setenv(CUP_DIR_VAR, CUP_UNPACK_DIR, 1);
     if (ret != 0) {
         WUALog("Error while setting env variable.");
         return CW_FALSE;
@@ -270,7 +270,7 @@ CWBool WUAStage2(char *WTPDir)
     	return CW_FALSE;
     }
     SYSTEM_ERR(cmd_buf);
-    
+
     /* Execute post-upsate script, if any */
     if (strlen(cud.post_script) > 0) {
         SYSTEM_ERR(cud.post_script);
@@ -283,7 +283,7 @@ CWBool WUAStage2(char *WTPDir)
 /*
  * Unzip - unzips a gzipped archive into the provided directory.
  *
- * Notes: this implementation relies on the tar command. 
+ * Notes: this implementation relies on the tar command.
  */
 CWBool Unzip(char *filename, char *destdir)
 {
@@ -294,7 +294,7 @@ CWBool Unzip(char *filename, char *destdir)
     if (ret < 0 || ret >= BUF_SIZE) {
     	return CW_FALSE;
     }
-    
+
     SYSTEM_ERR(cmd_buf);
 
     return CW_TRUE;
@@ -328,13 +328,13 @@ CWBool StartWTP(char *WTPDir)
     return CW_TRUE;
 }
 
-CWBool RestoreBackupWTP(char *WTPDir) 
+CWBool RestoreBackupWTP(char *WTPDir)
 {
     char cmd_buf[BUF_SIZE];
     int ret;
 
     WUALog("Restoring old WTP...");
-    
+
     /* Del WTPDir content */
     ret = snprintf(cmd_buf, BUF_SIZE, "rm -rf %s/*", WTPDir);
     if (ret < 0 || ret >= BUF_SIZE) {
@@ -406,7 +406,7 @@ CWBool ParseCUD()
 		goto exit_parse;;
 	    }
 	    snprintf(cud.version, BUF_SIZE, "%s", token);
-        }	
+        }
     }
 
     if (strlen(cud.version) == 0) {
@@ -428,19 +428,19 @@ void CleanTmpFiles(char *cupFile)
 
     /* Remove CUP file */
     remove(cupFile);
-    
+
     /* Remove Unpack and Backup Directory */
     ret = snprintf(cmd_buf, BUF_SIZE, "rm -rf %s %s", CUP_UNPACK_DIR, BACKUP_DIR);
     if (ret < 0 || ret >= BUF_SIZE) {
     	return;
     }
-    
+
     ret = system(cmd_buf);
 }
 
 CWBool BackupCurrentWTP(char *WTPDir)
 {
-	
+
     char cmd_buf[BUF_SIZE];
     int ret;
 
@@ -448,7 +448,7 @@ CWBool BackupCurrentWTP(char *WTPDir)
     if (ret < 0 || ret >= BUF_SIZE) {
     	return CW_FALSE;
     }
-    
+
     SYSTEM_ERR(cmd_buf);
 
     return CW_TRUE;

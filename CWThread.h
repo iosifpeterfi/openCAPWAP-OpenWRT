@@ -55,7 +55,7 @@
 
 #ifdef HAVE_SEM_TIMEDWAIT
 	typedef CWThreadSem CWThreadTimedSem;
-#else	
+#else
 	typedef int CWThreadTimedSem[2]; /* pair of Unix Domain Socket */
 #endif
 
@@ -85,7 +85,7 @@ __inline__ sem_t *CWThreadGetSemT(CWThreadSem *semPtr);
 
 CWBool CWThreadInitLib(void);
 
-CWBool CWCreateThread(CWThread *newThread, 
+CWBool CWCreateThread(CWThread *newThread,
 		      CW_THREAD_FUNCTION threadFunc,
 		      void *arg);
 

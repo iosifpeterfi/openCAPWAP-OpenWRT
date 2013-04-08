@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -56,124 +56,124 @@ void CWExtractValue(char* start, char** startValue, char** endValue, int* offset
 CWBool CWParseSettingsFile()
 {
 	char *line = NULL;
-		
+
 	gSettingsFile = fopen (CW_SETTINGS_FILE, "rb");
 	if (gSettingsFile == NULL) {
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	CW_CREATE_ARRAY_ERR(gDefaultQosValues, NUM_QOS_PROFILES, WTPQosValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
-	while((line = (char*)CWGetCommand(gSettingsFile)) != NULL) 
+
+	while((line = (char*)CWGetCommand(gSettingsFile)) != NULL)
 	{
 		char* startTag=NULL;
 		char* endTag=NULL;
-		
-		if((startTag=strchr (line, '<'))==NULL) 
+
+		if((startTag=strchr (line, '<'))==NULL)
 		{
 			CW_FREE_OBJECT(line);
 			continue;
 		}
 
-		if((endTag=strchr (line, '>'))==NULL) 
+		if((endTag=strchr (line, '>'))==NULL)
 		{
 			CW_FREE_OBJECT(line);
 			continue;
 		}
-		
+
 		if (!strncmp(startTag+1, "CWMIN_VOICE", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=CWMIN_DEFAULT;
 			gDefaultQosValues[VOICE_QUEUE_INDEX].cwMin = value;
 			CWDebugLog("CWMIN_VOICE: %d", gDefaultQosValues[VOICE_QUEUE_INDEX].cwMin);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "CWMAX_VOICE", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=CWMAX_DEFAULT;
 			gDefaultQosValues[VOICE_QUEUE_INDEX].cwMax = value;
 			CWDebugLog("CWMAX_VOICE: %d", gDefaultQosValues[VOICE_QUEUE_INDEX].cwMax);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "AIFS_VOICE", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=AIFS_DEFAULT;
 			gDefaultQosValues[VOICE_QUEUE_INDEX].AIFS = value;
 			CWDebugLog("AIFS_VOICE: %d", gDefaultQosValues[VOICE_QUEUE_INDEX].AIFS);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 
 
 		if (!strncmp(startTag+1, "CWMIN_VIDEO", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=CWMIN_DEFAULT;
 			gDefaultQosValues[VIDEO_QUEUE_INDEX].cwMin = value;
 			CWDebugLog("CWMIN_VIDEO: %d", gDefaultQosValues[VIDEO_QUEUE_INDEX].cwMin);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "CWMAX_VIDEO", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=CWMAX_DEFAULT;
 			gDefaultQosValues[VIDEO_QUEUE_INDEX].cwMax = value;
 			CWDebugLog("CWMAX_VIDEO: %d", gDefaultQosValues[VIDEO_QUEUE_INDEX].cwMax);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "AIFS_VIDEO", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=AIFS_DEFAULT;
 			gDefaultQosValues[VIDEO_QUEUE_INDEX].AIFS = value;
 			CWDebugLog("AIFS_VIDEO: %d", gDefaultQosValues[VIDEO_QUEUE_INDEX].AIFS);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
-		
+
 
 		if (!strncmp(startTag+1, "CWMIN_BEST_EFFORT", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=CWMIN_DEFAULT;
 			gDefaultQosValues[BESTEFFORT_QUEUE_INDEX].cwMin = value;
 			CWDebugLog("CWMIN_BEST_EFFORT: %d", gDefaultQosValues[BESTEFFORT_QUEUE_INDEX].cwMin);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "CWMAX_BEST_EFFORT", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=CWMAX_DEFAULT;
 			gDefaultQosValues[BESTEFFORT_QUEUE_INDEX].cwMax = value;
 			CWDebugLog("CWMAX_BEST_EFFORT: %d", gDefaultQosValues[BESTEFFORT_QUEUE_INDEX].cwMax);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "AIFS_BEST_EFFORT", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=AIFS_DEFAULT;
 			gDefaultQosValues[BESTEFFORT_QUEUE_INDEX].AIFS = value;
 			CWDebugLog("AIFS_BEST_EFFORT: %d", gDefaultQosValues[BESTEFFORT_QUEUE_INDEX].AIFS);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 
 
@@ -185,36 +185,36 @@ CWBool CWParseSettingsFile()
 			gDefaultQosValues[BACKGROUND_QUEUE_INDEX].cwMin = value;
 			CWDebugLog("CWMIN_BACKGROUND: %d", gDefaultQosValues[BACKGROUND_QUEUE_INDEX].cwMin);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "CWMAX_BACKGROUND", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=CWMAX_DEFAULT;
 			gDefaultQosValues[BACKGROUND_QUEUE_INDEX].cwMax = value;
 			CWDebugLog("CWMAX_BACKGROUND: %d", gDefaultQosValues[BACKGROUND_QUEUE_INDEX].cwMax);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "AIFS_BACKGROUND", endTag-startTag-1))
 		{
 			int value = atoi(endTag+1);
-			
+
 			if(value==0) value=AIFS_DEFAULT;
 			gDefaultQosValues[BACKGROUND_QUEUE_INDEX].AIFS = value;
 			CWDebugLog("AIFS_BACKGROUND: %d", gDefaultQosValues[BACKGROUND_QUEUE_INDEX].AIFS);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "AC_HOSTAPD_PORT", endTag-startTag-1))
 		{
-			
+
 			gHostapd_port = atoi(endTag+1);
-			
+
 		    CWDebugLog("Hostapd Port connection: %d", gHostapd_port);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "AC_HOSTAPD_UNIX_PATH", endTag-startTag-1))
 		{
@@ -227,11 +227,11 @@ CWBool CWParseSettingsFile()
 			CW_CREATE_STRING_ERR(gHostapd_unix_path, offset, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY,NULL););
 			strncpy(gHostapd_unix_path, startValue, offset);
 			gHostapd_unix_path[offset] ='\0';
-			
+
 			CWDebugLog("Hostapd Unix Domain Path: %s",gHostapd_unix_path);
 			CW_FREE_OBJECT(line);
-			continue;	
-			
+			continue;
+
 		}
 		CW_FREE_OBJECT(line);
 	}

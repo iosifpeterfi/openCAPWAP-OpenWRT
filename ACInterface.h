@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Authors : Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Authors : Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -38,7 +38,7 @@
 #define CLEAR_CONFIG_MSG_CMD	2
 /* 2009 Update: Manual setting for OFDM values*/
 #define OFDM_CONTROL_CMD        3
-/*Update 2009: 
+/*Update 2009:
 		Manage UCI configuration command*/
 #define UCI_CONTROL_CMD 4
 /* Manage WTP Update Command */

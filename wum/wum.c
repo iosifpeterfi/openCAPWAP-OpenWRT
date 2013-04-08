@@ -44,16 +44,16 @@ int main(int argc, char *argv[])
 {
 	int acserver, wtpId, cmd_id;
 	void *cup;
-	struct version_info update_v; 
+	struct version_info update_v;
     char *command = NULL, *cup_path = NULL;
     char *wtpIds = NULL, *wtpNames = NULL;
     char *acserver_address = ACSERVER_ADDRESS;
 	int acserver_port = ACSERVER_PORT;;
 	int index;
     int c;
-    
+
     opterr = 0;
-    
+
 	/* Parse options */
     while ((c = getopt (argc, argv, "ha:p:w:c:f:n:")) != -1)
         switch (c)
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
         	break;
         case 'h':
         	usage(argv[0]);
-        	break;	
+        	break;
         case '?':
             if (optopt == 'w' || optopt == 'c' || optopt == 'f' || optopt == 'n')
            		fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -94,13 +94,13 @@ int main(int argc, char *argv[])
             abort();
 
 		}
-     
-    /* Check arguments */ 
+
+    /* Check arguments */
 	if (command == NULL) {
 		fprintf(stderr, "No command specified!\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
 	if ((cmd_id = get_cmd_id(command)) == NO_CMD) {
 		fprintf(stderr, "Wrong command specified!");
 	}
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 	/* Connect to server and get WTPs list */
 	acserver = ACServerConnect(acserver_address, acserver_port);
 	wtpList = ACServerWTPList(acserver, &nWTPs);
-	
+
 	/* Execute command */
 	switch(cmd_id) {
 		case WTPS_CMD:
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 			do_cancel_cmd(acserver, wtpIds, wtpNames);
 			break;
 	}
-	
+
 	freeWTPList(wtpList, nWTPs);
 	ACServerDisconnect(acserver);
 
@@ -145,7 +145,7 @@ int sanitize_wtp_list(int *work_list, int n)
 			new_size--;
 		}
 	}
-	
+
 	/* Delete duplicates */
 	for(i = 0; i < new_size; i++) {
 		for (j = i + 1; j < new_size; j++) {
@@ -156,7 +156,7 @@ int sanitize_wtp_list(int *work_list, int n)
 				j--;
 				new_size--;
 			}
-		} 
+		}
 	}
 
 	return new_size;
@@ -165,13 +165,13 @@ int sanitize_wtp_list(int *work_list, int n)
 int *all_WTPs()
 {
 	int *ret, i;
-	
+
 	ret = malloc(nWTPs*sizeof(int));
-	
+
 	for (i = 0; i < nWTPs; i++) {
 		ret[i] = wtpList[i].wtpId;
 	}
-	
+
 	return ret;
 }
 
@@ -182,13 +182,13 @@ int count_tokens(char *str1, char *str2)
 
 	if (str1 != NULL)
 		ptr = str1;
-	else if (str2 != NULL) 
+	else if (str2 != NULL)
 		ptr = str2;
 	else
 		return 0;
-	
+
 	while (*ptr != '\0') {
-		if (*ptr == ',' && *(ptr + 1) != ',' && *(ptr + 1) != '\0') 
+		if (*ptr == ',' && *(ptr + 1) != ',' && *(ptr + 1) != '\0')
 			n++;
 		ptr++;
 	}
@@ -200,30 +200,30 @@ int *get_id_list(char *wtpIds, char *wtpNames, int *n)
 	char *token, *ptr;
 	int *ret = NULL;
 	int i;
-	
-	*n = count_tokens(wtpIds, wtpNames); 
-	
+
+	*n = count_tokens(wtpIds, wtpNames);
+
 	if (*n <= 0) return NULL;
-	
+
 	/* allocate memory */
 	ret = malloc(*n*sizeof(int));
 	if (ret == NULL) {
 		perror("malloc error!");
 		return NULL;
 	}
-	
+
 	if (wtpIds != NULL) {
 		/* read ids */
 		token = (char*)strtok(wtpIds, ",");
 		ret[0] = atoi(token);
 
-		if (ret[0] == -1) 
+		if (ret[0] == -1)
 			return all_WTPs();
-		
+
 		for (i = 1; i < *n; i++)
 			ret[i] = atoi( (const char*)strtok(NULL, ",") );
-		
-	} else {	
+
+	} else {
 		/* read names and convert into ids */
 		for (i = 0; i < *n; i++) {
 			int id;
@@ -232,19 +232,19 @@ int *get_id_list(char *wtpIds, char *wtpNames, int *n)
 				token = (char*)strtok(wtpNames, ",");
 				if (strcmp(token, "all") == 0)
 					return all_WTPs();
-				
+
 			} else {
 				token = (char*)strtok(NULL, ",");
 			}
-			
+
 			if ((id = WTP_name2id(token)) == -1) {
 				fprintf(stderr, "%s: specified WTP does not exits\n", token);
 			}
 
 			ret[i] = id;
 		}
-	} 
-	
+	}
+
 	/* remove duplicated and unknown WTP ids */
 	*n = sanitize_wtp_list(ret, *n);
 
@@ -258,16 +258,16 @@ void do_version_cmd(int acserver, char *wtpIds, char *wtpNames)
 
 	/* WTP work list */
 	wtps = get_id_list(wtpIds, wtpNames, &n);
-	
+
 	if (wtps == NULL) {
 		fprintf(stderr, "Either a list of wtp ids or wtp names must be specified!\n");
 		return;
 	}
 
-	printVersionHeader();	
+	printVersionHeader();
 	for (i = 0; i < n; i++) {
 		WUMGetWTPVersion(acserver, wtps[i], &v_info);
-		printVersionInfo(v_info, wtps[i], wtpList);	
+		printVersionInfo(v_info, wtps[i], wtpList);
 	}
 	printVersionFooter();
 }
@@ -295,11 +295,11 @@ void do_update_cmd(int acserver, char *wtpIds, char *wtpNames, char *cup_path)
 		perror("open error");
 		return;
 	}
-	
+
 	if (WUMReadCupVersion(cup_path, &update_v)) {
 		return;
 	}
-	
+
 	cup = mmap(NULL, update_v.size, PROT_READ, MAP_SHARED , fd, 0);
 	if (cup == NULL) {
 		perror("mmap error");
@@ -326,7 +326,7 @@ void do_cancel_cmd(int acserver, char *wtpIds, char *wtpNames)
 
 	/* WTP work list */
 	wtps = get_id_list(wtpIds, wtpNames, &n);
-	
+
 	if (wtps == NULL) {
 		fprintf(stderr, "Either a list of wtp ids or wtp names must be specified!\n");
 		return;
@@ -373,14 +373,14 @@ int get_cmd_id(char *cmd)
 		if (strcmp(CMDs[i].name, cmd) == 0)
 			break;
 	}
-	
+
 	return CMDs[i].id;
 }
 
 void printWTPList(struct WTPInfo *wtpList, int nWTPs)
 {
 	int i;
-	
+
 	printf("*-------*--------------------------------*\n");
 	printf("| %5s | %-30s |\n", "WTPId", "WTPName");
 	printf("*-------*--------------------------------*\n");
@@ -418,8 +418,8 @@ void usage(char *name)
 {
 	printf("%s -c command [-w id1,...] [-n name1,...] [-f cup_file] [-a address] [-p port]\n", name);
 	printf("\nAvailable commands:\n");
-	printf("   wtps: list of active wtps.\n");	
-	printf("version: version of the specified list of wtps (use -w or -n).\n");	
-	printf(" update: sends a cup (specified with -f) to the specified list of wtps (use -w or -n).\n");		
-	printf(" cancel: cancel a pending update on the desired wtps (use -w or -n).\n");			
+	printf("   wtps: list of active wtps.\n");
+	printf("version: version of the specified list of wtps (use -w or -n).\n");
+	printf(" update: sends a cup (specified with -f) to the specified list of wtps (use -w or -n).\n");
+	printf(" cancel: cancel a pending update on the desired wtps (use -w or -n).\n");
 }

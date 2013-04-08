@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -56,29 +56,29 @@ void CWExtractValue(char* start, char** startValue, char** endValue, int* offset
 CWBool CWParseSettingsFile()
 {
 	char *line = NULL;
-		
+
 	gSettingsFile = fopen (CW_SETTINGS_FILE, "rb");
 	if (gSettingsFile == NULL) {
 		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
-	while((line = (char*)CWGetCommand(gSettingsFile)) != NULL) 
+
+	while((line = (char*)CWGetCommand(gSettingsFile)) != NULL)
 	{
 		char* startTag=NULL;
 		char* endTag=NULL;
-		
-		if((startTag=strchr (line, '<'))==NULL) 
+
+		if((startTag=strchr (line, '<'))==NULL)
 		{
 			CW_FREE_OBJECT(line);
 			continue;
 		}
 
-		if((endTag=strchr (line, '>'))==NULL) 
+		if((endTag=strchr (line, '>'))==NULL)
 		{
 			CW_FREE_OBJECT(line);
 			continue;
 		}
-			
+
 		if (!strncmp(startTag+1, "IF_NAME", endTag-startTag-1))
 		{
 			char* startValue=NULL;
@@ -92,9 +92,9 @@ CWBool CWParseSettingsFile()
 			gInterfaceName[offset] ='\0';
 			CWLog(": %s", gInterfaceName);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
-		
+
 		if (!strncmp(startTag+1, "WTP_ETH_IF_NAME", endTag-startTag-1))
 		{
 			char* startValue=NULL;
@@ -108,8 +108,8 @@ CWBool CWParseSettingsFile()
 			gEthInterfaceName[offset] ='\0';
 			CWLog(": %s", gEthInterfaceName);
 			CW_FREE_OBJECT(line);
-			continue;	
-		}		
+			continue;
+		}
 
 		if (!strncmp(startTag+1, "RADIO_0_IF_NAME", endTag-startTag-1))
 		{
@@ -124,8 +124,8 @@ CWBool CWParseSettingsFile()
 			gRadioInterfaceName_0[offset] ='\0';
 			CWLog(": %s", gRadioInterfaceName_0);
 			CW_FREE_OBJECT(line);
-			continue;	
-		}		
+			continue;
+		}
 
 		if (!strncmp(startTag+1, "BASE_MAC_IF_NAME", endTag-startTag-1))
 		{
@@ -140,8 +140,8 @@ CWBool CWParseSettingsFile()
 			gBaseMACInterfaceName[offset] ='\0';
 			CWLog(": %s", gBaseMACInterfaceName);
 			CW_FREE_OBJECT(line);
-			continue;	
-		}		
+			continue;
+		}
 
 		if (!strncmp(startTag+1, "BOARD_REVISION_NO", endTag-startTag-1))
 		{
@@ -151,13 +151,13 @@ CWBool CWParseSettingsFile()
 			char reversion[16];
 
 			CWExtractValue(endTag, &startValue, &endValue, &offset);
-		
+
 			strncpy(reversion, startValue, offset);
 			reversion[offset] ='\0';
 			gBoardReversionNo = atoi(reversion);
 			CWLog(": %d",gBoardReversionNo);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 		if (!strncmp(startTag+1, "WTP_HOSTAPD_PORT", endTag-startTag-1))
 		{
@@ -167,13 +167,13 @@ CWBool CWParseSettingsFile()
 			char port_str[16];
 
 			CWExtractValue(endTag, &startValue, &endValue, &offset);
-		
+
 			strncpy(port_str, startValue, offset);
 			port_str[offset] ='\0';
 			gHostapd_port = atoi(port_str);
 			CWLog(": %d",gHostapd_port);
 			CW_FREE_OBJECT(line);
-			continue;		
+			continue;
 		}
 		if (!strncmp(startTag+1, "WTP_HOSTAPD_UNIX_PATH", endTag-startTag-1))
 		{
@@ -188,7 +188,7 @@ CWBool CWParseSettingsFile()
 			gHostapd_unix_path[offset] ='\0';
 			CWLog(": %s", gHostapd_unix_path);
 			CW_FREE_OBJECT(line);
-			continue;	
+			continue;
 		}
 
 		CW_FREE_OBJECT(line);

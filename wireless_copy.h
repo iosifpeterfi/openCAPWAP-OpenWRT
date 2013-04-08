@@ -875,7 +875,7 @@ struct	iw_statistics
 
 /* ------------------------ IOCTL REQUEST ------------------------ */
 /*
- * This structure defines the payload of an ioctl, and is used 
+ * This structure defines the payload of an ioctl, and is used
  * below.
  *
  * Note that this structure should fit on the memory footprint
@@ -922,7 +922,7 @@ union	iwreq_data
  * convenience...
  * Do I need to remind you about structure size (32 octets) ?
  */
-struct	iwreq 
+struct	iwreq
 {
 	union
 	{
@@ -1044,7 +1044,7 @@ struct	iw_range
 /*
  * Private ioctl interface information
  */
- 
+
 struct	iw_priv_args
 {
 	__u32		cmd;		/* Number of the ioctl to issue */

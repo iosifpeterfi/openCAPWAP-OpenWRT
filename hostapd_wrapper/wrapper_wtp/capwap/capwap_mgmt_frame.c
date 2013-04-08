@@ -53,15 +53,15 @@ void WTP_handle_assoc_cb(struct hostapd_data *hapd,const struct ieee80211_mgmt *
 
 	ap_sta_add(hapd, mgmt->da);
 	sta = ap_get_sta(hapd, mgmt->da);
-	
+
 	static  unsigned char sup[4]={ 0x82 ,0x84 ,0x8B ,0x96 };
-	
+
 	hostapd_sta_add(hapd, sta->addr, ( unsigned short)1, ( unsigned short)33,  sup, 4,
 			    (u16)1,
 			    NULL,
 			    (u32)32931);
 	return ;
-	
+
 }
 
 struct hostapd_data * WTP_get_hapd_bssid(struct hostapd_iface *iface,const  unsigned char *bssid){
@@ -87,11 +87,11 @@ void WTP_handle_tx_callback_ASS_RES(void *ctx,  unsigned char *buf, size_t len, 
 	u16 fc;
 	union wpa_event_data event;
     struct hostapd_data *hapd=ctx;
-    
+
 	hdr = (struct ieee80211_hdr *) buf;
 	mgmt = (const struct ieee80211_mgmt *) buf;
 	fc = le_to_host16(hdr->frame_control);
-	
+
 	os_memset(&event, 0, sizeof(event));
 	event.tx_status.type = WLAN_FC_GET_TYPE(fc);
 	event.tx_status.stype = WLAN_FC_GET_STYPE(fc);
@@ -99,14 +99,14 @@ void WTP_handle_tx_callback_ASS_RES(void *ctx,  unsigned char *buf, size_t len, 
 	event.tx_status.data = buf;
 	event.tx_status.data_len = len;
 	event.tx_status.ack = ok;
-	 
+
 	//hapd = WTP_get_hapd_bssid(hapd->iface, get_hdr_bssid(hdr, len));
 	//if (hapd == NULL || hapd == HAPD_BROADCAST)
 	//	return;
-	
+
 	if(event.tx_status.stype==WLAN_FC_STYPE_ASSOC_RESP)
 		WTP_handle_assoc_cb(hapd, mgmt, len, 0, ok);
-	else 
+	else
 		WTP_handle_assoc_cb(hapd, mgmt, len, 1, ok);
 
 }
@@ -114,7 +114,7 @@ void WTP_handle_tx_callback_ASS_RES(void *ctx,  unsigned char *buf, size_t len, 
 int isEAPOL_Frame( unsigned char *buf, int len){
 	unsigned char rfc1042_header[6] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00 };
 	int i;
-	
+
 	for(i=0; i<6; i++)if(rfc1042_header[i]!=buf[i + HLEN_80211])return 0;
 	return 1;
 }
@@ -122,20 +122,20 @@ int isEAPOL_Frame( unsigned char *buf, int len){
 int WTP_get_SubType( unsigned char *buf,int len){
 	struct ieee80211_hdr *hdr;
 	u16 fc;
-	
+
 	hdr = (struct ieee80211_hdr *) buf;
 	fc = le_to_host16(hdr->frame_control);
-	
+
 	return WLAN_FC_GET_STYPE(fc);
 }
 
 int WTP_get_Type( unsigned char*buf,int len){
 	struct ieee80211_hdr *hdr;
 	u16 fc;
-	
+
 	hdr = (struct ieee80211_hdr *) buf;
 	fc = le_to_host16(hdr->frame_control);
-	
+
 	return WLAN_FC_GET_TYPE(fc);
 }
 

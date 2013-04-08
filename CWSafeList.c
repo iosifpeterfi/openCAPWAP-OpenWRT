@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -48,7 +48,7 @@ CWBool CWCreateSafeList(CWSafeList* pSafeList)
 	pNewList->nCount = 0;
 	pNewList->pFirstElement = NULL;
 	pNewList->pLastElement = NULL;
-	
+
 	//
 	(*pSafeList) = (CWSafeList)pNewList;
 	return CW_TRUE;
@@ -135,7 +135,7 @@ unsigned long CWGetCountElementFromSafeList(CWSafeList safeList)
 	if (pList == NULL)
 		return 0;
 	return pList->nCount;
-	
+
 }
 
 // No thread-safe
@@ -197,7 +197,7 @@ void* CWRemoveHeadElementFromSafeList(CWSafeList safeList, int* pSize)
 		pList->pLastElement = NULL;
 	else
 		pList->pFirstElement->pPrev = NULL;
-	
+
 	pData = pElement->pData;
 	if (pSize != NULL)
 		*pSize = pElement->nSize;
@@ -224,10 +224,10 @@ void* CWRemoveHeadElementFromSafeListwithDataFlag(CWSafeList safeList, int* pSiz
 		pList->pLastElement = NULL;
 	else
 		pList->pFirstElement->pPrev = NULL;
-	
+
 	pData = pElement->pData;
 	*dataFlag = pElement->dataFlag;
-	
+
 	if (pSize != NULL)
 		*pSize = pElement->nSize;
 
@@ -253,7 +253,7 @@ CWBool CWAddElementToSafeListTail(CWSafeList safeList, void* pData, int nSize)
 	pNewElement->pPrev = pList->pLastElement;
 	if (pList->pLastElement != NULL)
 		pList->pLastElement->pNext = pNewElement;
-	
+
 	pList->pLastElement = pNewElement;
 	if (pList->pFirstElement == NULL)
 		pList->pFirstElement = pNewElement;
@@ -279,7 +279,7 @@ CWBool CWAddElementToSafeListTailwitDataFlag(CWSafeList safeList, void* pData, i
 	pNewElement->pPrev = pList->pLastElement;
 	if (pList->pLastElement != NULL)
 		pList->pLastElement->pNext = pNewElement;
-	
+
 	pList->pLastElement = pNewElement;
 	if (pList->pFirstElement == NULL)
 		pList->pFirstElement = pNewElement;
@@ -305,7 +305,7 @@ void* CWRemoveTailElementFromSafeList(CWSafeList safeList, int* pSize)
 		pList->pFirstElement = NULL;
 	else
 		pList->pLastElement->pNext = NULL;
-	
+
 	pData = pElement->pData;
 	if (pSize != NULL)
 		*pSize = pElement->nSize;

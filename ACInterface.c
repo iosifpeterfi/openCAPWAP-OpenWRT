@@ -16,10 +16,10 @@
  * MA  02111-1307, USA.																			*
  *																								*
  * -------------------------------------------------------------------------------------------- *
- * Project:  Capwap														
+ * Project:  Capwap
  *
- *   Authors : Antonio Davoli (antonio.davoli@gmail.com)	
- *   Donato Capitella (d.capitella@gmail.com)         
+ *   Authors : Antonio Davoli (antonio.davoli@gmail.com)
+ *   Donato Capitella (d.capitella@gmail.com)
  ************************************************************************************************/
 
 
@@ -56,49 +56,49 @@ typedef struct {
  ************************************************************************/
 
 int CWOFDMSetValues(int selection, int socketIndex, OFDMControlValues* ofdmValues) {
-	
+
 	CWThreadMutexLock(&(gWTPs[selection].interfaceMutex));
-	
+
 	gWTPs[selection].ofdmValues = ofdmValues;
 	gWTPs[selection].interfaceCommand = OFDM_CONTROL_CMD;
 	gWTPs[selection].applicationIndex = socketIndex;
 	CWSignalThreadCondition(&gWTPs[selection].interfaceWait);
 	CWWaitThreadCondition(&gWTPs[selection].interfaceComplete, &gWTPs[selection].interfaceMutex);
-	
+
 	CWThreadMutexUnlock(&(gWTPs[selection].interfaceMutex));
-	
+
 	return 0;
-}	
+}
 
 int CWVendorSetValues(int selection, int socketIndex, CWProtocolVendorSpecificValues* vendorValues) {
-	
+
 	CWThreadMutexLock(&(gWTPs[selection].interfaceMutex));
-	
+
 	gWTPs[selection].vendorValues = vendorValues;
 	gWTPs[selection].interfaceCommand = UCI_CONTROL_CMD;
 	gWTPs[selection].applicationIndex = socketIndex;
 	CWSignalThreadCondition(&gWTPs[selection].interfaceWait);
 	CWWaitThreadCondition(&gWTPs[selection].interfaceComplete, &gWTPs[selection].interfaceMutex);
-	
+
 	CWThreadMutexUnlock(&(gWTPs[selection].interfaceMutex));
-	
+
 	return 0;
-}	
+}
 
 int CWWumSetValues(int selection, int socketIndex, CWProtocolVendorSpecificValues* vendorValues) {
-	
+
 	CWThreadMutexLock(&(gWTPs[selection].interfaceMutex));
-	
+
 	gWTPs[selection].vendorValues = vendorValues;
 	gWTPs[selection].interfaceCommand = WTP_UPDATE_CMD;
 	gWTPs[selection].applicationIndex = socketIndex;
 	CWSignalThreadCondition(&gWTPs[selection].interfaceWait);
 	CWWaitThreadCondition(&gWTPs[selection].interfaceComplete, &gWTPs[selection].interfaceMutex);
-	
+
 	CWThreadMutexUnlock(&(gWTPs[selection].interfaceMutex));
-	
+
 	return 0;
-}	
+}
 
 
 /************************************************************************
@@ -109,14 +109,14 @@ int CWWumSetValues(int selection, int socketIndex, CWProtocolVendorSpecificValue
  ************************************************************************/
 
 CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
-	
+
 	int socketIndex = ((CWInterfaceThreadArg*)arg)->index;
 	CWSocket sock = appsManager.appSocket[socketIndex];
 	int n, connected= htonl(CONNECTION_OK), gActiveWTPsTemp;
-	
+
 	char commandBuffer[COMMAND_BUFFER_SIZE];
 	char wtpListBuffer[WTP_LIST_BUFFER_SIZE];
-	
+
 	int payload_size;
 	int i, nameLength, numActiveWTPs=0, wtpIndex;
     int iTosend, nLtoSend;
@@ -125,18 +125,18 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 	CWProtocolVendorSpecificValues* vendorValues;
 	CWVendorUciValues* uciValues;
 	CWVendorWumValues* wumValues;
-		
+
 	/********************************************************************************
 	 * Write on application socket that connection setting is happened correctly.	*
 	 ********************************************************************************/
-  	
+
 	if ( Writen(sock, &connected, sizeof(int) ) < 0 ) {
 		CWLog("Error on writing on application socket ");
 		return NULL;
 	}
 
 	/*
-	 * Before starting, make sure to detach the thread because the parent 
+	 * Before starting, make sure to detach the thread because the parent
  	 * doesn't do a join and we risk resource leaks.
  	 *
  	 * ref -> BUG-TRL01
@@ -144,30 +144,30 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 	 */
 
         pthread_detach(pthread_self()); // no need here to check return value
-	
+
 	/************************
 	 *	 Thread Main Loop	*
 	 ************************/
-	
-	CW_REPEAT_FOREVER { 
+
+	CW_REPEAT_FOREVER {
 
 		memset(commandBuffer, 0, COMMAND_BUFFER_SIZE);
-		
+
 		/****************************************
 		 *		Waiting for client commands		*
 		 ****************************************/
-		
+
 		if ( ( n = Readn(sock, &cmd_msg, CMD_TYPE_SIZE) ) > 0 ) {
-			
-			if ( cmd_msg == QUIT_MSG ) { 
+
+			if ( cmd_msg == QUIT_MSG ) {
 				/****************************************************
 				 *		Quit Message: Clean socket information		*
 				 ****************************************************/
 				goto quit_manage;
 			}
-			
+
 			if ( cmd_msg == LIST_MSG ) {
-				
+
 				/****************************************
 				 *			Manage LIST command  		*
 				 * ------------------------------------ *
@@ -175,29 +175,29 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 				 * 2. Create Message Answer,			*
 				 * 3. Send To client socket.			*
 				 ****************************************/
-				
+
 				if(!CWErr(CWThreadMutexLock(&gActiveWTPsMutex))) {
 					CWLog("Error locking the mutex");
 					return NULL;
 				}
-				
+
 				gActiveWTPsTemp = gActiveWTPs;
-		  		
+
 				CWThreadMutexUnlock(&gActiveWTPsMutex);
 
 
-				if( gActiveWTPsTemp > 0 ) 
-					for(i=0; i<gMaxWTPs; i++) 
-						if(gWTPs[i].isNotFree) 
+				if( gActiveWTPsTemp > 0 )
+					for(i=0; i<gMaxWTPs; i++)
+						if(gWTPs[i].isNotFree)
 							if (! gWTPs[i].WTPProtocolManager.name)
 								gActiveWTPsTemp -= 1;
-														
+
 				numActiveWTPs = htonl (gActiveWTPsTemp );
 
 				memset(wtpListBuffer, 0, sizeof(wtpListBuffer));
-				payload_size = 0;		
+				payload_size = 0;
 
-				memcpy(wtpListBuffer, &numActiveWTPs, sizeof(int));		  
+				memcpy(wtpListBuffer, &numActiveWTPs, sizeof(int));
 				payload_size = sizeof(int);
 
 				if( gActiveWTPsTemp > 0 ) {
@@ -213,18 +213,18 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 							iTosend = htonl(i);
 							nLtoSend = htonl(nameLength);
 
-							memcpy(wtpListBuffer+payload_size, &iTosend, sizeof(int));		  
+							memcpy(wtpListBuffer+payload_size, &iTosend, sizeof(int));
 							payload_size += sizeof(int);
 
-							memcpy(wtpListBuffer+payload_size, &nLtoSend, sizeof(int));		  
+							memcpy(wtpListBuffer+payload_size, &nLtoSend, sizeof(int));
 							payload_size += sizeof(int);
 
-							memcpy(wtpListBuffer+payload_size, gWTPs[i].WTPProtocolManager.name, strlen(gWTPs[i].WTPProtocolManager.name));		  
+							memcpy(wtpListBuffer+payload_size, gWTPs[i].WTPProtocolManager.name, strlen(gWTPs[i].WTPProtocolManager.name));
 							payload_size += strlen(gWTPs[i].WTPProtocolManager.name);
 						}
 					}
-				}	
-				
+				}
+
 				if ( Writen(sock, wtpListBuffer, payload_size) < 0 )
 					CWLog("Error on write message on application socket");
 
@@ -239,7 +239,7 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 				 * 2. Get Index of WTP,			*
 				 * 3. Manage request.			*
 				 ****************************************/
-				
+
 				if ( (n = Readn(sock, commandBuffer, sizeof(msg_elem) + sizeof(wtpIndex))) < 0 ) {
 					CWLog("Error while reading from socket.");
 					goto quit_manage;
@@ -271,27 +271,27 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 						 *    - One message element For All WTPs Active     *
 						 *    - One message for a specific WTP              *
 						 ****************************************************/
-						                                               
+
 						if ( wtpIndex == ALL_ACTIVE_WTPS ) { /* All wpts case */
-							
+
 							if(!CWErr(CWThreadMutexLock(&gActiveWTPsMutex))) {
 								CWLog("Error locking the mutex");
 								return NULL;
 							}
 							numActiveWTPs = gActiveWTPs;
 							CWThreadMutexUnlock(&gActiveWTPsMutex);
-							
+
 							if(numActiveWTPs>0) {
-								for(i=0; i<gMaxWTPs; i++) {					
+								for(i=0; i<gMaxWTPs; i++) {
 									if(gWTPs[i].isNotFree)  {
 										CWOFDMSetValues(i, socketIndex, ofdmValues);
 									}
 								}
-							} 
+							}
 						}
 						else /* One specific Wtp Case */
 							CWOFDMSetValues(wtpIndex, socketIndex, ofdmValues);
-						
+
 						CW_FREE_OBJECT(ofdmValues);
 						break;
                 	}
@@ -304,12 +304,12 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 						CW_CREATE_OBJECT_ERR(uciValues, CWVendorUciValues, {CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL); return 0;});
 						vendorValues->vendorPayloadType = CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_UCI;
 						uciValues->response = NULL;
-						
+
 						if ( (n = Readn(sock, commandBuffer, sizeof(unsigned char) + sizeof(int))) < 0 ) {
 							CWLog("Error while reading from socket.");
 							goto quit_manage;
 						}
-						
+
 						memcpy(&(uciValues->command), commandBuffer, sizeof(unsigned char));
 						memcpy(&commandLength, commandBuffer + sizeof(unsigned char), sizeof(int));
 						commandLength = ntohl(commandLength);
@@ -319,7 +319,7 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 								CWLog("Error while reading from socket.");
 								goto quit_manage;
 							}
-							
+
 							CW_CREATE_STRING_ERR(uciValues->commandArgs, commandLength, {CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL); return 0;});
 							memcpy(uciValues->commandArgs, commandBuffer + sizeof(unsigned char) + sizeof(int), sizeof(char)*commandLength);
 							uciValues->commandArgs[commandLength] = '\0';
@@ -327,30 +327,30 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 							uciValues->commandArgs = NULL;
 
 						vendorValues->payload = uciValues;
-						
+
 						/****************************************************
 						 * Two behaviors availables:						*
 						 *		- One message element For All WTPs Active	*
 						 *		- One message for a specific WTP			*
 						 ****************************************************/
-						
+
 						if ( wtpIndex == ALL_ACTIVE_WTPS ) { /* All wpts case */
-							
+
 							if(!CWErr(CWThreadMutexLock(&gActiveWTPsMutex))) {
 								CWLog("Error locking the mutex");
 								return NULL;
 							}
 							numActiveWTPs = gActiveWTPs;
 							CWThreadMutexUnlock(&gActiveWTPsMutex);
-							
+
 							if(numActiveWTPs>0) {
-								for(i=0; i<gMaxWTPs; i++) {					
+								for(i=0; i<gMaxWTPs; i++) {
 									if(gWTPs[i].isNotFree)  {
 										printf("Sending UCI Configuration Message to: %d - %s \n", i, gWTPs[i].WTPProtocolManager.name);
 										CWVendorSetValues(i, socketIndex, vendorValues);
 									}
 								}
-							} 
+							}
 						}
 						else /* One specific Wtp Case */
 							CWVendorSetValues(wtpIndex, socketIndex, vendorValues);
@@ -367,7 +367,7 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 						/*
 						 * Read WTP Update Message fields into the wumValues structure
 						 */
-                                               
+
 						if ( (n = Readn(sock, &(wumValues->type), sizeof(unsigned char))) < 0 ) {
 							CWLog("Error while reading from socket.");
 							goto quit_manage;
@@ -387,13 +387,13 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 						} else if (wumValues->type == WTP_CUP_FRAGMENT) {
 							int seqNum;
 							int fragSize;
-							
+
 							/* Read sequence number and fragment size */
 							if ( (n = Readn(sock, commandBuffer, 2*sizeof(int))) < 0 ) {
 								CWLog("Error while reading from socket.");
 								goto quit_manage;
 							}
-							
+
 							memcpy(&seqNum, commandBuffer, sizeof(int));
 							memcpy(&fragSize, commandBuffer + sizeof(int), sizeof(int));
 
@@ -421,15 +421,15 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 								CWLog("Error while reading from socket.");
 								goto quit_manage;
 							}
-							
+
 							wumValues->_cup_ = buf;
 							wumValues->_seq_num_ = seqNum;
 							wumValues->_cup_fragment_size_ = fragSize;
 						}
-						
+
                                                 vendorValues->payload = wumValues;
-						
-						/* Send Request */	
+
+						/* Send Request */
                                                 if ( wtpIndex == ALL_ACTIVE_WTPS ) { /* All wpts case */
 
                                                         if(!CWErr(CWThreadMutexLock(&gActiveWTPsMutex))) {
@@ -455,7 +455,7 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void* arg) {
 					default:
 						/* Error Case: Not correct msg_elem type */
 						break;
-				}		
+				}
 			}
 		  }
 		else {
@@ -470,16 +470,16 @@ quit_manage:
 		CWLog("Error locking numSocketFree Mutex");
 		return NULL;
 	}
-	
+
 	appsManager.isFree[socketIndex] = CW_TRUE;
 	appsManager.numSocketFree++;
-	
+
     CWDestroyThreadMutex(&appsManager.socketMutex[socketIndex]);
 
-	CWThreadMutexUnlock(&appsManager.numSocketFreeMutex); 
-		
+	CWThreadMutexUnlock(&appsManager.numSocketFreeMutex);
+
 	close(sock);
-	return NULL;  
+	return NULL;
 }
 
 /****************************************************************************
@@ -490,112 +490,112 @@ quit_manage:
 
 CW_THREAD_RETURN_TYPE CWInterface(void* arg)
 {
-	 
+
 	CWSocket listen_sock, conn_sock;
 	struct sockaddr_in servaddr;
 	CWInterfaceThreadArg *argPtr;
 	CWThread thread_id;
 	int i, clientFull = htonl(FULL_CLIENT_CONNECTED), optValue = 1;
-	
+
 	/****************************************************
 	 * Setup of Application Socket Management Structure	*
 	 ****************************************************/
-	
-	for ( i=0; i < MAX_APPS_CONNECTED_TO_AC; i++) 
-		appsManager.isFree[i] = CW_TRUE;	
-	
+
+	for ( i=0; i < MAX_APPS_CONNECTED_TO_AC; i++)
+		appsManager.isFree[i] = CW_TRUE;
+
 	appsManager.numSocketFree = MAX_APPS_CONNECTED_TO_AC;
-	
+
 	if ( !CWErr(CWCreateThreadMutex(&appsManager.numSocketFreeMutex)) ) {
 		CWLog("Error on mutex creation on appManager structure");
 		return NULL;
 	}
-		
+
 	/****************************************************
 	 * Setup (Creation and filling) of main socket		*
 	 ****************************************************/
-		
+
 	if ( ( listen_sock = socket(AF_INET, SOCK_STREAM, 0 ) ) < 0 ) {
 		CWLog("Error on socket creation on Interface");
 		return NULL;
 	}
-	
+
 	memset(&servaddr, 0, sizeof(servaddr));
-	
+
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); /* Not Extern: INADDR_ANY */
-	servaddr.sin_port = htons(LISTEN_PORT); 
+	servaddr.sin_port = htons(LISTEN_PORT);
 
 	if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &optValue, sizeof(int)) == -1) {
 		CWLog("Error on socket creation on Interface");
 		return NULL;
 	}
-	
+
 	/************************************
 	 * Binding socket and Listen call	*
 	 ************************************/
-	
+
 	if (  bind(listen_sock, (struct sockaddr *) &servaddr, sizeof(struct sockaddr_in)) < 0 ) {
 		CWLog("Error on Binding");
 		return NULL;
 	}
-	
+
 	if ( listen(listen_sock, MAX_APPS_CONNECTED_TO_AC) < 0 ) {
 		CWLog("Error on LIsTsocket creation");
 		return NULL;
 	}
-	
+
 	/********************************
 	 *			Main Loop			*
 	 ********************************/
-	
-	
+
+
 	CW_REPEAT_FOREVER
       {
-		if ( ( conn_sock = accept(listen_sock, (struct sockaddr *) NULL, NULL) ) > 0 ) { 
-			
-			/************************************************************************	
+		if ( ( conn_sock = accept(listen_sock, (struct sockaddr *) NULL, NULL) ) > 0 ) {
+
+			/************************************************************************
 			 * Check (with lock) the number of socket free at the moment of accept,	*
 			 * if this value is greater than 0 will be spawn a new Manage thread.	*
 			 ************************************************************************/
-			
+
 			if(!CWErr(CWThreadMutexLock(&appsManager.numSocketFreeMutex))) {
 				CWLog("Error locking numSocketFree Mutex");
 				return NULL;
 			}
-			
-			if ( appsManager.numSocketFree > 0 ) { 
-				
+
+			if ( appsManager.numSocketFree > 0 ) {
+
 				CW_CREATE_OBJECT_ERR(argPtr, CWInterfaceThreadArg, {CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL); return 0;});
-				
+
 				/************************************
 				 *	Search socket for application	*
 				 ************************************/
-				
-				for (i=0; i < MAX_APPS_CONNECTED_TO_AC; i++) 
-                  {                  
+
+				for (i=0; i < MAX_APPS_CONNECTED_TO_AC; i++)
+                  {
 					if ( appsManager.isFree[i] == CW_TRUE ) {
 						argPtr->index = i;
 						appsManager.isFree[i] = CW_FALSE;
-						appsManager.appSocket[i] = conn_sock;				  
+						appsManager.appSocket[i] = conn_sock;
 						break;
 					}
                   }
-				
+
 				appsManager.numSocketFree--;
 				CWThreadMutexUnlock(&appsManager.numSocketFreeMutex);
-				
+
 				if ( !CWErr(CWCreateThreadMutex(&appsManager.socketMutex[argPtr->index])) ) {
                   CWLog("Error on mutex creation on appManager structure");
                   return NULL;
 				}
-								
+
 				if(!CWErr(CWCreateThread(&thread_id, CWManageApplication, argPtr))) {
 					CWLog("Error on thread CWManageApplication creation");
 					appsManager.isFree[argPtr->index] = CW_TRUE;
 					close(conn_sock);
 					CW_FREE_OBJECT(argPtr);
-                                        /* 
+                                        /*
                                          * If we can't create the thread, we have to increment numSocketFree.
                                          *
                                          *   ref -> BUG-LE01
@@ -612,27 +612,27 @@ CW_THREAD_RETURN_TYPE CWInterface(void* arg)
 			}
 			else {
 				CWThreadMutexUnlock(&appsManager.numSocketFreeMutex);
-			
+
 				/****************************************************************
 				 *	There isn't space for another client, send error answer.	*
 				 ***************************************************************/
-				
+
 				if ( Writen(conn_sock, &clientFull, sizeof(int) ) < 0 ) {
 					printf("Error on sending Error Message\n");
 					close(conn_sock);
 				}
-			}		  
+			}
 		}
 		else
 			CWLog("Error on accept (applications) system call");
       }
-	
+
 	CWDestroyThreadMutex(&appsManager.numSocketFreeMutex);
 	close(listen_sock);
 }
 
 
-int is_valid_wtp_index(int wtpIndex) 
+int is_valid_wtp_index(int wtpIndex)
 {
 	if (wtpIndex < gMaxWTPs && gWTPs[wtpIndex].isNotFree)
 		return CW_TRUE;
@@ -676,4 +676,4 @@ int Readn(int fd, void *ptr, size_t nbytes)
 
 	return n;
 }
-			
+

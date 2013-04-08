@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*  
+ * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*
  *           Del Moro Andrea (andrea_delmoro@libero.it)											*
  *           Giovannini Federica (giovannini.federica@gmail.com)								*
  *           Massimo Vellucci (m.vellucci@unicampus.it)											*
@@ -26,7 +26,7 @@
  *	         Antonio Davoli (antonio.davoli@gmail.com)											*
  ************************************************************************************************/
 #include <sys/socket.h>
-#include <sys/types.h>  
+#include <sys/types.h>
 #include <linux/if_ether.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
@@ -59,7 +59,7 @@ CWBool CWAssembleEchoRequest(CWProtocolMessage **messagesPtr,
 
 CWBool CWParseConfigurationUpdateRequest (char *msg,
 										  int len,
-										  CWProtocolConfigurationUpdateRequestValues *valuesPtr, 
+										  CWProtocolConfigurationUpdateRequestValues *valuesPtr,
 										  int *updateRequestType);
 
 CWBool CWSaveConfigurationUpdateRequest(CWProtocolConfigurationUpdateRequestValues *valuesPtr,
@@ -91,7 +91,7 @@ CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage **messagesPtr,
 					      int PMTU,
 					      int seqNum,
 					      CWProtocolResultCode resultCode);
-					      
+
 CWBool CWParseStationConfigurationRequest (char *msg, int len);
 CWBool CWParseWLANConfigurationRequest (char *msg, int len);
 
@@ -102,11 +102,11 @@ CWTimerID gCWHeartBeatTimerID;
 CWTimerID gCWKeepAliveTimerID;
 CWTimerID gCWNeighborDeadTimerID;
 CWBool gNeighborDeadTimerSet=CW_FALSE;
-	
+
 int gEchoInterval = CW_ECHO_INTERVAL_DEFAULT;
 int gDataChannelKeepAlive = CW_DATA_CHANNEL_KEEP_ALIVE_DEFAULT;
 
-/* 
+/*
  * Manage DTLS packets.
  */
 CW_THREAD_RETURN_TYPE CWWTPReceiveDtlsPacket(void *arg) {
@@ -117,10 +117,10 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDtlsPacket(void *arg) {
 	CWNetworkLev4Address	addr;
 	char* 			pData;
 
-	CW_REPEAT_FOREVER 
+	CW_REPEAT_FOREVER
 	{
 		if(!CWErr(CWNetworkReceiveUnsafe(sockDTLS,
-						 buf, 
+						 buf,
 						 CW_BUFFER_SIZE - 1,
 						 0,
 						 &addr,
@@ -128,17 +128,17 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDtlsPacket(void *arg) {
 
 			if (CWErrorGetLastErrorCode() == CW_ERROR_INTERRUPTED)
 				continue;
-			
+
 			break;
 		}
-		
+
 		/* Clone data packet */
 		CW_CREATE_OBJECT_SIZE_ERR(pData, readBytes, { CWLog("Out Of Memory"); return NULL; });
 		memcpy(pData, buf, readBytes);
 
 		CWLockSafeList(gPacketReceiveList);
 		CWAddElementToSafeListTailwitDataFlag(gPacketReceiveList, pData, readBytes,CW_FALSE);
-		CWUnlockSafeList(gPacketReceiveList);		
+		CWUnlockSafeList(gPacketReceiveList);
 	}
 
 	return NULL;
@@ -147,7 +147,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDtlsPacket(void *arg) {
 
 
 extern int gRawSock;
-/* 
+/*
  * Manage data packets.
  */
 
@@ -155,7 +155,7 @@ extern int gRawSock;
 int isEAPOL_Frame( unsigned char *buf, int len){
 	unsigned char rfc1042_header[6] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00 };
 	int i;
-	
+
 	for(i=0; i<6; i++)if(rfc1042_header[i]!=buf[i + HLEN_80211])return 0;
 	return 1;
 }
@@ -164,7 +164,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg) {
 
 	int 			n,readBytes;
 	char 			buf[CW_BUFFER_SIZE];
-	struct sockaddr_ll 	rawSockaddr;	
+	struct sockaddr_ll 	rawSockaddr;
 	CWSocket 		sockDTLS = (CWSocket)arg;
 	CWNetworkLev4Address	addr;
 	CWList 			fragments = NULL;
@@ -172,18 +172,18 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg) {
 	CWBool 			dataFlag = CW_TRUE;
 
     memset(&rawSockaddr, 0, sizeof(rawSockaddr));
-	
+
 	rawSockaddr.sll_family		= AF_PACKET;
 	rawSockaddr.sll_protocol	= htons(ETH_P_ALL);
 	rawSockaddr.sll_ifindex		= if_nametoindex(gRadioInterfaceName_0);
 	rawSockaddr.sll_pkttype		= PACKET_OTHERHOST;
-	rawSockaddr.sll_halen		= ETH_ALEN;	
+	rawSockaddr.sll_halen		= ETH_ALEN;
 
-	
-	CW_REPEAT_FOREVER 
+
+	CW_REPEAT_FOREVER
 	{
 		if(!CWErr(CWNetworkReceiveUnsafe(gWTPDataSocket,
-						buf, 
+						buf,
 						CW_BUFFER_SIZE - 1,
 						0,
 						&addr,
@@ -191,7 +191,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg) {
 
 			if (CWErrorGetLastErrorCode() == CW_ERROR_INTERRUPTED)
 				continue;
-			
+
 			break;
 		}
 
@@ -228,18 +228,18 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg) {
 				unsigned short int elemLen = 0;
 
 				CWDebugLog("Got KeepAlive len:%d from AC",msgPtr.offset);
-				msgPtr.offset=0;				
+				msgPtr.offset=0;
 				CWParseFormatMsgElem(&msgPtr, &elemType, &elemLen);
 				valPtr = CWParseSessionID(&msgPtr, elemLen);
-	
+
 
 			}else if (msgPtr.data_msgType == CW_IEEE_802_3_FRAME_TYPE) {
 
 				CWDebugLog("Got 802.3 len:%d from AC",msgPtr.offset);
-				
+
 				/*MAC - begin*/
-				rawSockaddr.sll_addr[0]  = msgPtr.msg[0];		
-				rawSockaddr.sll_addr[1]  = msgPtr.msg[1];		
+				rawSockaddr.sll_addr[0]  = msgPtr.msg[0];
+				rawSockaddr.sll_addr[1]  = msgPtr.msg[1];
 				rawSockaddr.sll_addr[2]  = msgPtr.msg[2];
 				rawSockaddr.sll_addr[3]  = msgPtr.msg[3];
 				rawSockaddr.sll_addr[4]  = msgPtr.msg[4];
@@ -247,41 +247,41 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg) {
 				/*MAC - end*/
 				rawSockaddr.sll_addr[6]  = 0x00;/*not used*/
 				rawSockaddr.sll_addr[7]  = 0x00;/*not used*/
-				
+
 				rawSockaddr.sll_hatype   = htons(msgPtr.msg[12]<<8 | msgPtr.msg[13]);
-				
+
 				n = sendto(gRawSock,msgPtr.msg ,msgPtr.offset,0,(struct sockaddr*)&rawSockaddr, sizeof(rawSockaddr));
-				
+
 			}else if(msgPtr.data_msgType == CW_IEEE_802_11_FRAME_TYPE) {
-								
+
 				struct ieee80211_hdr *hdr;
 				u16 fc;
 				hdr = (struct ieee80211_hdr *) msgPtr.msg;
 				fc = le_to_host16(hdr->frame_control);
-	
+
 				if( WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT || isEAPOL_Frame(msgPtr.msg,msgPtr.offset) ){
 					CWDebugLog("Got 802.11 Management Packet (stype=%d) from AC(hostapd) len:%d",WLAN_FC_GET_STYPE(fc),msgPtr.offset);
 					CWWTPsend_data_to_hostapd(msgPtr.msg, msgPtr.offset);
-					
+
 				}else if( WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_DATA ){
-										
+
 					if(  WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_NULLFUNC ){
-						
+
 						CWDebugLog("Got 802.11 Data Packet (stype=%d) from AC(hostapd) len:%d",WLAN_FC_GET_STYPE(fc),msgPtr.offset);
 						CWWTPsend_data_to_hostapd(msgPtr.msg, msgPtr.offset);
-						
+
 					}else{
-						
+
 						CWDebugLog("Got 802.11 Data Packet (stype=%d) from AC(hostapd) len:%d",WLAN_FC_GET_STYPE(fc),msgPtr.offset);
 						CWWTPSendFrame(msgPtr.msg, msgPtr.offset);
-						
+
 					}
-					
+
 				}else{
 					CWLog("Control/Unknow Type type=%d",WLAN_FC_GET_TYPE(fc));
 				}
-			
-				
+
+
 			}else{
 				CWLog("Unknow data_msgType");
 			}
@@ -292,7 +292,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg) {
 	return NULL;
 }
 
-/* 
+/*
  * Manage Run State.
  */
 
@@ -305,7 +305,7 @@ CWStateTransition CWWTPEnterRun() {
 
 	CWLog("\n");
 	CWLog("######### WTP enters in RUN State #########");
-	
+
 	CWWTPKeepAliveDataTimerExpiredHandler(NULL);
 
 	for (k = 0; k < MAX_PENDING_REQUEST_MSGS; k++)
@@ -316,7 +316,7 @@ CWStateTransition CWWTPEnterRun() {
 
 		return CW_ENTER_RESET;
 	}
-	
+
 	wtpInRunState=1;
 
 	CW_REPEAT_FOREVER
@@ -324,7 +324,7 @@ CWStateTransition CWWTPEnterRun() {
 		struct timespec timenow;
 		CWBool bReceivePacket = CW_FALSE;
 		CWBool bReveiveBinding = CW_FALSE;
-	
+
 		/* Wait packet */
 		timenow.tv_sec = time(0) + CW_NEIGHBORDEAD_RESTART_DISCOVERY_DELTA_DEFAULT;	 /* greater than NeighborDeadInterval */
 		timenow.tv_nsec = 0;
@@ -342,7 +342,7 @@ CWStateTransition CWWTPEnterRun() {
 			if (!CWErr(CWWaitThreadConditionTimeout(&gInterfaceWait, &gInterfaceMutex, &timenow))) {
 
 				CWThreadMutexUnlock(&gInterfaceMutex);
-			
+
 				if (CWErrorGetLastErrorCode() == CW_ERROR_TIME_EXPIRED)	{
 
 					CWLog("No Message from AC for a long time... restart Discovery State");
@@ -379,7 +379,7 @@ CWStateTransition CWWTPEnterRun() {
 					/* Log and ignore message */
 					CWErrorHandleLast();
 					CWLog("--> Received something different from a valid Run Message");
-				} 
+				}
 				else {
 					CW_FREE_PROTOCOL_MESSAGE(msg);
 					CWLog("--> Critical Error Managing Generic Run Message... we enter RESET State");
@@ -401,15 +401,15 @@ CWStateTransition CWWTPEnterRun() {
 CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 
 	CWControlHeaderValues controlVal;
-	
-	if(msgPtr == NULL) 
+
+	if(msgPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	msgPtr->offset = 0;
-	
+
 	/* will be handled by the caller */
-	if(!(CWParseControlHeader(msgPtr, &controlVal))) 
-		return CW_FALSE;	
+	if(!(CWParseControlHeader(msgPtr, &controlVal)))
+		return CW_FALSE;
 
 	int len = controlVal.msgElemsLen - CW_CONTROL_HEADER_OFFSET_FOR_MSG_ELEMS;
 
@@ -425,12 +425,12 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 		CWProtocolMessage *messages = NULL;
 		int fragmentsNum=0;
 		CWBool toSend=CW_FALSE;
-	
+
 		switch(controlVal.messageTypeValue) {
 
 			case CW_MSG_TYPE_VALUE_CONFIGURE_UPDATE_REQUEST:
 			{
-				CWProtocolResultCode resultCode = CW_PROTOCOL_FAILURE;				
+				CWProtocolResultCode resultCode = CW_PROTOCOL_FAILURE;
 				CWProtocolConfigurationUpdateRequestValues values;
 				int updateRequestType;
 
@@ -444,7 +444,7 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 				}
 
 				CWLog("Configuration Update Request received");
-				
+
 				/************************************************************************************************
 				 * Update 2009:																					*
 				 *				These two function need an additional parameter (Pointer to updateRequestType)	*
@@ -459,9 +459,9 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 
 				/*
 				if ( updateRequestType == BINDING_MSG_ELEMENT_TYPE_OFDM_CONTROL )
-					break; 
+					break;
 				*/
-				
+
 				/*Update 2009:
 				 Added values (to return stuff with a conf update response)*/
 				if(!CWAssembleConfigurationUpdateResponse(&messages,
@@ -469,10 +469,10 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 														  gWTPPathMTU,
 														  controlVal.seqNum,
 														  resultCode,
-														  values)) 
+														  values))
 					return CW_FALSE;
-				
-				toSend=CW_TRUE;				
+
+				toSend=CW_TRUE;
 
 				 /*
                                  * BUG-ML01- memory leak fix
@@ -488,7 +488,7 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 				*/
                                 break;
 
-				
+
 				break;
 			}
 
@@ -507,7 +507,7 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 				/*WTP RESET ITS CONFIGURAION TO MANUFACTURING DEFAULT}*/
 				if(!CWSaveClearConfigurationRequest(&resultCode))
 					return CW_FALSE;
-				if(!CWAssembleClearConfigurationResponse(&messages, &fragmentsNum, gWTPPathMTU, controlVal.seqNum, resultCode)) 
+				if(!CWAssembleClearConfigurationResponse(&messages, &fragmentsNum, gWTPPathMTU, controlVal.seqNum, resultCode))
 					return CW_FALSE;
 
 				toSend=CW_TRUE;
@@ -516,7 +516,7 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 
 			case CW_MSG_TYPE_VALUE_STATION_CONFIGURATION_REQUEST:
 			{
-				
+
 				CWProtocolResultCode resultCode = CW_PROTOCOL_SUCCESS;
 				//CWProtocolStationConfigurationRequestValues values;  --> da implementare
 				/*Update 2009:
@@ -528,10 +528,10 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 					return CW_FALSE;
 				}
 				CWLog("Station Configuration Request received");
-				
-				if(!CWParseStationConfigurationRequest((msgPtr->msg)+(msgPtr->offset), len)) 
+
+				if(!CWParseStationConfigurationRequest((msgPtr->msg)+(msgPtr->offset), len))
 					return CW_FALSE;
-				if(!CWAssembleStationConfigurationResponse(&messages, &fragmentsNum, gWTPPathMTU, controlVal.seqNum, resultCode)) 
+				if(!CWAssembleStationConfigurationResponse(&messages, &fragmentsNum, gWTPPathMTU, controlVal.seqNum, resultCode))
 					return CW_FALSE;
 
 				toSend=CW_TRUE;
@@ -539,24 +539,24 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 			}
 			case CW_MSG_TYPE_VALUE_WLAN_CONFIGURATION_REQUEST:
 			{
-				
+
 				CWProtocolResultCode resultCode = CW_PROTOCOL_SUCCESS;
-				
+
 				if (!CWResetTimers()) {
 					CWFreeMessageFragments(messages, fragmentsNum);
 					CW_FREE_OBJECT(messages);
 					return CW_FALSE;
 				}
 				CWLog("WLAN Configuration Request received");
-				
-				if(!CWParseWLANConfigurationRequest((msgPtr->msg)+(msgPtr->offset), len)) 
+
+				if(!CWParseWLANConfigurationRequest((msgPtr->msg)+(msgPtr->offset), len))
 					return CW_FALSE;
-				if(!CWAssembleWLANConfigurationResponse(&messages, &fragmentsNum, gWTPPathMTU, controlVal.seqNum, resultCode)) 
+				if(!CWAssembleWLANConfigurationResponse(&messages, &fragmentsNum, gWTPPathMTU, controlVal.seqNum, resultCode))
 					return CW_FALSE;
 
 				toSend=CW_TRUE;
 				break;
-				
+
 			}
 
 			case CW_MSG_TYPE_VALUE_ECHO_RESPONSE:
@@ -574,7 +574,7 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 			}
 
 			default:
-				/* 
+				/*
 				 * We can't recognize the received Request so
 				 * we have to send a corresponding response
 				 * containing a failure result code
@@ -592,7 +592,7 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 									   &fragmentsNum,
 									   gWTPPathMTU,
 									   controlVal.seqNum,
-									   controlVal.messageTypeValue+1))) 
+									   controlVal.messageTypeValue+1)))
 					return CW_FALSE;
 
 				toSend = CW_TRUE;
@@ -607,7 +607,7 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 #ifdef CW_NO_DTLS
 				if(!CWNetworkSendUnsafeConnected(gWTPSocket,
 								 messages[i].msg,
-								 messages[i].offset)) 
+								 messages[i].offset))
 #else
 				if(!CWSecuritySend(gWTPSession,
 						   messages[i].msg,
@@ -631,8 +631,8 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 			if (WTPExitOnUpdateCommit) {
 			     exit(EXIT_SUCCESS);
 			}
-		}	
-	} 
+		}
+	}
 	else {/* we have received a Response */
 
 		/*Update 2009:
@@ -641,22 +641,22 @@ CWBool CWWTPManageGenericRunMessage(CWProtocolMessage *msgPtr) {
 		if (!CWResetTimers())
 			return CW_FALSE;
 
-		switch(controlVal.messageTypeValue) 
+		switch(controlVal.messageTypeValue)
 		{
 			case CW_MSG_TYPE_VALUE_CHANGE_STATE_EVENT_RESPONSE:
 				CWLog("Change State Event Response received");
 				break;
-		
+
 			case CW_MSG_TYPE_VALUE_WTP_EVENT_RESPONSE:
-				CWLog("WTP Event Response received");	
+				CWLog("WTP Event Response received");
 				break;
-	
+
 			case CW_MSG_TYPE_VALUE_DATA_TRANSFER_RESPONSE:
 				CWLog("Data Transfer Response received");
 				break;
 
 			default:
-				/* 
+				/*
 				 * We can't recognize the received Response: we
 				 * ignore the message and log the event.
 				 */
@@ -690,10 +690,10 @@ void CWWTPHeartBeatTimerExpiredHandler(void *arg) {
 
 
 	CWLog("WTP HeartBeat Timer Expired... we send an ECHO Request");
-	
+
 	CWLog("\n");
 	CWLog("#________ Echo Request Message (Run) ________#");
-	
+
 	/* Send WTP Event Request */
 	seqNum = CWGetSeqNum();
 
@@ -708,11 +708,11 @@ void CWWTPHeartBeatTimerExpiredHandler(void *arg) {
 		if(messages)
 			for(i = 0; i < fragmentsNum; i++) {
 				CW_FREE_PROTOCOL_MESSAGE(messages[i]);
-			}	
+			}
 		CW_FREE_OBJECT(messages);
 		return;
 	}
-	
+
 	int i;
 	for(i = 0; i < fragmentsNum; i++) {
 #ifdef CW_NO_DTLS
@@ -724,7 +724,7 @@ void CWWTPHeartBeatTimerExpiredHandler(void *arg) {
 			int k;
 			for(k = 0; k < fragmentsNum; k++) {
 				CW_FREE_PROTOCOL_MESSAGE(messages[k]);
-			}	
+			}
 			CW_FREE_OBJECT(messages);
 			break;
 		}
@@ -733,7 +733,7 @@ void CWWTPHeartBeatTimerExpiredHandler(void *arg) {
 	int k;
 	for(k = 0; messages && k < fragmentsNum; k++) {
 		CW_FREE_PROTOCOL_MESSAGE(messages[k]);
-	}	
+	}
 	CW_FREE_OBJECT(messages);
 
 	if(!CWStartHeartbeatTimer()) {
@@ -749,12 +749,12 @@ void CWWTPKeepAliveDataTimerExpiredHandler(void *arg) {
 	int fragmentsNum = 0;
 
 	CWAssembleMsgElemSessionID(&sessionIDmsgElem, &gWTPSessionID[0]);
-	
+
 	/* Send WTP Event Request */
-	if (!CWAssembleDataMessage(&messages, 
-			    &fragmentsNum, 
-			    gWTPPathMTU, 
-			    &sessionIDmsgElem, 
+	if (!CWAssembleDataMessage(&messages,
+			    &fragmentsNum,
+			    gWTPPathMTU,
+			    &sessionIDmsgElem,
 			    NULL,
 			    CW_PACKET_PLAIN,
 			    1
@@ -766,11 +766,11 @@ void CWWTPKeepAliveDataTimerExpiredHandler(void *arg) {
 		if(messages)
 			for(i = 0; i < fragmentsNum; i++) {
 				CW_FREE_PROTOCOL_MESSAGE(messages[i]);
-			}	
+			}
 		CW_FREE_OBJECT(messages);
 		return;
 	}
-	
+
 	int i;
 	for(i = 0; i < fragmentsNum; i++) {
 
@@ -779,7 +779,7 @@ void CWWTPKeepAliveDataTimerExpiredHandler(void *arg) {
 			int k;
 			for(k = 0; k < fragmentsNum; k++) {
 				CW_FREE_PROTOCOL_MESSAGE(messages[k]);
-			}	
+			}
 			CW_FREE_OBJECT(messages);
 			break;
 		}
@@ -788,7 +788,7 @@ void CWWTPKeepAliveDataTimerExpiredHandler(void *arg) {
 	int k;
 	for(k = 0; messages && k < fragmentsNum; k++) {
 		CW_FREE_PROTOCOL_MESSAGE(messages[k]);
-	}	
+	}
 	CW_FREE_OBJECT(messages);
 }
 
@@ -798,7 +798,7 @@ void CWWTPNeighborDeadTimerExpired(void *arg) {
 	CWLog("WTP NeighborDead Timer Expired... we consider Peer Dead.");
 
 #ifdef DMALLOC
-	dmalloc_shutdown(); 
+	dmalloc_shutdown();
 #endif
 
 	return;
@@ -806,12 +806,12 @@ void CWWTPNeighborDeadTimerExpired(void *arg) {
 
 
 CWBool CWStartHeartbeatTimer() {
-	
+
 	gCWHeartBeatTimerID = timer_add(gEchoInterval,
 					0,
 					&CWWTPHeartBeatTimerExpiredHandler,
 					NULL);
-	
+
 	if (gCWHeartBeatTimerID == -1)	return CW_FALSE;
 
 	CWDebugLog("Echo Heartbeat Timer Started");
@@ -819,7 +819,7 @@ CWBool CWStartHeartbeatTimer() {
 					0,
 					&CWWTPKeepAliveDataTimerExpiredHandler,
 					NULL);
-	
+
 	if (gCWKeepAliveTimerID == -1)	return CW_FALSE;
 
 	CWDebugLog("Keepalive Heartbeat Timer Started");
@@ -828,7 +828,7 @@ CWBool CWStartHeartbeatTimer() {
 
 
 CWBool CWStopHeartbeatTimer(){
-	
+
  	timer_rem(gCWHeartBeatTimerID, NULL);
 	CWDebugLog("Echo Heartbeat Timer Stopped");
 	timer_rem(gCWKeepAliveTimerID, NULL);
@@ -843,7 +843,7 @@ CWBool CWStartNeighborDeadTimer() {
 					   0,
 					   &CWWTPNeighborDeadTimerExpired,
 					   NULL);
-	
+
 	if (gCWNeighborDeadTimerID == -1)	return CW_FALSE;
 
 	CWDebugLog("NeighborDead Timer Started");
@@ -853,7 +853,7 @@ CWBool CWStartNeighborDeadTimer() {
 
 
 CWBool CWStopNeighborDeadTimer() {
-	
+
 	timer_rem(gCWNeighborDeadTimerID, NULL);
 	CWDebugLog("NeighborDead Timer Stopped");
 	gNeighborDeadTimerSet = CW_FALSE;
@@ -864,16 +864,16 @@ CWBool CWStopNeighborDeadTimer() {
 CWBool CWResetTimers() {
 
 	if(gNeighborDeadTimerSet) {
-	
+
 		if (!CWStopNeighborDeadTimer()) return CW_FALSE;
 	}
-	
-	if(!CWStopHeartbeatTimer()) 
+
+	if(!CWStopHeartbeatTimer())
 		return CW_FALSE;
-	
-	if(!CWStartHeartbeatTimer()) 
+
+	if(!CWStartHeartbeatTimer())
 		return CW_FALSE;
-	
+
 	return CW_TRUE;
 }
 
@@ -889,12 +889,12 @@ CWBool CWAssembleEchoRequest (CWProtocolMessage **messagesPtr,
 	const int msgElemCount = 0;
 	CWProtocolMessage *msgElemsBinding= NULL;
 	const int msgElemBindingCount=0;
-	
+
 	if(messagesPtr == NULL || fragmentsNumPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Assembling Echo Request...");
-		
+
 	if(!(CWAssembleMessage(messagesPtr,
 			       fragmentsNumPtr,
 			       PMTU,
@@ -906,14 +906,14 @@ CWBool CWAssembleEchoRequest (CWProtocolMessage **messagesPtr,
 			       msgElemBindingCount,
 #ifdef CW_NO_DTLSCWParseConfigurationUpdateRequest
 			       CW_PACKET_PLAIN
-#else			       
+#else
 			       CW_PACKET_CRYPT
 #endif
-			       ))) 
+			       )))
 		return CW_FALSE;
-	
+
 	CWLog("Echo Request Assembled");
-	
+
 	return CW_TRUE;
 }
 
@@ -928,14 +928,14 @@ CWBool CWAssembleWTPDataTransferRequest(CWProtocolMessage **messagesPtr, int *fr
 	int k = -1;
 
 	if(messagesPtr == NULL || fragmentsNumPtr == NULL || msgElemList == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	msgElemCount = CWCountElementInList(msgElemList);
 
 	if (msgElemCount > 0) {
 		CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems, msgElemCount, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	} 
+	}
 	else msgElems = NULL;
-		
+
 	CWLog("Assembling WTP Data Transfer Request...");
 
 	current=msgElemList;
@@ -945,19 +945,19 @@ CWBool CWAssembleWTPDataTransferRequest(CWProtocolMessage **messagesPtr, int *fr
 		{
 			case CW_MSG_ELEMENT_DATA_TRANSFER_DATA_CW_TYPE:
 				if (!(CWAssembleMsgElemDataTransferData(&(msgElems[++k]), ((CWMsgElemData *) current->data)->value)))
-					goto cw_assemble_error;	
+					goto cw_assemble_error;
 				break;
 			/*case CW_MSG_ELEMENT_DATA_TRANSFER_MODE_CW_TYPE:
 				if (!(CWAssembleMsgElemDataTansferMode(&(msgElems[++k]))))
 					goto cw_assemble_error;
 				break;*/
-		
+
 			default:
 				goto cw_assemble_error;
-				break;	
+				break;
 		}
 
-		current = current->next;	
+		current = current->next;
 	}
 
 	if (!(CWAssembleMessage(messagesPtr,
@@ -978,7 +978,7 @@ CWBool CWAssembleWTPDataTransferRequest(CWProtocolMessage **messagesPtr, int *fr
 	 	return CW_FALSE;
 
 	CWLog("WTP Data Transfer Request Assembled");
-	
+
 	return CW_TRUE;
 
 cw_assemble_error:
@@ -1006,18 +1006,18 @@ CWBool CWAssembleWTPEventRequest(CWProtocolMessage **messagesPtr,
 
 	if(messagesPtr == NULL || fragmentsNumPtr == NULL || msgElemList == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	msgElemCount = CWCountElementInList(msgElemList);
 
 	if (msgElemCount > 0) {
 
-		CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems, 
+		CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems,
 						 msgElemCount,
 						 return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	} 
-	else 
+	}
+	else
 		msgElems = NULL;
-		
+
 	CWLog("Assembling WTP Event Request...");
 
 	current=msgElemList;
@@ -1027,7 +1027,7 @@ CWBool CWAssembleWTPEventRequest(CWProtocolMessage **messagesPtr,
 
 			case CW_MSG_ELEMENT_CW_DECRYPT_ER_REPORT_CW_TYPE:
 				if (!(CWAssembleMsgElemDecryptErrorReport(&(msgElems[++k]), ((CWMsgElemData *) current->data)->value)))
-					goto cw_assemble_error;	
+					goto cw_assemble_error;
 				break;
 			case CW_MSG_ELEMENT_DUPLICATE_IPV4_ADDRESS_CW_TYPE:
 				if (!(CWAssembleMsgElemDuplicateIPv4Address(&(msgElems[++k]))))
@@ -1047,13 +1047,13 @@ CWBool CWAssembleWTPEventRequest(CWProtocolMessage **messagesPtr,
 				break;
 			case CW_MSG_ELEMENT_WTP_REBOOT_STATISTICS_CW_TYPE:
 				if (!(CWAssembleMsgElemWTPRebootStatistics(&(msgElems[++k]))))
-					goto cw_assemble_error;	
+					goto cw_assemble_error;
 				break;
 			default:
 				goto cw_assemble_error;
-				break;	
+				break;
 		}
-		current = current->next;	
+		current = current->next;
 	}
 
 	if (!(CWAssembleMessage(messagesPtr,
@@ -1074,7 +1074,7 @@ CWBool CWAssembleWTPEventRequest(CWProtocolMessage **messagesPtr,
 	 	return CW_FALSE;
 
 	CWLog("WTP Event Request Assembled");
-	
+
 	return CW_TRUE;
 
 cw_assemble_error:
@@ -1087,7 +1087,7 @@ cw_assemble_error:
 }
 
 /*Update 2009:
-	Added values to args... values is used to determine if we have some 
+	Added values to args... values is used to determine if we have some
 	payload (in this case only vendor and only UCI) to send back with the
 	configuration update response*/
 CWBool CWAssembleConfigurationUpdateResponse(CWProtocolMessage **messagesPtr,
@@ -1104,16 +1104,16 @@ CWBool CWAssembleConfigurationUpdateResponse(CWProtocolMessage **messagesPtr,
 	CWProtocolVendorSpecificValues *protoValues = NULL;
 
 	/*Get protocol data if we have it*/
-	if (values.protocolValues) 
+	if (values.protocolValues)
 		protoValues = (CWProtocolVendorSpecificValues *) values.protocolValues;
 
-	if(messagesPtr == NULL || fragmentsNumPtr == NULL) 
+	if(messagesPtr == NULL || fragmentsNumPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Assembling Configuration Update Response...");
-	
+
 	CW_CREATE_OBJECT_ERR(msgElems, CWProtocolMessage, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	if (protoValues)  {
 		switch (protoValues->vendorPayloadType) {
 			case CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_UCI:
@@ -1139,7 +1139,7 @@ CWBool CWAssembleConfigurationUpdateResponse(CWProtocolMessage **messagesPtr,
 			return CW_FALSE;
 		}
 	}
-		
+
 	if(!(CWAssembleMessage(messagesPtr,
 			       fragmentsNumPtr,
 			       PMTU,
@@ -1154,25 +1154,25 @@ CWBool CWAssembleConfigurationUpdateResponse(CWProtocolMessage **messagesPtr,
 #else
 			       CW_PACKET_CRYPT
 #endif
-			       ))) 
+			       )))
 		return CW_FALSE;
-	
+
 	CWLog("Configuration Update Response Assembled");
-	
+
 	return CW_TRUE;
 }
 
-CWBool CWAssembleClearConfigurationResponse(CWProtocolMessage **messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum, CWProtocolResultCode resultCode) 
+CWBool CWAssembleClearConfigurationResponse(CWProtocolMessage **messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum, CWProtocolResultCode resultCode)
 {
 	CWProtocolMessage *msgElems= NULL;
 	const int msgElemCount = 1;
 	CWProtocolMessage *msgElemsBinding= NULL;
 	const int msgElemBindingCount=0;
-	
+
 	if(messagesPtr == NULL || fragmentsNumPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Assembling Clear Configuration Response...");
-	
+
 	CW_CREATE_OBJECT_ERR(msgElems, CWProtocolMessage, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 
 	if (!(CWAssembleMsgElemResultCode(msgElems,resultCode))) {
@@ -1194,26 +1194,26 @@ CWBool CWAssembleClearConfigurationResponse(CWProtocolMessage **messagesPtr, int
 #else
 			       CW_PACKET_CRYPT
 #endif
-			       ))) 
+			       )))
 		return CW_FALSE;
-	
+
 	CWLog("Clear Configuration Response Assembled");
-	
+
 	return CW_TRUE;
 }
 
-CWBool CWAssembleStationConfigurationResponse(CWProtocolMessage **messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum, CWProtocolResultCode resultCode) 
+CWBool CWAssembleStationConfigurationResponse(CWProtocolMessage **messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum, CWProtocolResultCode resultCode)
 {
-	
+
 	CWProtocolMessage *msgElems= NULL;
 	const int msgElemCount = 1;
 	CWProtocolMessage *msgElemsBinding= NULL;
 	const int msgElemBindingCount=0;
-	
+
 	if(messagesPtr == NULL || fragmentsNumPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Assembling Sattion Configuration Response...");
-	
+
 	CW_CREATE_OBJECT_ERR(msgElems, CWProtocolMessage, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 
 	if (!(CWAssembleMsgElemResultCode(msgElems,resultCode))) {
@@ -1235,29 +1235,29 @@ CWBool CWAssembleStationConfigurationResponse(CWProtocolMessage **messagesPtr, i
 #else
 			       CW_PACKET_CRYPT
 #endif
-			       ))) 
+			       )))
 		return CW_FALSE;
-	
+
 	CWLog("Station Configuration Response Assembled");
-	
+
 	return CW_TRUE;
 }
 
-CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage **messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum, CWProtocolResultCode resultCode) 
+CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage **messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum, CWProtocolResultCode resultCode)
 {
-	
+
 	CWProtocolMessage *msgElems = NULL;
 	const int msgElemCount = 2;
 	CWProtocolMessage *msgElemsBinding = NULL;
 	const int msgElemBindingCount = 0;
 	int k = -1;
 	if(messagesPtr == NULL || fragmentsNumPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Assembling WLAN Configuration Response...");
-	
+
 	//CW_CREATE_OBJECT_ERR(msgElems, CWProtocolMessage, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems, msgElemCount, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););	
-	
+	CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems, msgElemCount, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+
 
 	if (!(CWAssembleMsgElemResultCode((&(msgElems[++k])),resultCode))) {
 		CW_FREE_OBJECT(msgElems);
@@ -1267,8 +1267,8 @@ CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage **messagesPtr, int 
 		CW_FREE_OBJECT(msgElems);
 		return CW_FALSE;
 	}
-	
-	
+
+
 	if(!(CWAssembleMessage(messagesPtr,
 			       fragmentsNumPtr,
 			       PMTU,
@@ -1283,11 +1283,11 @@ CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage **messagesPtr, int 
 #else
 			       CW_PACKET_CRYPT
 #endif
-			       ))) 
+			       )))
 		return CW_FALSE;
-	
+
 	CWLog("WLAN Configuration Response Assembled");
-	
+
 	return CW_TRUE;
 }
 
@@ -1303,37 +1303,37 @@ CWBool CWParseVendorMessage(char *msg, int len, void **valuesPtr) {
 	unsigned short int GlobalElemType=0;// = CWProtocolRetrieve32(&completeMsg);
 
 	if(msg == NULL || valuesPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Parsing Vendor Specific Message...");
-	
+
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
 
 	CWProtocolVendorSpecificValues *vendPtr;
-  
+
 
 	// parse message elements
 	while(completeMsg.offset < len) {
 	  unsigned short int elemType=0;// = CWProtocolRetrieve32(&completeMsg);
 	  unsigned short int elemLen=0;// = CWProtocolRetrieve16(&completeMsg);
-		
-		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);		
+
+		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);
 
 		GlobalElemType = elemType;
 
 		//CWDebugLog("Parsing Message Element: %u, elemLen: %u", elemType, elemLen);
-		
+
 		switch(elemType) {
 			case CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_CW_TYPE:
 			  completeMsg.offset += elemLen;
 			  break;
 		default:
-				if(elemType == CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_CW_TYPE) 
+				if(elemType == CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_CW_TYPE)
 				{
 					CW_FREE_OBJECT(valuesPtr);
 					return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Unrecognized Message Element");
 				}
-				else 
+				else
 				{
 					completeMsg.offset += elemLen;
 					break;
@@ -1356,8 +1356,8 @@ CWBool CWParseVendorMessage(char *msg, int len, void **valuesPtr) {
 	while(completeMsg.offset < len) {
 		unsigned short int type=0;
 		unsigned short int elemLen=0;
-		
-		CWParseFormatMsgElem(&completeMsg,&type,&elemLen);		
+
+		CWParseFormatMsgElem(&completeMsg,&type,&elemLen);
 
 		switch(type) {
 			/*Once we know it is a vendor specific payload...*/
@@ -1375,29 +1375,29 @@ CWBool CWParseVendorMessage(char *msg, int len, void **valuesPtr) {
 			break;
 		}
 	}
-	
+
 	*valuesPtr = (void *) vendPtr;
 	CWLog("Vendor Message Parsed");
-	
+
 	return CW_TRUE;
 }
 
 
 CWBool CWParseConfigurationUpdateRequest (char *msg,
 					  int len,
-					  CWProtocolConfigurationUpdateRequestValues *valuesPtr, 
+					  CWProtocolConfigurationUpdateRequestValues *valuesPtr,
 					  int *updateRequestType) {
 
 	CWBool bindingMsgElemFound=CW_FALSE;
 	CWBool vendorMsgElemFound=CW_FALSE;
 	CWProtocolMessage completeMsg;
 	unsigned short int GlobalElementType = 0;
-	
+
 	if(msg == NULL || valuesPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Parsing Configuration Update Request...");
-	
+
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
 
@@ -1411,8 +1411,8 @@ CWBool CWParseConfigurationUpdateRequest (char *msg,
 
 		unsigned short int elemType=0;	/* = CWProtocolRetrieve32(&completeMsg); */
 		unsigned short int elemLen=0;	/* = CWProtocolRetrieve16(&completeMsg); */
-		
-		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);		
+
+		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);
 
 		GlobalElementType = elemType;
 
@@ -1423,8 +1423,8 @@ CWBool CWParseConfigurationUpdateRequest (char *msg,
 
 			bindingMsgElemFound=CW_TRUE;
 			completeMsg.offset += elemLen;
-			continue;	
-		}						
+			continue;
+		}
 		switch(elemType) {
 			/*Update 2009:
 				Added case for vendor specific payload
@@ -1439,7 +1439,7 @@ CWBool CWParseConfigurationUpdateRequest (char *msg,
 		}
 	}
 
-	if (completeMsg.offset != len) 
+	if (completeMsg.offset != len)
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Garbage at the End of the Message");
 
 	/*Update 2009:
@@ -1453,7 +1453,7 @@ CWBool CWParseConfigurationUpdateRequest (char *msg,
 			return CW_FALSE;
 		}
 	}
-	
+
 	if (bindingMsgElemFound) {
 	  /* For the knownledge of SaveConfiguration */
 	  *updateRequestType = GlobalElementType;
@@ -1466,7 +1466,7 @@ CWBool CWParseConfigurationUpdateRequest (char *msg,
 	}
 
 	CWLog("Configure Update Request Parsed");
-	
+
 	return CW_TRUE;
 }
 
@@ -1474,11 +1474,11 @@ CWBool CWParseConfigurationUpdateRequest (char *msg,
 CWBool CWParseWLANConfigurationRequest (char *msg, int len){
 
 	CWProtocolMessage completeMsg;
-	
+
 	if(msg == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Parsing WLAN Configuration Request...");
-	
+
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
 
@@ -1486,23 +1486,23 @@ CWBool CWParseWLANConfigurationRequest (char *msg, int len){
 	while(completeMsg.offset < len) {
 		unsigned short int elemType = 0;
 		unsigned short int elemLen = 0;
-		
-		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);		
-		 					
-		switch(elemType) { 
+
+		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);
+
+		switch(elemType) {
 
 			case CW_MSG_ELEMENT_IEEE80211_ADD_WLAN_CW_TYPE:
-				
+
 				if (!(CWParseAddWLAN(&completeMsg,  elemLen)))
 					return CW_FALSE;
 				break;
-				
+
 			case CW_MSG_ELEMENT_IEEE80211_DELETE_WLAN_CW_TYPE:
-				
+
 				if (!(CWParseDeleteWLAN(&completeMsg,  elemLen)))
 					return CW_FALSE;
 				break;
-				
+
 			default:
 				return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Unrecognized Message Element");
 		}
@@ -1511,19 +1511,19 @@ CWBool CWParseWLANConfigurationRequest (char *msg, int len){
 	if(completeMsg.offset != len) return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Garbage at the End of the Message");
 
 	CWLog("Station WLAN Request Parsed");
-	
+
 	return CW_TRUE;
 }
 
-CWBool CWParseStationConfigurationRequest (char *msg, int len) 
+CWBool CWParseStationConfigurationRequest (char *msg, int len)
 {
 	//CWBool bindingMsgElemFound=CW_FALSE;
 	CWProtocolMessage completeMsg;
-	
+
 	if(msg == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Parsing Station Configuration Request...");
-	
+
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
 
@@ -1533,8 +1533,8 @@ CWBool CWParseStationConfigurationRequest (char *msg, int len)
 	while(completeMsg.offset < len) {
 		unsigned short int elemType = 0;
 		unsigned short int elemLen = 0;
-		
-		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);		
+
+		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);
 
 		//CWDebugLog("Parsing Message Element: %u, elemLen: %u", elemType, elemLen);
 
@@ -1542,18 +1542,18 @@ CWBool CWParseStationConfigurationRequest (char *msg, int len)
 		{
 			bindingMsgElemFound=CW_TRUE;
 			completeMsg.offset += elemLen;
-			continue;	
+			continue;
 		}*/
-									
-		switch(elemType) { 
+
+		switch(elemType) {
 
 			case CW_MSG_ELEMENT_ADD_STATION_CW_TYPE:
-				
+
 				if (!(CWParseAddStation(&completeMsg,  elemLen)))
 					return CW_FALSE;
 				break;
 			case CW_MSG_ELEMENT_DELETE_STATION_CW_TYPE:
-				
+
 				if (!(CWParseDeleteStation(&completeMsg,  elemLen)))
 					return CW_FALSE;
 				break;
@@ -1573,7 +1573,7 @@ CWBool CWParseStationConfigurationRequest (char *msg, int len)
 	}*/
 
 	CWLog("Station Configuration Request Parsed");
-	
+
 	return CW_TRUE;
 }
 
@@ -1581,31 +1581,31 @@ CWBool CWParseWTPEventResponseMessage (char *msg, int len, int seqNum, void *val
 
 	CWControlHeaderValues controlVal;
 	CWProtocolMessage completeMsg;
-	
+
 	if(msg == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWLog("Parsing WTP Event Response...");
-	
+
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
-	
+
 	/* error will be handled by the caller */
 	if(!(CWParseControlHeader(&completeMsg, &controlVal))) return CW_FALSE;
-	
+
 	/* different type */
 	if(controlVal.messageTypeValue != CW_MSG_TYPE_VALUE_WTP_EVENT_RESPONSE)
-		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, 
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
 				    "Message is not WTP Event Response as Expected");
-	
-	if(controlVal.seqNum != seqNum) 
-		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, 
+
+	if(controlVal.seqNum != seqNum)
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
 				    "Different Sequence Number");
-	
+
 	/* skip timestamp */
 	controlVal.msgElemsLen -= CW_CONTROL_HEADER_OFFSET_FOR_MSG_ELEMS;
-	
-	if(controlVal.msgElemsLen != 0 ) 
-		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, 
+
+	if(controlVal.msgElemsLen != 0 )
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
 				    "WTP Event Response must carry no message element");
 
 	CWLog("WTP Event Response Parsed...");
@@ -1629,7 +1629,7 @@ CWBool CWSaveVendorMessage(void* protocolValuesPtr, CWProtocolResultCode* result
 	if(protocolValuesPtr==NULL) {return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);}
 	*resultCode = CW_PROTOCOL_SUCCESS;
 
-	CWProtocolVendorSpecificValues* vendorPtr=(CWProtocolVendorSpecificValues *)protocolValuesPtr; 
+	CWProtocolVendorSpecificValues* vendorPtr=(CWProtocolVendorSpecificValues *)protocolValuesPtr;
 
 	/*Find out which custom vendor paylod really is...*/
 	switch(vendorPtr->vendorPayloadType) {
@@ -1666,14 +1666,14 @@ CWBool CWSaveConfigurationUpdateRequest(CWProtocolConfigurationUpdateRequestValu
 
 	if (valuesPtr->bindingValues!=NULL) {
 
-	  if(!CWBindingSaveConfigurationUpdateRequest(valuesPtr->bindingValues, resultCode, updateRequestType)) 
+	  if(!CWBindingSaveConfigurationUpdateRequest(valuesPtr->bindingValues, resultCode, updateRequestType))
 			return CW_FALSE;
-	} 
+	}
 	if (valuesPtr->protocolValues!=NULL) {
 		/*Update 2009:
-			We have a msg which is not a 
+			We have a msg which is not a
 			binding specific message... */
-	  if(!CWSaveVendorMessage(valuesPtr->protocolValues, resultCode)) 
+	  if(!CWSaveVendorMessage(valuesPtr->protocolValues, resultCode))
 			return CW_FALSE;
 	}
 	return CW_TRUE;
@@ -1682,10 +1682,10 @@ CWBool CWSaveConfigurationUpdateRequest(CWProtocolConfigurationUpdateRequestValu
 CWBool CWSaveClearConfigurationRequest(CWProtocolResultCode* resultCode)
 {
 	*resultCode=CW_TRUE;
-	
+
 	/*Back to manufacturing default configuration*/
 
-	if ( !CWErr(CWWTPLoadConfiguration()) || !CWErr(CWWTPInitConfiguration()) ) 
+	if ( !CWErr(CWWTPLoadConfiguration()) || !CWErr(CWWTPInitConfiguration()) )
 	{
 			CWLog("Can't restore default configuration...");
 			return CW_FALSE;
@@ -1700,14 +1700,14 @@ CWBool CWWTPManageACRunRequest(char *msg, int len)
 {
 	CWControlHeaderValues controlVal;
 	CWProtocolMessage completeMsg;
-	
+
 	if(msg == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
-	
+
 	if(!(CWParseControlHeader(&completeMsg, &controlVal))) return CW_FALSE; // error will be handled by the caller
-	
+
 	switch(controlVal.messageTypeValue) {
 		case CW_MSG_TYPE_VALUE_CONFIGURE_UPDATE_REQUEST:
 			break;
@@ -1721,12 +1721,12 @@ CWBool CWWTPManageACRunRequest(char *msg, int len)
 			return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Message is not Change State Event Response as Expected");
 	}
 
-	
-	
+
+
 	//if(controlVal.seqNum != seqNum) return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Different Sequence Number");
-	
+
 	controlVal.msgElemsLen -= CW_CONTROL_HEADER_OFFSET_FOR_MSG_ELEMS; // skip timestamp
-	
+
 	if(controlVal.msgElemsLen != 0 ) return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Change State Event Response must carry no message elements");
 
 	CWDebugLog("Change State Event Response Parsed");
@@ -1751,7 +1751,7 @@ void CWConfirmRunStateToACWithEchoRequest() {
 
 	CWLog("\n");
 	CWLog("#________ Echo Request Message (Confirm Run) ________#");
-	
+
 	/* Send WTP Event Request */
 	seqNum = CWGetSeqNum();
 
@@ -1766,11 +1766,11 @@ void CWConfirmRunStateToACWithEchoRequest() {
 		if(messages)
 			for(i = 0; i < fragmentsNum; i++) {
 				CW_FREE_PROTOCOL_MESSAGE(messages[i]);
-			}	
+			}
 		CW_FREE_OBJECT(messages);
 		return;
 	}
-	
+
 	int i;
 	for(i = 0; i < fragmentsNum; i++) {
 #ifdef CW_NO_DTLS
@@ -1782,7 +1782,7 @@ void CWConfirmRunStateToACWithEchoRequest() {
 			int k;
 			for(k = 0; k < fragmentsNum; k++) {
 				CW_FREE_PROTOCOL_MESSAGE(messages[k]);
-			}	
+			}
 			CW_FREE_OBJECT(messages);
 			break;
 		}
@@ -1791,7 +1791,7 @@ void CWConfirmRunStateToACWithEchoRequest() {
 	int k;
 	for(k = 0; messages && k < fragmentsNum; k++) {
 		CW_FREE_PROTOCOL_MESSAGE(messages[k]);
-	}	
+	}
 	CW_FREE_OBJECT(messages);
 
 }

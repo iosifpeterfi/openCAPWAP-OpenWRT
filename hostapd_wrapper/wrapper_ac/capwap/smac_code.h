@@ -23,13 +23,13 @@ unsigned char SET_FRAG = 12; // Typically the range used for fragmentation thres
 unsigned char SET_FRAG_R = 13;// ex. "[13]0"
 
 unsigned char GET_FRAG = 14; // ex. "[14]"   (-1 == off)
-unsigned char GET_FRAG_R = 15; // ex. "[15]2000" 
+unsigned char GET_FRAG_R = 15; // ex. "[15]2000"
 
-unsigned char SET_BITRATE = 16; 
+unsigned char SET_BITRATE = 16;
 unsigned char SET_BITRATE_R = 17;
 
-unsigned char GET_BITRATE = 18; 
-unsigned char GET_BITRATE_R = 19; 
+unsigned char GET_BITRATE = 18;
+unsigned char GET_BITRATE_R = 19;
 
 unsigned char SET_RTS = 20; // 0-2347 (-1 == off)  ex. "[20]100"  (-1 == off)
 unsigned char SET_RTS_R = 21;// ex. "[21]0"
@@ -37,10 +37,10 @@ unsigned char SET_RTS_R = 21;// ex. "[21]0"
 unsigned char GET_RTS = 22; // ex. "]22]"  (-1 == off)
 unsigned char GET_RTS_R = 23; // ex. "[23]100"
 
-unsigned char SET_TXPOWER = 24; 
+unsigned char SET_TXPOWER = 24;
 unsigned char SET_TXPOWER_R = 25;
 
-unsigned char GET_TXPOWER = 26; 
+unsigned char GET_TXPOWER = 26;
 unsigned char GET_TXPOWER_R = 27;
 
 /*
@@ -49,10 +49,10 @@ unsigned char GET_TXPOWER_R = 27;
  * BE - 2  CWMIN:15  CWMAX:1023  AIFS:3
  * BK - 3  CWMIN:15  CWMAX:1023  AIFS:7
  */
-unsigned char SET_TXQ = 28; 
-unsigned char SET_TXQ_R = 29; 
+unsigned char SET_TXQ = 28;
+unsigned char SET_TXQ_R = 29;
 
-unsigned char GET_TXQ = 30; 
+unsigned char GET_TXQ = 30;
 unsigned char GET_TXQ_R = 31;
 
 unsigned char SET_ADDR = 32;

@@ -18,14 +18,14 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
- 
+
 #include "CWAC.h"
 
 #include "common.h"
@@ -63,13 +63,13 @@ int from_8023_to_80211( unsigned char *inbuffer,int inlen, unsigned char *outbuf
 	os_memcpy(hdr.addr2, own_addr, ETH_ALEN);
 	os_memcpy(hdr.addr3, inbuffer + ETH_ALEN, ETH_ALEN);
 	CLEARBIT(hdr.frame_control,8);
-	SETBIT(hdr.frame_control,9);	
-	
+	SETBIT(hdr.frame_control,9);
+
 	os_memcpy(outbuffer + indx,&hdr,sizeof(hdr));
 	indx += sizeof(hdr);
 	os_memcpy(outbuffer + indx, inbuffer, inlen);
 	indx += inlen;
-	
+
 	return indx;
 }
 
@@ -83,9 +83,9 @@ int from_8023_to_80211( unsigned char *inbuffer,int inlen, unsigned char *outbuf
  */
 int CWNetworkGetInterfaceIndexFromSystemIndex(CWMultiHomedSocket *sockPtr,
 					      int systemIndex) {
-	
+
 	int i, c;
-	
+
 	if(sockPtr == NULL || systemIndex == -1) return -1;
 
 	for(i = 0, c = 0; i < sockPtr->count; i++) {
@@ -93,7 +93,7 @@ int CWNetworkGetInterfaceIndexFromSystemIndex(CWMultiHomedSocket *sockPtr,
 		if(sockPtr->interfaces[i].kind == CW_PRIMARY) {
 
 			/* each primary interface increments the int index */
-			if(sockPtr->interfaces[i].systemIndex == systemIndex) 
+			if(sockPtr->interfaces[i].systemIndex == systemIndex)
 				return c;
 			c++;
 		}
@@ -103,32 +103,32 @@ int CWNetworkGetInterfaceIndexFromSystemIndex(CWMultiHomedSocket *sockPtr,
 
 /*
  * Check if the interface with system index systemIndex is already managed by
- * the multihomed socket. If the answer is yes, returns informations on that 
+ * the multihomed socket. If the answer is yes, returns informations on that
  * interface, returns NULL otherwise.
  */
 CWMultiHomedInterface *CWNetworkGetInterfaceAlreadyStored(CWList list,
 							  short systemIndex) {
 
 	CWListElement *el;
-	
+
 	for(el = list; el != NULL; el = el->next) {
 
 		if(((CWMultiHomedInterface*)(el->data))->systemIndex == systemIndex &&
-		   ((CWMultiHomedInterface*)(el->data))->kind == CW_PRIMARY) 
-			
+		   ((CWMultiHomedInterface*)(el->data))->kind == CW_PRIMARY)
+
 			return (CWMultiHomedInterface*) el->data;
 	}
 	return NULL;
 }
 
 /*
- * Init multihomed socket. Will bind a socket for each interface + each 
- * broadcast address + the wildcard addres + each multicast address in 
+ * Init multihomed socket. Will bind a socket for each interface + each
+ * broadcast address + the wildcard addres + each multicast address in
  * multicastGroups.
  */
-CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr, 
-					   int port, 
-					   char **multicastGroups, 
+CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
+					   int port,
+					   char **multicastGroups,
 					   int multicastGroupsCount) {
 
 	struct ifi_info	*ifi, *ifihead;
@@ -139,12 +139,12 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 	CWList interfaceList = CW_LIST_INIT;
 	CWListElement *el = NULL;
 	int i;
-	
+
 	if(sockPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	sockPtr->count = 0;
-	
-	/* 
+
+	/*
 	 * note: if get_ifi_info is called with AF_INET6 on an host that doesn't
 	 * support IPv6, it'll simply act like if it was called with AF_INET.
 	 * Consider aliases as different interfaces (last arg of get_ifi_info is 1).
@@ -152,7 +152,7 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 	 */
 #ifdef CW_DEBUGGING
 	/* for each network interface... */
-	for (ifihead = ifi = get_ifi_info((gNetworkPreferredFamily == CW_IPv6) ? AF_INET6 : AF_INET, 1); ifi != NULL; ifi = ifi->ifi_next) { 
+	for (ifihead = ifi = get_ifi_info((gNetworkPreferredFamily == CW_IPv6) ? AF_INET6 : AF_INET, 1); ifi != NULL; ifi = ifi->ifi_next) {
 #else
 	/* for each network interface... */
 	for (ifihead = ifi = get_ifi_info((gNetworkPreferredFamily == CW_IPv6) ? AF_INET6 : AF_INET, 0); ifi != NULL; ifi = ifi->ifi_next) {
@@ -163,13 +163,13 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 			free_ifi_info(ifihead);
 			CWNetworkRaiseSystemError(CW_ERROR_CREATING);
 		}
-		
+
 		/* reuse address */
 		setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-		
+
 		/* bind address */
 		sock_set_port_cw(ifi->ifi_addr, htons(port));
-		
+
 		if(bind(sock, (struct sockaddr*) ifi->ifi_addr, CWNetworkGetAddressSize((CWNetworkLev4Address*)ifi->ifi_addr)) < 0) {
 
 			close(sock);
@@ -177,10 +177,10 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 			continue;
 			/* CWNetworkRaiseSystemError(CW_ERROR_CREATING); */
 		}
-		
-		CWUseSockNtop(ifi->ifi_addr, 
+
+		CWUseSockNtop(ifi->ifi_addr,
 			      CWLog("bound %s (%d, %s)", str, ifi->ifi_index, ifi->ifi_name););
-		
+
 		/* store socket inside multihomed socket */
 		CW_CREATE_OBJECT_ERR(p, CWMultiHomedInterface, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 		p->sock = sock;
@@ -203,11 +203,11 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 		}
 
 		p->systemIndex = ifi->ifi_index;
-		
+
 		/* the next field is useful only if we are an IPv6 server. In
-		 * this case, p->addr contains the IPv6 address of the interface 
+		 * this case, p->addr contains the IPv6 address of the interface
 		 * and p->addrIPv4 contains the equivalent IPv4 address. On the
-		 * other side, if we are an IPv4 server p->addr contains the 
+		 * other side, if we are an IPv4 server p->addr contains the
 		 * IPv4 address of the interface and p->addrIPv4 is garbage.
 		 */
 		p->addrIPv4.ss_family = AF_UNSPEC;
@@ -219,34 +219,34 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 			free_ifi_info(ifihead);
 			CWNetworkRaiseSystemError(CW_ERROR_CREATING);
 		}
-		
+
 		/* reuse address */
 		setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-		
+
 		/* bind address */
 		sock_set_port_cw(ifi->ifi_addr, htons(port+1));
-		
+
 		if(bind(sock, (struct sockaddr*) ifi->ifi_addr, CWNetworkGetAddressSize((CWNetworkLev4Address*)ifi->ifi_addr)) < 0) {
 			close(sock);
 			CWUseSockNtop(ifi->ifi_addr, CWDebugLog("failed %s", str););
 			continue;
 			/* CWNetworkRaiseSystemError(CW_ERROR_CREATING); */
 		}
-		
-		CWUseSockNtop(ifi->ifi_addr, 
+
+		CWUseSockNtop(ifi->ifi_addr,
 			      CWLog("Data channel bound %s (%d, %s)", str, ifi->ifi_index, ifi->ifi_name););
-			      
+
 		CW_COPY_NET_ADDR_PTR(&(p->dataAddr), ifi->ifi_addr);
 		p->dataSock = sock;
 
 		if(!CWAddElementToList(&interfaceList, p)) {
-		
+
 			return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 		}
 		/* we add a socket to the multihomed socket */
-		sockPtr->count++;	
-		
-		if (ifi->ifi_flags & IFF_BROADCAST) { 
+		sockPtr->count++;
+
+		if (ifi->ifi_flags & IFF_BROADCAST) {
 			/* try to bind broadcast address */
 			if((sock = socket(ifi->ifi_addr->sa_family, SOCK_DGRAM, 0)) < 0) {
 
@@ -254,13 +254,13 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 				CWDeleteList(&interfaceList, CWNetworkDeleteMHInterface);
 				CWNetworkRaiseSystemError(CW_ERROR_CREATING);
 			}
-			
+
 			/* reuse address */
 			setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-			
+
 			sock_set_port_cw(ifi->ifi_brdaddr, htons(port));
-			
-			if (bind(sock, (struct sockaddr*)ifi->ifi_brdaddr, 
+
+			if (bind(sock, (struct sockaddr*)ifi->ifi_brdaddr,
 				 CWNetworkGetAddressSize((CWNetworkLev4Address*)ifi->ifi_brdaddr)) < 0) {
 
 				close(sock);
@@ -278,26 +278,26 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 					/* CWNetworkRaiseSystemError(CW_ERROR_CREATING); */
 				}
 			}
-			
+
 			CWUseSockNtop(ifi->ifi_brdaddr,
-				      CWLog("bound %s (%d, %s)", 
+				      CWLog("bound %s (%d, %s)",
 				      str,
 				      ifi->ifi_index,
 				      ifi->ifi_name););
-			
+
 			/* store socket inside multihomed socket */
-			
-			CW_CREATE_OBJECT_ERR(p, CWMultiHomedInterface, 
+
+			CW_CREATE_OBJECT_ERR(p, CWMultiHomedInterface,
 					     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 			p->sock = sock;
 			p->kind = CW_BROADCAST_OR_ALIAS;
 			p->systemIndex = ifi->ifi_index;
 			CW_COPY_NET_ADDR_PTR(&(p->addr), ifi->ifi_brdaddr);
-			
+
 			/* The next field is useful only if we are an IPv6 server.
-			 * In this case, p->addr contains the IPv6 address of the 
-			 * interface and p->addrIPv4 contains the equivalent IPv4 
-			 * address. On the other side, if we are an IPv4 server 
+			 * In this case, p->addr contains the IPv6 address of the
+			 * interface and p->addrIPv4 contains the equivalent IPv4
+			 * address. On the other side, if we are an IPv4 server
 			 * p->addr contains the IPv4 address of the interface and
 			 * p->addrIPv4 is garbage.
 			 */
@@ -316,15 +316,15 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 	if(ifihead == NULL) {
 
 		CWDeleteList(&interfaceList, CWNetworkDeleteMHInterface);
-		return CWErrorRaise(CW_ERROR_NEED_RESOURCE, 
+		return CWErrorRaise(CW_ERROR_NEED_RESOURCE,
 				    "Error With get_ifi_info()");
 	}
 	free_ifi_info(ifihead);
-	
+
 #ifdef IPV6
 	/* we are an IPv6 server */
 	if(gNetworkPreferredFamily == CW_IPv6) {
-		/* 
+		/*
 		 * Store IPv4 addresses for our interfaces in the field "addrIPv4".
 		 * Consider aliases as different interfaces (last arg of get_ifi_info is 1).
 		 * Why? Just to increase the funny side of the thing.
@@ -335,14 +335,14 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 		for (ifihead = ifi = get_ifi_info(AF_INET, 0); ifi != NULL; ifi = ifi->ifi_next) {
 #endif
 			CWMultiHomedInterface *s = CWNetworkGetInterfaceAlreadyStored(interfaceList, ifi->ifi_index);
-			
+
 			if(s == NULL ||
 			   s->kind != CW_PRIMARY ||
 			   s->addrIPv4.ss_family != AF_UNSPEC ||
 			   ifi->ifi_addr->sa_family != AF_INET) continue;
-			
+
 			CW_COPY_NET_ADDR_PTR(&(s->addrIPv4), ifi->ifi_addr);
-			
+
 			CWUseSockNtop(&(s->addrIPv4),
 				CWDebugLog("IPv4 address %s (%d, %s)", str, ifi->ifi_index, ifi->ifi_name););
 		}
@@ -350,7 +350,7 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 		if(ifihead == NULL) {
 
 			CWDeleteList(&interfaceList, CWNetworkDeleteMHInterface);
-			return CWErrorRaise(CW_ERROR_NEED_RESOURCE, 
+			return CWErrorRaise(CW_ERROR_NEED_RESOURCE,
 					    "Error with get_ifi_info()");
 		}
 		free_ifi_info(ifihead);
@@ -368,19 +368,19 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 	{
 		if((sock = socket(AF_INET,SOCK_DGRAM, 0)) < 0) goto fail;
 	}
-	
+
 	goto success;
-	
+
 fail:
 	CWDeleteList(&interfaceList, CWNetworkDeleteMHInterface);
 	CWNetworkRaiseSystemError(CW_ERROR_CREATING); /* this wil return */
 	/* not reached */
-	
+
 success:
 	/* reuse address */
 	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
 	CW_ZERO_MEMORY(&wildaddr, sizeof(wildaddr));
-	
+
 #ifdef	IPV6
 	if (gNetworkPreferredFamily == CW_IPv6) {
 		/* fill wildaddr considering it an IPv6 addr */
@@ -397,24 +397,24 @@ success:
 		a->sin_addr.s_addr = htonl(INADDR_ANY);
 		a->sin_port = htons(port);
 	}
-	
+
 	if(bind(sock, (struct sockaddr*) &wildaddr, CWNetworkGetAddressSize(&wildaddr)) < 0) {
 		close(sock);
 		CWDeleteList(&interfaceList, CWNetworkDeleteMHInterface);
 		CWNetworkRaiseSystemError(CW_ERROR_CREATING);
 	}
-	
+
 	CWUseSockNtop(&wildaddr,
 		CWLog("bound %s", str);
 	);
-	
+
 	CW_CREATE_OBJECT_ERR(p, CWMultiHomedInterface, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	p->sock = sock;
 	p->kind = CW_BROADCAST_OR_ALIAS;
-	p->systemIndex = -1; /* make sure this can't be 
+	p->systemIndex = -1; /* make sure this can't be
 				confused with an interface */
-	
-	/* addrIPv4 field for the wildcard address cause it 
+
+	/* addrIPv4 field for the wildcard address cause it
 	 * is garbage in both cases (IPv4 + IPv6)
 	 */
 	p->addrIPv4.ss_family = AF_UNSPEC;
@@ -430,16 +430,16 @@ success:
 		struct addrinfo hints, *res, *ressave;
 		char serviceName[5];
 		CWSocket sock;
-		
+
 		CW_ZERO_MEMORY(&hints, sizeof(struct addrinfo));
 		hints.ai_family = AF_UNSPEC;
 		hints.ai_socktype = SOCK_DGRAM;
-		
+
 		/* endianness will be handled by getaddrinfo */
 		snprintf(serviceName, 5, "%d", CW_CONTROL_PORT);
-		
+
 		CWLog("Joining Multicast Group: %s...", multicastGroups[i]);
-		
+
 		if (getaddrinfo(multicastGroups[i], serviceName, &hints, &res) != 0 ) {
 
 			CWNetworkRaiseSystemError(CW_ERROR_CREATING);
@@ -450,46 +450,46 @@ success:
 			if((sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0) {
 				continue; /* try next address */
 			}
-			
+
 			/* reuse address */
 			setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-	
+
 			if(bind(sock, res->ai_addr, res->ai_addrlen) == 0) break; /* success */
-			
+
 			close(sock); /* failure */
 		} while ( (res = res->ai_next) != NULL);
-		
+
 		if(res == NULL) { /* error on last iteration */
 			CWNetworkRaiseSystemError(CW_ERROR_CREATING);
 		}
-		
+
 		if(mcast_join(sock, res->ai_addr, res->ai_addrlen, NULL, 0) != 0) {
 			CWNetworkRaiseSystemError(CW_ERROR_CREATING);
 		}
-		
+
 		CWUseSockNtop((res->ai_addr),
 			CWLog("Joined Multicast Group: %s", str);
 		);
-		
-		CW_CREATE_OBJECT_ERR(p, CWMultiHomedInterface, 
+
+		CW_CREATE_OBJECT_ERR(p, CWMultiHomedInterface,
 				     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 		p->sock = sock;
 		p->kind = CW_BROADCAST_OR_ALIAS;
 		p->systemIndex = -1;
-		
-		
+
+
 		p->addrIPv4.ss_family = AF_UNSPEC;
-		
+
 		CW_COPY_NET_ADDR_PTR(&(p->addr), res->ai_addr);
 		if(!CWAddElementToList(&interfaceList, p)) {
 			return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 		}
 		sockPtr->count++; /* we add a socket to the multihomed socket */
-		
+
 		freeaddrinfo(ressave);
 	}
-	
-	
+
+
 	/*
 	 * Lists are fun when you don't know how many sockets will not give an
 	 * error on creating/binding, but now that we know the exact number we
@@ -498,26 +498,26 @@ success:
 	 */
 	CW_CREATE_ARRAY_ERR((sockPtr->interfaces), sockPtr->count, CWMultiHomedInterface,
 					return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	/* create array from list */
 	for(el = interfaceList, i = 0; el != NULL; el = el->next, i++) {
 		CW_COPY_MH_INTERFACE_PTR(&((sockPtr->interfaces)[i]), ((CWMultiHomedInterface*)(el->data)));
 	}
-	
+
 	/* delete the list */
 	CWDeleteList(&interfaceList, CWNetworkDeleteMHInterface);
-	
+
 	return CW_TRUE;
 }
 
 void CWNetworkCloseMultiHomedSocket(CWMultiHomedSocket *sockPtr) {
 
 	int i = 0;
-	
-	if(sockPtr == NULL || sockPtr->interfaces == NULL) 
+
+	if(sockPtr == NULL || sockPtr->interfaces == NULL)
 		return;
-	
-	for(i = 0; i < sockPtr->count; i++) 
+
+	for(i = 0; i < sockPtr->count; i++)
 		close(sockPtr->interfaces[i].sock);
 
 	CW_FREE_OBJECT(sockPtr->interfaces);
@@ -525,13 +525,13 @@ void CWNetworkCloseMultiHomedSocket(CWMultiHomedSocket *sockPtr) {
 }
 
 int get_mac_addr( unsigned char *outBuf,char *eth_name){
-	
+
 	struct ifreq s;
 	int fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
 	strcpy(s.ifr_name, eth_name);
 	if(!ioctl(fd, SIOCGIFHWADDR, &s))
 		memcpy(outBuf, s.ifr_addr.sa_data, 6);
-	
+
 	return 0;
 }
 
@@ -541,11 +541,11 @@ int get_mac_addr( unsigned char *outBuf,char *eth_name){
  * is at least one packet pending, call CWManageIncomingPacket() for each pending
  * packet, then return.
  */
-CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr, 
-				 void (*CWManageIncomingPacket)(CWSocket, 
-					 			char *, 
-								int, 
-								int, 
+CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
+				 void (*CWManageIncomingPacket)(CWSocket,
+					 			char *,
+								int,
+								int,
 								CWNetworkLev4Address*,
 								CWBool),
 				 CWBool peekRead) {
@@ -553,24 +553,24 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
 	int max = 0, i;
 	CWNetworkLev4Address addr;
 	CWNetworkLev4Address address;
- 	
+
 	int k;
 	int fragmentsNum = 0;
 	CWProtocolMessage *completeMsgPtr = NULL;
 	CWProtocolMessage* frame=NULL;
 	int dataSocket=0;
 	int readBytes;
-	int flags = ((peekRead != CW_FALSE) ? MSG_PEEK : 0);	
+	int flags = ((peekRead != CW_FALSE) ? MSG_PEEK : 0);
 	char buf[CW_BUFFER_SIZE];
-	
-	if (sockPtr == NULL || sockPtr->count == 0 || CWManageIncomingPacket == NULL) 
+
+	if (sockPtr == NULL || sockPtr->count == 0 || CWManageIncomingPacket == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	FD_ZERO(&fset);
 
 	/* select() on all the sockets */
 	for(i = 0; i < sockPtr->count; i++) {
-	
+
 		FD_SET(sockPtr->interfaces[i].sock, &fset);
 
 		if (sockPtr->interfaces[i].sock > max)
@@ -594,35 +594,35 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
  	}
 
 	while(select(max+1, &fset, NULL, NULL, NULL) < 0) {
-		
+
 		if (errno != EINTR) {
 			CWNetworkRaiseSystemError(CW_ERROR_GENERAL);
 		}
 	}
-	
-	/* calls CWManageIncomingPacket() for each interface 
-	 * that has an incoming packet 
+
+	/* calls CWManageIncomingPacket() for each interface
+	 * that has an incoming packet
 	 */
-	
+
 	for(i = 0; i < gMaxWTPs; i++) {
-  
+
 		if (FD_ISSET(gWTPs[i].tap_fd, &fset)) {
-			
+
 			readBytes = read(gWTPs[i].tap_fd,buf,CW_BUFFER_SIZE);							//Todd: read from TAP then forward to WTP through data channel
 			CWDebugLog("gWTPs[%d].tap_fd:%d is set,data(%d bytes)",i,gWTPs[i].tap_fd, readBytes);
-			
+
 			if(readBytes < 0) {
 				CWDebugLog("Reading from tap interface");
 				perror("Reading from interface");
 				close(gWTPs[i].tap_fd);
 				gWTPs[i].tap_fd=0;
 			}
-			
+
 			if (gWTPs[i].currentState != CW_ENTER_RUN){
 			      CWDebugLog("WTP %d is not in RUN State. The packet was dropped.",i);
 			      continue;
 			}else{
-				
+
 				unsigned char macAddrTap[6];
 				get_mac_addr(macAddrTap, gWTPs[i].tap_name);
 				unsigned char buf80211[CW_BUFFER_SIZE + 24];
@@ -633,16 +633,16 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
 				frame->offset = readByest80211;
 				frame->data_msgType = CW_IEEE_802_11_FRAME_TYPE;
 
-				if (!CWAssembleDataMessage(&completeMsgPtr, 
-							  &fragmentsNum, 
-							  gWTPs[i].pathMTU, 
-							  frame, 
+				if (!CWAssembleDataMessage(&completeMsgPtr,
+							  &fragmentsNum,
+							  gWTPs[i].pathMTU,
+							  frame,
 							  NULL,
 							  CW_PACKET_PLAIN
 							  ,0))
 				{
-					
-					
+
+
 					for(k = 0; k < fragmentsNum; k++)
 					{
 						CW_FREE_PROTOCOL_MESSAGE(completeMsgPtr[k]);
@@ -652,7 +652,7 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
 					CW_FREE_OBJECT(frame);
 					continue;
 				}
-				
+
 				for(k = 0; k < sockPtr->count; k++) {
 				      if (sockPtr->interfaces[k].sock == gWTPs[i].socket){
 					  dataSocket = sockPtr->interfaces[k].dataSock;
@@ -660,21 +660,21 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
 					  break;
 				      }
 				}
-		
-				
+
+
 				if (dataSocket == 0){
 				      CWDebugLog("data socket of WTP %d isn't ready.");
 				      continue;
 				}
-				
+
 				/* Set port and address of data tunnel */
 				sock_set_port_cw((struct sockaddr *)&(address), htons(CW_DATA_PORT));
 
-				for (k = 0; k < fragmentsNum; k++) 
+				for (k = 0; k < fragmentsNum; k++)
 				{
-					if(!CWNetworkSendUnsafeUnconnected(	dataSocket, 
-										&(address), 
-										completeMsgPtr[k].msg, 
+					if(!CWNetworkSendUnsafeUnconnected(	dataSocket,
+										&(address),
+										completeMsgPtr[k].msg,
 										completeMsgPtr[k].offset)	) {
 						CWDebugLog("Failure sending Request");
 						break;
@@ -684,11 +684,11 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
 				{
 					CW_FREE_PROTOCOL_MESSAGE(completeMsgPtr[k]);
 				}
-				
-				CW_FREE_OBJECT(completeMsgPtr);				
+
+				CW_FREE_OBJECT(completeMsgPtr);
 				CW_FREE_PROTOCOL_MESSAGE(*(frame));
 				CW_FREE_OBJECT(frame);
-				
+
 			}
 		}
 	}
@@ -698,35 +698,35 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
 		if(FD_ISSET(sockPtr->interfaces[i].sock, &fset)) {
 			int readBytes;
 
-			/*	
+			/*
 			CWUseSockNtop(&(sockPtr->interfaces[i].addr),
 				CWDebugLog("Ready on %s", str);
 			);
 			*/
-			
+
 			CW_ZERO_MEMORY(buf, CW_BUFFER_SIZE);
-			
+
 			/* message */
 			if(!CWErr(CWNetworkReceiveUnsafe(sockPtr->interfaces[i].sock, buf, CW_BUFFER_SIZE-1, flags, &addr, &readBytes))) {
 
 				sleep(1);
 				continue;
 			}
-			
-			CWManageIncomingPacket(sockPtr->interfaces[i].sock, 
-					       buf, 
+
+			CWManageIncomingPacket(sockPtr->interfaces[i].sock,
+					       buf,
 					       readBytes,
 					       CWNetworkGetInterfaceIndexFromSystemIndex(sockPtr, sockPtr->interfaces[i].systemIndex),
 					       &addr,CW_FALSE);
 		}
-	  
-	  
+
+
 		if(FD_ISSET(sockPtr->interfaces[i].dataSock, &fset)) {						//Todd: Bridge 802.3 packets of WTPs into AC
 			int readBytes;
 
-	
+
 			CW_ZERO_MEMORY(buf, CW_BUFFER_SIZE);
-			
+
 			/* message */
 			if(!CWErr(CWNetworkReceiveUnsafe(sockPtr->interfaces[i].dataSock, buf, CW_BUFFER_SIZE-1, flags, &addr, &readBytes))) {
 
@@ -734,8 +734,8 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket *sockPtr,
 				continue;
 			}
 
-			CWManageIncomingPacket(sockPtr->interfaces[i].dataSock, 
-					       buf, 
+			CWManageIncomingPacket(sockPtr->interfaces[i].dataSock,
+					       buf,
 					       readBytes,
 					       CWNetworkGetInterfaceIndexFromSystemIndex(sockPtr, sockPtr->interfaces[i].systemIndex),
 					       &addr,CW_TRUE);
@@ -751,22 +751,22 @@ int CWNetworkCountInterfaceAddresses(CWMultiHomedSocket *sockPtr) {
 
 	int count = 0;
 	int i;
-	
+
 	if(sockPtr == NULL) return 0;
-	
+
 	for(i = 0; i < sockPtr->count; i++) {
-	
+
 		if(sockPtr->interfaces[i].kind == CW_PRIMARY) count++;
 	}
 
 	return count;
 }
 
-/* 
- * Get the addresses of each distinct interface managed by the multihomed 
+/*
+ * Get the addresses of each distinct interface managed by the multihomed
  * socket. If we are an IPv6 server element with index i of addressesPtr contains
- * the IPv6 address of the interface at index i (our mapped index, not system 
- * index) and the element at index i of IPv4AddressesPtr contains the IPv4 
+ * the IPv6 address of the interface at index i (our mapped index, not system
+ * index) and the element at index i of IPv4AddressesPtr contains the IPv4
  * equivalent address for the interface at index i. If we are an IPv4 server,
  * addressesPtr are the IPv4 addresses and IPv4AddressesPtr is garbage.
  */
@@ -774,23 +774,23 @@ CWBool CWNetworkGetInterfaceAddresses(CWMultiHomedSocket *sockPtr,
 				      CWNetworkLev4Address **addressesPtr,
 				      struct sockaddr_in **IPv4AddressesPtr) {
 	int i, j;
-	
-	if(sockPtr == NULL || addressesPtr == NULL) 
+
+	if(sockPtr == NULL || addressesPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
-	CW_CREATE_ARRAY_ERR(*addressesPtr, 
-			    CWNetworkCountInterfaceAddresses(sockPtr), 
+
+	CW_CREATE_ARRAY_ERR(*addressesPtr,
+			    CWNetworkCountInterfaceAddresses(sockPtr),
 			    CWNetworkLev4Address,
 			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	if(IPv4AddressesPtr != NULL && gNetworkPreferredFamily == CW_IPv6) {
 
-		CW_CREATE_ARRAY_ERR(*IPv4AddressesPtr, 
+		CW_CREATE_ARRAY_ERR(*IPv4AddressesPtr,
 				    CWNetworkCountInterfaceAddresses(sockPtr),
 				    struct sockaddr_in,
 				    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 	}
-	
+
 	for(i = 0, j = 0; i < sockPtr->count; i++) {
 
 		if(sockPtr->interfaces[i].kind == CW_PRIMARY) {
@@ -798,7 +798,7 @@ CWBool CWNetworkGetInterfaceAddresses(CWMultiHomedSocket *sockPtr,
 			CW_COPY_NET_ADDR_PTR(&((*addressesPtr)[j]), ((CWNetworkLev4Address*)&(sockPtr->interfaces[i].addr)));
 
 			if(IPv4AddressesPtr != NULL && gNetworkPreferredFamily == CW_IPv6) {
-				
+
 				CW_COPY_NET_ADDR_PTR(&((*IPv4AddressesPtr)[j]), ((CWNetworkLev4Address*)&(sockPtr->interfaces[i].addrIPv4)));
 			}
 			j++;

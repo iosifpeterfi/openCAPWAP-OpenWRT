@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap
  * Authors : Matteo Latini (mtylty@gmail.com)
- * 	     Donato Capitella (d.capitella@gmail.com)											*  
+ * 	     Donato Capitella (d.capitella@gmail.com)											*
  ************************************************************************************************/
 
 
@@ -51,7 +51,7 @@ CWBool CWWTPSaveUCIValues(CWVendorUciValues *uciPayload, CWProtocolResultCode *r
 CWBool CWAssembleWTPVendorPayloadUCI(CWProtocolMessage *msgPtr);
 
 /*************************************************************************
- *  WTP Update Messages 
+ *  WTP Update Messages
  *************************************************************************/
 
 typedef struct { unsigned char major_v; unsigned char min_v; unsigned char revision; } mess_version_info;
@@ -60,7 +60,7 @@ typedef struct { unsigned int seq_num; unsigned int size; char *buf; } mess_cup;
 
 typedef struct {
 	unsigned char type;		/* Message type */
-	union {		
+	union {
 		mess_version_info v_resp;
 		mess_up_req up_req;
 		mess_cup cup;
@@ -72,7 +72,7 @@ typedef struct {
 #define _revision_v_ args.v_resp.revision
 #define _pack_size_ args.up_req.pack_size
 #define _seq_num_ args.cup.seq_num
-#define _cup_ args.cup.buf 
+#define _cup_ args.cup.buf
 #define _cup_fragment_size_ args.cup.size
 
 #define CUP_FRAGMENT_SIZE 4000

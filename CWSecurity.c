@@ -18,14 +18,14 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
  *           Mauro Bisson (mauro.bis@gmail.com)                                            *
  *******************************************************************************************/
 
- 
+
 #include "CWCommon.h"
 #include "CWAC.h"
 #include <openssl/pkcs12.h>
@@ -81,7 +81,7 @@ int psk_key2bn(const char *psk_key, unsigned char *psk, unsigned int max_psk_len
 								CWErrorRaise(error, buf);		\
 								return CW_FALSE;			\
 							}
-											
+
 #define CWSecurityManageSSLError(arg, session, stuff)	{						\
 								char ___buf[256];			\
 								int r;					\
@@ -137,7 +137,7 @@ CWBool CWSecurityInitLib() {
 	CW_CREATE_ARRAY_ERR(mutexOpensslBuf,
 			    CRYPTO_num_locks() * sizeof(CWThreadMutex),
 			    CWThreadMutex,
-			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, 
+			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY,
 				    		"Cannot create openssl mutexes");)
 
 	CW_ZERO_MEMORY(mutexOpensslBuf, CRYPTO_num_locks() * sizeof(CWThreadMutex));
@@ -149,7 +149,7 @@ CWBool CWSecurityInitLib() {
 		if (rv != CW_TRUE) {
 
 			CWSslCleanUp();
-			return CWErrorRaise(CW_ERROR_CREATING, 
+			return CWErrorRaise(CW_ERROR_CREATING,
 				    	    "Cannot create openssl mutexes");
 		}
 	}
@@ -159,8 +159,8 @@ CWBool CWSecurityInitLib() {
 
 	return CW_TRUE;
 }
- 
-CWBool CWSecurityInitSessionClient(CWSocket 		sock, 
+
+CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 				   CWNetworkLev4Address *addrPtr,
 				   CWSafeList 		packetReceiveList,
 				   CWSecurityContext 	ctx,
@@ -172,18 +172,18 @@ CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 	int peerlen = sizeof(peer);
 	int i;
 
-	if(ctx == NULL || sessionPtr == NULL || PMTUPtr == NULL) 
+	if(ctx == NULL || sessionPtr == NULL || PMTUPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	if((*sessionPtr = SSL_new(ctx)) == NULL) {
 		CWSecurityRaiseError(CW_ERROR_CREATING);
 	}
-	
+
 	#ifdef CW_DEBUGGING
 		CWDebugLog("My Certificate");
 		PEM_write_X509(stdout, SSL_get_certificate(*sessionPtr));
 	#endif
-	
+
 	if((sbio = BIO_new_memory(sock, addrPtr, packetReceiveList)) == NULL) {
 
 		SSL_free(*sessionPtr);
@@ -195,11 +195,11 @@ CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 		SSL_free(*sessionPtr);
 		CWSecurityRaiseSystemError(CW_ERROR_GENERAL);
 	}
-	
+
 	i = BIO_ctrl_set_connected(sbio, 1, &peer);
-	
+
 	/* BIO_ctrl(sbio, BIO_CTRL_DGRAM_MTU_DISCOVER, 0, NULL); // TO-DO (pass MTU?) */
-	/* 
+	/*
 	 * TO-DO if we don't set a big MTU, the DTLS implementation will
 	 * not be able to use a big certificate
 	 */
@@ -215,13 +215,13 @@ CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 	SSL_set_read_ahead( (*sessionPtr), 1);
 	SSL_set_bio((*sessionPtr), sbio, sbio);
 	SSL_set_connect_state((*sessionPtr));
-	
+
 	CWDebugLog("Before HS");
 	CWSecurityManageSSLError(SSL_do_handshake(*sessionPtr),
 				 *sessionPtr,
 				 SSL_free(*sessionPtr););
 	CWDebugLog("After HS");
-	
+
 	if (SSL_get_verify_result(*sessionPtr) == X509_V_OK) {
 
 		CWDebugLog("Certificate Verified");
@@ -232,11 +232,11 @@ CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 	}
 
 	*PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_QUERY_MTU, 0, NULL);
-	
+
 	CWDebugLog("PMTU: %d", *PMTUPtr);
-	
+
 	if(useCertificate) {
-		
+
 		if(CWSecurityVerifyPeerCertificateForCAPWAP((*sessionPtr), CW_TRUE)) {
 
 			CWDebugLog("Certificate Ok for CAPWAP");
@@ -246,7 +246,7 @@ CWBool CWSecurityInitSessionClient(CWSocket 		sock,
 			return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Certificate Not Ok for CAPWAP");
 #endif
 		}
-	}	
+	}
     return CW_TRUE;
 
 }
@@ -257,7 +257,7 @@ void CWSecurityCloseSession(CWSecuritySession *sPtr) {
 }
 
 
-CWBool CWSecurityReceive(CWSecuritySession session, 
+CWBool CWSecurityReceive(CWSecuritySession session,
 			 char *buf,
 			 int len,
 			 int *readBytesPtr) {
@@ -282,15 +282,15 @@ CWBool CWSecurityReceive(CWSecuritySession session,
 
 CWBool CWSecuritySend(CWSecuritySession session, const char *buf, int len) {
 
-	if(buf == NULL) 
+	if(buf == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWSecurityManageSSLError(SSL_write(session, buf, len), session, ;);
 	CWDebugLog("Packet Sent\n");
 	return CW_TRUE;
 }
 
-CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp, 
+CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 				   CWSocket sock,
 				   CWSecurityContext ctx,
 				   CWSecuritySession *sessionPtr,
@@ -303,21 +303,21 @@ CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 	if((*sessionPtr = SSL_new(ctx)) == NULL) {
 		CWSecurityRaiseError(CW_ERROR_CREATING);
 	}
-	
+
 	if((sbio = BIO_new_memory(sock, &pWtp->address, pWtp->packetReceiveList)) == NULL) {
 
 		SSL_free(*sessionPtr);
 		CWSecurityRaiseError(CW_ERROR_CREATING);
 	}
-		
+
 	/* BIO_ctrl(sbio, BIO_CTRL_DGRAM_MTU_DISCOVER, 0, NULL); // TO-DO (pass MTU?) */
-	/* 
+	/*
 	 * TO-DO if we don't set a big MTU, the DTLS implementation will
 	 * not be able to use a big certificate
 	 */
 	BIO_ctrl(sbio, BIO_CTRL_DGRAM_SET_MTU, 10000, NULL);
 
-	/* 
+	/*
 	 * Let the verify_callback catch the verify_depth error so that we get
 	 * an appropriate error in the logfile.
 	 */
@@ -330,11 +330,11 @@ CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 	SSL_set_bio((*sessionPtr), sbio, sbio);
 	/* tell OpenSSL we are a server */
 	SSL_set_accept_state((*sessionPtr));
-	
+
 	CWDebugLog("Before HS");
 	CWSecurityManageSSLError(SSL_do_handshake(*sessionPtr),
 				 *sessionPtr,
-				 SSL_free(*sessionPtr);); 
+				 SSL_free(*sessionPtr););
 	CWDebugLog("After HS");
 
 	if (SSL_get_verify_result(*sessionPtr) == X509_V_OK) {
@@ -343,11 +343,11 @@ CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 	} else {
 		CWDebugLog("Certificate Error (%d)", SSL_get_verify_result(*sessionPtr));
 	}
-	
+
 	if(useCertificate) {
-		
+
 		if(CWSecurityVerifyPeerCertificateForCAPWAP((*sessionPtr), CW_FALSE)) {
-	
+
 			CWDebugLog("Certificate Ok for CAPWAP");
 		} else {
 			CWDebugLog("Certificate Not Ok for CAPWAP");
@@ -355,11 +355,11 @@ CWBool CWSecurityInitSessionServer(CWWTPManager* pWtp,
 			return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Certificate Not Ok for CAPWAP");
 #endif
 		}
-	}	
-	
+	}
+
 	*PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_QUERY_MTU, 0, NULL);
 	CWDebugLog("PMTU: %d", *PMTUPtr);
-	
+
 	return CW_TRUE;
 }
 
@@ -385,14 +385,14 @@ CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
 	}
 
 	/* certificates */
-	if(caList != NULL) { 
+	if(caList != NULL) {
 		useCertificate = CW_TRUE;
 		/* load keys and certificates */
 		if(!(SSL_CTX_use_certificate_file((*ctxPtr), keyfile, SSL_FILETYPE_PEM))) {
 			SSL_CTX_free((*ctxPtr));
 			CWSecurityRaiseError(CW_ERROR_GENERAL);
 		}
-		
+
 		/* store password */
 		gSecurityPassword = (char*)passw;
 		SSL_CTX_set_default_passwd_cb((*ctxPtr), CWDTLSPasswordCB);
@@ -408,18 +408,18 @@ CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
 			SSL_CTX_free((*ctxPtr));
 			CWSecurityRaiseError(CW_ERROR_GENERAL);
 		}
-		
+
 		/* load the CAs we trust */
 		if(!(SSL_CTX_load_verify_locations((*ctxPtr), caList,0))) {
 			SSL_CTX_free((*ctxPtr));
 			CWSecurityRaiseError(CW_ERROR_GENERAL);
 		}
-		
+
 		SSL_CTX_set_default_verify_paths((*ctxPtr));
-		
+
 		if(!isClient) {
 			/* require client authentication */
-			SSL_CTX_set_verify((*ctxPtr), 
+			SSL_CTX_set_verify((*ctxPtr),
 					   SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
 					   CWSecurityVerifyCB);
 		} else {
@@ -427,18 +427,18 @@ CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
 					   SSL_VERIFY_PEER,
 					   CWSecurityVerifyCB);
 		}
-		
+
 		/*
 		 * 1. (TLS_RSA_WITH_AES_128_CBC_SHA) CAPWAP says: MUST be supported
 		 * 2. (TLS_RSA_WITH_3DES_EDE_CBC_SHA) CAPWAP says: MUST be supported
 		 * 3. (TLS_DH_RSA_WITH_AES_128_CBC_SHA) CAPWAP says: SHOULD be supported
-		 * 4. Not implemented in OpenSSL (TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA) 
+		 * 4. Not implemented in OpenSSL (TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA)
 		 *    CAPWAP says: SHOULD be supported
 		 */
 		/* set the ciphers supported by CAPWAP */
 		SSL_CTX_set_cipher_list((*ctxPtr),
 					"AES128-SHA:DES-CBC3-SHA:DH-RSA-AES128-SHA");
-	} else { 
+	} else {
 		/* pre-shared keys */
 		printf("OpenSSL PrivateSharedKey not ready\n");
 		exit(0);
@@ -446,7 +446,7 @@ CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
 		useCertificate = CW_FALSE;
 		SSL_CTX_set_cipher_list( (*ctxPtr), "TLSv1");	// current implementation of PSK for OpenSSL doesn't support CAPWAP's cipher.
 														// Better than nothing.
-		
+
 		if(isClient) {
 			CWDebugLog("Client PSK");
 			SSL_CTX_set_psk_client_callback( (*ctxPtr), CWSecurityPSKClientCB);
@@ -456,7 +456,7 @@ CWBool CWSecurityInitContext(CWSecurityContext *ctxPtr,
 		}
 		*/
 	}
-	
+
 	/* needed for DTLS */
 	SSL_CTX_set_read_ahead((*ctxPtr), 1);
 
@@ -518,12 +518,12 @@ CWBool CWSecurityVerifyCertEKU(X509 *x509, const char * const expected_oid) {
 	return fFound;
 }
 
-/* 
- * modificare questa funzione 
+/*
+ * modificare questa funzione
  */
 CWBool CWSecurityVerifyPeerCertificateForCAPWAP(SSL *ssl, CWBool isClient) {
 	if(ssl == NULL) return CW_FALSE;
-	
+
 	if(!isClient) {
 		return CWSecurityVerifyCertEKU (SSL_get_peer_certificate(ssl),
 				"1.3.6.1.5.5.7.3.19"); /* value expected for WTP */
@@ -542,7 +542,7 @@ static int CWDTLSPasswordCB(char *buf, int num, int rwflag, void *userdata) {
 	if(buf == NULL || num < strlen(gSecurityPassword)+1) return 0;
 
 	strcpy(buf, gSecurityPassword);
-	
+
 	return strlen(gSecurityPassword);
 }
 
@@ -553,14 +553,14 @@ int CWSecurityVerifyCB(int ok, X509_STORE_CTX *ctx) {
 	X509   *err_cert;
 	int     err, depth;
 	int preverify_ok = 1;
-	
+
 	err_cert = X509_STORE_CTX_get_current_cert(ctx);
-	
+
 	err = X509_STORE_CTX_get_error(ctx);
 	CWDebugLog(X509_verify_cert_error_string(err));
-	
+
 	depth = X509_STORE_CTX_get_error_depth(ctx);
-    
+
 	/*
 	 * Retrieve the pointer to the SSL of the connection currently treated
 	 * and the application specific data stored into the SSL object.
@@ -582,9 +582,9 @@ int CWSecurityVerifyCB(int ok, X509_STORE_CTX *ctx) {
 	        err = X509_V_ERR_CERT_CHAIN_TOO_LONG;
         	X509_STORE_CTX_set_error(ctx, err);
 	    }
-    
+
 	if (!preverify_ok) {
-        
+
 		CWDebugLog("verify error:num=%d:%s:depth=%d:%s\n", err,
 		X509_verify_cert_error_string(err), depth, buf);
 	}
@@ -604,7 +604,7 @@ int CWSecurityVerifyCB(int ok, X509_STORE_CTX *ctx) {
 	return preverify_ok;
 }
 
-unsigned int CWSecurityPSKClientCB(SSL *ssl, 
+unsigned int CWSecurityPSKClientCB(SSL *ssl,
 				   const char *hint,
 				   char *identity,
 				   unsigned int max_identity_len,
@@ -627,7 +627,7 @@ unsigned int CWSecurityPSKServerCB(SSL *ssl,
 	return psk_key2bn("1a2b3c", psk, max_psk_len);
 }
 
-/* 
+/*
  * Convert the PSK key (psk_key) in ascii to binary (psk).
  */
 int psk_key2bn(const char *psk_key, unsigned char *psk, unsigned int max_psk_len) {

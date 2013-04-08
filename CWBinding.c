@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*  
+ * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*
  *           Del Moro Andrea (andrea_delmoro@libero.it)											*
  *           Giovannini Federica (giovannini.federica@gmail.com)								*
  *           Massimo Vellucci (m.vellucci@unicampus.it)											*
@@ -53,17 +53,17 @@ CWBool CWAssembleDataMessage(CWProtocolMessage **completeMsgPtr, int *fragmentsN
 	CWProtocolTransportHeaderValues transportVal;
 
 	if(completeMsgPtr == NULL || fragmentsNumPtr == NULL || frame == NULL ) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 //	CWDebugLog("PMTU: %d", PMTU);
-	
+
 	// handle fragmentation
-	
+
 	PMTU = PMTU - gMaxCAPWAPHeaderSizeBinding;
-	
+
 	if(PMTU > 0) {
 		PMTU = (PMTU/8)*8; // CAPWAP fragments are made of groups of 8 bytes
 		if(PMTU == 0) goto cw_dont_fragment;
-		
+
 //		CWDebugLog("Aligned PMTU: %d", PMTU);
 		*fragmentsNumPtr = (frame->offset) / PMTU;
 		if((frame->offset % PMTU) != 0) (*fragmentsNumPtr)++;
@@ -72,44 +72,44 @@ CWBool CWAssembleDataMessage(CWProtocolMessage **completeMsgPtr, int *fragmentsN
 	cw_dont_fragment:
 		*fragmentsNumPtr = 1;
 	}
-	
+
 	transportVal.bindingValuesPtr = bindingValuesPtr;
-	
-	
+
+
 	if( frame->data_msgType == CW_IEEE_802_11_FRAME_TYPE ) transportVal.type = 1;
-	
+
 	if(*fragmentsNumPtr == 1) {
-			
+
 		transportVal.isFragment = transportVal.last = transportVal.fragmentOffset = transportVal.fragmentID = 0;
-		transportVal.payloadType = is_crypted;		
+		transportVal.payloadType = is_crypted;
 
 		// Assemble Message Elements
-		
+
 		if(keepAlive){
 			if(!(CWAssembleTransportHeaderKeepAliveData(&transportHdr, &transportVal,keepAlive))) {
 				CW_FREE_PROTOCOL_MESSAGE(transportHdr);
 				return CW_FALSE; // will be handled by the caller
-			} 
+			}
 		}else{
-			 
+
 			if(!(CWAssembleTransportHeader(&transportHdr, &transportVal))) {
 				CW_FREE_PROTOCOL_MESSAGE(transportHdr);
 				return CW_FALSE; // will be handled by the caller
-			} 
+			}
 		}
-				
+
 		CW_CREATE_OBJECT_ERR(*completeMsgPtr, CWProtocolMessage, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 		CW_CREATE_PROTOCOL_MESSAGE(((*completeMsgPtr)[0]), transportHdr.offset + frame->offset, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-		
+
 		CWProtocolStoreMessage(&((*completeMsgPtr)[0]), &transportHdr);
 		CWProtocolStoreMessage(&((*completeMsgPtr)[0]), frame);
-		
+
 		CW_FREE_PROTOCOL_MESSAGE(transportHdr);
 	} else {
-		
+
 		int fragID = CWGetFragmentID();
 		int totalSize = frame->offset;
-		
+
 		//CWDebugLog("%d Fragments", *fragmentsNumPtr);
 		CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(*completeMsgPtr, *fragmentsNumPtr, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 		frame->offset = 0;
@@ -117,12 +117,12 @@ CWBool CWAssembleDataMessage(CWProtocolMessage **completeMsgPtr, int *fragmentsN
 		int i;
 		for(i = 0; i < *fragmentsNumPtr; i++) { // for each fragment to assemble
 			int fragSize;
-			
+
 			transportVal.isFragment = 1;
 			transportVal.fragmentOffset = (frame->offset) / 8;
 			transportVal.fragmentID = fragID;
 			transportVal.payloadType = is_crypted;
-			
+
 			if(i < ((*fragmentsNumPtr)-1)) { // not last fragment
 				fragSize = PMTU;
 				transportVal.last = 0;
@@ -130,9 +130,9 @@ CWBool CWAssembleDataMessage(CWProtocolMessage **completeMsgPtr, int *fragmentsN
 				fragSize = totalSize - (((*fragmentsNumPtr)-1) * PMTU);
 				transportVal.last = 1;
 			}
-		
+
 			CWDebugLog("Fragment #:%d, offset:%d, bytes stored:%d/%d", i, transportVal.fragmentOffset, fragSize, totalSize);
-			
+
 			// Assemble Transport Header for this fragment
 			if(keepAlive){
 				if(!(CWAssembleTransportHeaderKeepAliveData(&transportHdr, &transportVal,keepAlive))) {
@@ -148,12 +148,12 @@ CWBool CWAssembleDataMessage(CWProtocolMessage **completeMsgPtr, int *fragmentsN
 				}
 			}
 
-			
+
 			CW_CREATE_PROTOCOL_MESSAGE(((*completeMsgPtr)[i]), transportHdr.offset + fragSize, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 			CWProtocolStoreMessage(&((*completeMsgPtr)[i]), &transportHdr);
 			CWProtocolStoreRawBytes(&((*completeMsgPtr)[i]), &((frame->msg)[frame->offset]), fragSize);
 			(frame->offset) += fragSize;
-			
+
 			CW_FREE_PROTOCOL_MESSAGE(transportHdr);
 		}
 	}
@@ -164,7 +164,7 @@ CWBool CWAssembleDataMessage(CWProtocolMessage **completeMsgPtr, int *fragmentsN
 CWBool CWAssembleTransportHeaderBinding(CWProtocolMessage *transportHdrPtr, CWBindingTransportHeaderValues *valuesPtr)
 {
 	int val = 0;
-/* Mauro: non piu' specificato nel campo Wireless Specific Information 
+/* Mauro: non piu' specificato nel campo Wireless Specific Information
 	CWSetField32(val,
 		     CW_TRANSPORT_HEADER_WIRELESS_ID_START,
 		     CW_TRANSPORT_HEADER_WIRELESS_ID_LEN,
@@ -222,32 +222,32 @@ CWBool CWParseTransportHeaderMACAddress(CWProtocolMessage *msgPtr,  char *mac_pt
 
 	if(msgPtr == NULL ) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
-	
+
 	unsigned char *vval;
 	vval=malloc(7);
 
 	//CWDebugLog("Parse Transport Header");
 	int Mac_len = CWProtocolRetrieve8(msgPtr);
-	
+
 	vval =  (unsigned char*)CWProtocolRetrieveRawBytes(msgPtr,7);
-	
+
 	if( mac_ptr!= NULL ){
-		
+
 		CWThreadMutexLock(&gWTPsMutex);
 					memcpy(mac_ptr, vval, Mac_len);
 		CWThreadMutexUnlock(&gWTPsMutex);
-	
+
 	}
-	
+
 
 	return CW_TRUE;
 }
 
 CWBool CWParseTransportHeaderBinding(CWProtocolMessage *msgPtr, CWBindingTransportHeaderValues *valuesPtr){
 	unsigned int val = 0;
-	
+
 	if(msgPtr == NULL || valuesPtr == NULL) return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	//CWDebugLog("Parse Transport Header");
 	val = CWProtocolRetrieve32(msgPtr);
 
@@ -263,13 +263,13 @@ CWBool CWParseTransportHeaderBinding(CWProtocolMessage *msgPtr, CWBindingTranspo
 
 	valuesPtr->SNR = CWGetField32(val, CW_TRANSPORT_HEADER_SNR_START, CW_TRANSPORT_HEADER_SNR_LEN);
 //	CWDebugLog("SNR: %d", valuesPtr->SNR);
-	
+
 /* Mauro: preleva il byte piu' significativo del sottocampo Data */
 	valuesPtr->dataRate = CWGetField32(val, CW_TRANSPORT_HEADER_DATARATE_1_START, CW_TRANSPORT_HEADER_DATARATE_1_LEN);
 	val = CWProtocolRetrieve32(msgPtr);
-	
+
 	/* Daniele: controlla se si tratta di un msg dati(statistiche) o di un msg contenete un wireless frame*/
-	
+
 	/************************************************************************
 	 * 2009 Update:															*
 	 * For distinguish between the two types of "specials" data messages	*
@@ -284,7 +284,7 @@ CWBool CWParseTransportHeaderBinding(CWProtocolMessage *msgPtr, CWBindingTranspo
 	  else
 		msgPtr->data_msgType=CW_DATA_MSG_STATS_TYPE;
 	}
-	else if(valuesPtr->dataRate == 0) 
+	else if(valuesPtr->dataRate == 0)
 	  msgPtr->data_msgType=CW_DATA_MSG_FRAME_TYPE;
 
 /* Mauro: preleva il byte meno significativo del sottocampo Data */
@@ -293,6 +293,6 @@ CWBool CWParseTransportHeaderBinding(CWProtocolMessage *msgPtr, CWBindingTranspo
 
 //	valuesPtr->dataRate = CWGetField32(val, CW_TRANSPORT_HEADER_DATARATE_START, CW_TRANSPORT_HEADER_DATARATE_LEN);
 //	CWDebugLog("DATARATE: %d", valuesPtr->dataRate);
-	
+
 	return CW_TRUE;
 }

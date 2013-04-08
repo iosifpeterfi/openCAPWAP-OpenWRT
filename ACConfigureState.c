@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -48,28 +48,28 @@ CWBool CWSaveConfigureRequestMessage(CWProtocolConfigureRequestValues *configure
 
 
 CWBool ACEnterConfigure(int WTPIndex, CWProtocolMessage *msgPtr) {
-	
+
 
 	/*** tmp Radio Info ***/
 	char tmp_RadioInformationABGN;
 	char tmp_SuppRates[8];
 	char tmp_MultiDomCapa[6];
-	
+
 
 	int seqNum;
 	CWProtocolConfigureRequestValues configureRequest;
-	
+
 	CWLog("\n");
-	CWLog("######### Configure State #########");	
-	 	
-	if(!(CWParseConfigureRequestMessage(msgPtr->msg, 
-										msgPtr->offset, 
-										&seqNum, 
+	CWLog("######### Configure State #########");
+
+	if(!(CWParseConfigureRequestMessage(msgPtr->msg,
+										msgPtr->offset,
+										&seqNum,
 										&configureRequest,
 										&tmp_RadioInformationABGN,
 										tmp_SuppRates,
 										tmp_MultiDomCapa))) {
-		/* note: we can kill our thread in case of out-of-memory 
+		/* note: we can kill our thread in case of out-of-memory
 		 * error to free some space.
 		 * we can see this just calling CWErrorGetLastErrorCode()
 		 */
@@ -77,33 +77,33 @@ CWBool ACEnterConfigure(int WTPIndex, CWProtocolMessage *msgPtr) {
 	}
 
 	CWLog("Configure Request Received");
-	
+
 	if(!(CWSaveConfigureRequestMessage(&configureRequest, &(gWTPs[WTPIndex].WTPProtocolManager)))){
 		return CW_FALSE;
 	}
-	
-	
+
+
 	/* Store Radio Info in gWTPs */
 	gWTPs[WTPIndex].RadioInformationABGN = tmp_RadioInformationABGN;
 	memcpy( gWTPs[WTPIndex].SuppRates, tmp_SuppRates, 8 );
 	memcpy( gWTPs[WTPIndex].MultiDomCapa, tmp_MultiDomCapa, 6);
-	
+
 	/* Store Radio Info in gWTPs */
-	
-	
-	if(!(CWAssembleConfigureResponse(&(gWTPs[WTPIndex].messages), 
-					 &(gWTPs[WTPIndex].messagesCount), 
-					 gWTPs[WTPIndex].pathMTU, 
-					 seqNum)))  { 
+
+
+	if(!(CWAssembleConfigureResponse(&(gWTPs[WTPIndex].messages),
+					 &(gWTPs[WTPIndex].messagesCount),
+					 gWTPs[WTPIndex].pathMTU,
+					 seqNum)))  {
 		return CW_FALSE;
 	}
-	
+
 	if(!CWACSendFragments(WTPIndex)) {
 		return CW_FALSE;
 	}
-	
+
 	CWLog("Configure Response Sent");
-	
+
 	/* start Change State Pending timer */
 	if(!CWErr(CWTimerRequest(gCWChangeStatePendingTimer,
 				 &(gWTPs[WTPIndex].thread),
@@ -128,48 +128,48 @@ CWBool CWParseConfigureRequestMessage(char *msg,
 	CWControlHeaderValues controlVal;
 	int i,j;
 	int offsetTillMessages;
-	
+
 	CWProtocolMessage completeMsg;
-	
-	if(msg == NULL || seqNumPtr == NULL || valuesPtr == NULL) 
+
+	if(msg == NULL || seqNumPtr == NULL || valuesPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWDebugLog("Parsing Configure Request...");
-	
+
 	completeMsg.msg = msg;
 	completeMsg.offset = 0;
-	
-	if(!(CWParseControlHeader(&completeMsg, &controlVal))) 
+
+	if(!(CWParseControlHeader(&completeMsg, &controlVal)))
 		/* will be handled by the caller */
 		return CW_FALSE;
 
 	/* different type */
 	if(controlVal.messageTypeValue != CW_MSG_TYPE_VALUE_CONFIGURE_REQUEST)
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Message is not Configure Request (maybe it is Image Data Request)");
-	
+
 	*seqNumPtr = controlVal.seqNum;
 	/* skip timestamp */
 	controlVal.msgElemsLen -= CW_CONTROL_HEADER_OFFSET_FOR_MSG_ELEMS;
-	
+
 	offsetTillMessages = completeMsg.offset;
-	
+
 	/* valuesPtr->WTPRadioInfo.radiosCount=0; */
 	valuesPtr->ACinWTP.count=0;
 	valuesPtr->radioAdminInfoCount=0;
-	
+
 	/* parse message elements */
 	while((completeMsg.offset-offsetTillMessages) < controlVal.msgElemsLen) {
-	
+
 		unsigned short int elemType = 0;/* = CWProtocolRetrieve32(&completeMsg); */
 		unsigned short int elemLen = 0;	/* = CWProtocolRetrieve16(&completeMsg); */
-		
-		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);		
+
+		CWParseFormatMsgElem(&completeMsg,&elemType,&elemLen);
 
 		/*CWDebugLog("Parsing Message Element: %u, elemLen: %u", elemType, elemLen);*/
-									
+
 		switch(elemType) {
 			case CW_MSG_ELEMENT_AC_NAME_CW_TYPE:
-				if(!(CWParseACName(&completeMsg, elemLen, &(valuesPtr->ACName)))) 
+				if(!(CWParseACName(&completeMsg, elemLen, &(valuesPtr->ACName))))
 					/* will be handled by the caller */
 					return CW_FALSE;
 				break;
@@ -179,7 +179,7 @@ CWBool CWParseConfigureRequestMessage(char *msg,
 				 */
 				valuesPtr->ACinWTP.count++;
 				completeMsg.offset += elemLen;
-				break;			
+				break;
 			case CW_MSG_ELEMENT_RADIO_ADMIN_STATE_CW_TYPE:
 				/* just count how many radios we have,
 				 * so we can allocate the array
@@ -188,7 +188,7 @@ CWBool CWParseConfigureRequestMessage(char *msg,
 				completeMsg.offset += elemLen;
 				break;
 			case CW_MSG_ELEMENT_STATISTICS_TIMER_CW_TYPE:
-				if(!(CWParseWTPStatisticsTimer(&completeMsg, elemLen, &(valuesPtr->StatisticsTimer)))) 
+				if(!(CWParseWTPStatisticsTimer(&completeMsg, elemLen, &(valuesPtr->StatisticsTimer))))
 					/* will be handled by the caller */
 					return CW_FALSE;
 				break;
@@ -198,36 +198,36 @@ CWBool CWParseConfigureRequestMessage(char *msg,
 						     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
 				if(!(CWParseWTPRebootStatistics(&completeMsg,
 								elemLen,
-								valuesPtr->WTPRebootStatistics))) 
+								valuesPtr->WTPRebootStatistics)))
 					/* will be handled by the caller */
 					return CW_FALSE;
 				break;
-			
+
 			case CW_MSG_ELEMENT_IEEE80211_WTP_RADIO_INFORMATION_CW_TYPE:
 				if(!(CWParseWTPRadioInformation(&completeMsg, elemLen, tmp_RadioInformationABGN)))return CW_FALSE;
 				break;
-				
+
 			case CW_MSG_ELEMENT_IEEE80211_MULTI_DOMAIN_CAPABILITY_CW_TYPE:
 				if(!(CWParseWTPMultiDomainCapability(&completeMsg, elemLen, tmp_MultiDomCapa)))return CW_FALSE;
 				break;
-					
+
 			case CW_MSG_ELEMENT_IEEE80211_SUPPORTED_RATES_CW_TYPE:
 				if(!(CWParseWTPSupportedRates(&completeMsg, elemLen, tmp_SuppRates)))return CW_FALSE;
-				break;	
-				
+				break;
+
 			default:
 				return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Unrecognized Message Element");
 		}
 	}
-	
+
 	if(completeMsg.offset != len) return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Garbage at the End of the Message");
-	
+
 	/* actually read each radio info */
-	CW_CREATE_ARRAY_ERR((valuesPtr->ACinWTP).ACNameIndex, 
+	CW_CREATE_ARRAY_ERR((valuesPtr->ACinWTP).ACNameIndex,
 			    (valuesPtr->ACinWTP).count,
-			    CWACNameWithIndexValues, 
+			    CWACNameWithIndexValues,
 			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-		
+
 	CW_CREATE_ARRAY_ERR(valuesPtr->radioAdminInfo,
 			    valuesPtr->radioAdminInfoCount,
 			    CWRadioAdminInfoValues,
@@ -239,12 +239,12 @@ CWBool CWParseConfigureRequestMessage(char *msg,
 	while(completeMsg.offset-offsetTillMessages < controlVal.msgElemsLen) {
 		unsigned short int type=0;
 		unsigned short int len=0;
-		
-		CWParseFormatMsgElem(&completeMsg,&type,&len);		
+
+		CWParseFormatMsgElem(&completeMsg,&type,&len);
 
 		switch(type) {
 			case CW_MSG_ELEMENT_AC_NAME_INDEX_CW_TYPE:
-				if(!(CWParseACNameWithIndex(&completeMsg, len, &(valuesPtr->ACinWTP.ACNameIndex[i])))) 
+				if(!(CWParseACNameWithIndex(&completeMsg, len, &(valuesPtr->ACinWTP.ACNameIndex[i]))))
 					/* will be handled by the caller */
 					return CW_FALSE;
 				i++;
@@ -260,7 +260,7 @@ CWBool CWParseConfigureRequestMessage(char *msg,
 				break;
 		}
 	}
-	CWDebugLog("Configure Request Parsed");	
+	CWDebugLog("Configure Request Parsed");
 	return CW_TRUE;
 }
 
@@ -274,13 +274,13 @@ CWBool CWAssembleConfigureResponse(CWProtocolMessage **messagesPtr,
 	CWProtocolMessage *msgElemsBinding = NULL;
 	int msgElemBindingCount=0;
 	int k = -1;
-	
+
 	if(messagesPtr == NULL || fragmentsNumPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
-	
+
 	CWDebugLog("Assembling Configure Response...");
 	CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems, MsgElemCount, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
-	
+
 	/* Assemble Message Elements */
 	if ((!(CWAssembleMsgElemACIPv4List(&(msgElems[++k])))) ||
 	    (!(CWAssembleMsgElemACIPv6List(&(msgElems[++k])))) ||
@@ -296,7 +296,7 @@ CWBool CWAssembleConfigureResponse(CWProtocolMessage **messagesPtr,
 		/* error will be handled by the caller */
 		return CW_FALSE;
 	}
-	
+
 	if(!CWBindingAssembleConfigureResponse(&msgElemsBinding, &msgElemBindingCount))
 	{
 		int i;
@@ -304,9 +304,9 @@ CWBool CWAssembleConfigureResponse(CWProtocolMessage **messagesPtr,
 		CW_FREE_OBJECT(msgElems);
 		return CW_FALSE;
 	}
-	
+
 	/*CWDebugLog("~~~~~ msg count: %d ", msgElemBindingCount);*/
-	
+
 	if(!(CWAssembleMessage(messagesPtr,
 			       fragmentsNumPtr,
 			       PMTU,
@@ -323,7 +323,7 @@ CWBool CWAssembleConfigureResponse(CWProtocolMessage **messagesPtr,
 #endif
 		return CW_FALSE;
 	}
-	
+
 	CWDebugLog("Configure Response Assembled");
 	return CW_TRUE;
 }
@@ -332,24 +332,24 @@ CWBool CWSaveConfigureRequestMessage (CWProtocolConfigureRequestValues *configur
 				      CWWTPProtocolManager *WTPProtocolManager) {
 
 	CWDebugLog("Saving Configure Request...");
-	
+
 	CW_FREE_OBJECT(WTPProtocolManager->ACName);
 
 	if((configureRequest->ACName) != NULL)
 		WTPProtocolManager->ACName = configureRequest->ACName;
-	
+
 	CW_FREE_OBJECT((WTPProtocolManager->ACNameIndex).ACNameIndex);
 	WTPProtocolManager->ACNameIndex = configureRequest->ACinWTP;
-	
+
 	CW_FREE_OBJECT((WTPProtocolManager->radioAdminInfo).radios);
 	(WTPProtocolManager->radioAdminInfo).radiosCount = configureRequest->radioAdminInfoCount;
 	(WTPProtocolManager->radioAdminInfo).radios = configureRequest->radioAdminInfo;
-		
+
 	WTPProtocolManager->StatisticsTimer = configureRequest->StatisticsTimer;
-	
-	/*	
+
+	/*
 	CW_FREE_OBJECT((WTPProtocolManager->WTPRadioInfo).radios);
-	WTPProtocolManager->WTPRadioInfo = configureRequest->WTPRadioInfo;	
+	WTPProtocolManager->WTPRadioInfo = configureRequest->WTPRadioInfo;
 	*/
 
 	CW_FREE_OBJECT(WTPProtocolManager->WTPRebootStatistics);

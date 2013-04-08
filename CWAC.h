@@ -18,12 +18,12 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*  
+ * Authors : Ludovico Rossi (ludo@bluepixysw.com)												*
  *           Del Moro Andrea (andrea_delmoro@libero.it)											*
  *           Giovannini Federica (giovannini.federica@gmail.com)								*
  *           Massimo Vellucci (m.vellucci@unicampus.it)											*
  *           Mauro Bisson (mauro.bis@gmail.com)													*
- *           Daniele De Sanctis (danieledesanctis@gmail.com)									* 
+ *           Daniele De Sanctis (danieledesanctis@gmail.com)									*
  *	         Antonio Davoli (antonio.davoli@gmail.com)											*
  ************************************************************************************************/
 
@@ -73,7 +73,7 @@
  * 2009 Updates:                                        *
  * For manage the applications connected to AC we use   *
  * an array of socket. Through this array we can set    *
- * easily the correct answer socket.                    * 
+ * easily the correct answer socket.                    *
  * isFree and numSocketFree are used for management.    *
  * The mutex array is used for serialize the correct	*
  * write operation by the different wtp thread on the	*
@@ -95,8 +95,8 @@ applicationsManager appsManager;
 /*_____________________________________________________*/
 /*  *******************___TYPES___*******************  */
 
-/* 
- * Struct that describes a WTP from the AC's point of view 
+/*
+ * Struct that describes a WTP from the AC's point of view
  */
 typedef struct {
 	CWNetworkLev4Address address;
@@ -112,15 +112,15 @@ typedef struct {
 		CW_DTLS_HANDSHAKE_IN_PROGRESS,
 		CW_WAITING_REQUEST,
 		CW_COMPLETED,
-	} subState;		
+	} subState;
 	CWSafeList packetReceiveList;
-	
+
 	/* depends on the current state: WaitJoin, NeighborDead */
 	CWTimerID currentTimer;
-	CWTimerID heartbeatTimer; 
+	CWTimerID heartbeatTimer;
 	CWList fragmentsList;
 	int pathMTU;
-	
+
 	/**** ACInterface ****/
 	int interfaceResult;
 	CWBool interfaceCommandProgress;
@@ -139,40 +139,40 @@ typedef struct {
 	 *   request the command to WTP                         *
 	 *   (it will used for selecting the correct socket)    *
 	 ********************************************************/
-	
-	OFDMControlValues* ofdmValues;  
+
+	OFDMControlValues* ofdmValues;
 	CWProtocolVendorSpecificValues* vendorValues;
 	int applicationIndex;
-	
+
 	/**** ACInterface ****/
-	
+
 	CWWTPProtocolManager WTPProtocolManager;
-	
+
 	/* Retransmission */
 	CWProtocolMessage *messages;
  	int messagesCount;
  	int retransmissionCount;
  	CWTimerID currentPacketTimer;
  	CWBool isRetransmitting;
-	
+
 	/* expected response */
 	int responseType;
 	int responseSeqNum;
-	
+
 	/* //Unrecognized message type value
 	 * int unrecognizedMsgType;
 	 */
 	// TAP interface name
 	char tap_name[IFNAMSIZ];
 	int tap_fd;
-	
+
 	// IEEE 802.11
 	char RadioInformationABGN;
 	char SuppRates[8];
 	char MultiDomCapa[6];
 	char RadioMAC[6];
 
-} CWWTPManager;	
+} CWWTPManager;
 
 /*________________________________________________________________*/
 /*  *******************___EXTERN VARIABLES___*******************  */
@@ -256,7 +256,7 @@ CWBool CWAssembleStationConfigurationRequest(CWProtocolMessage **messagesPtr,
 					     int *fragmentsNumPtr,
 					     int PMTU, int seqNum,
 					     unsigned char* StationMacAddr,
-					     int Operation); 
+					     int Operation);
 
 CWBool CWAssembleClearConfigurationRequest(CWProtocolMessage **messagesPtr,
 					   int *fragmentsNumPtr, int PMTU,

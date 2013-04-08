@@ -18,7 +18,7 @@
  * -------------------------------------------------------------------------------------------- *
  * Project:  Capwap																				*
  *																								*
- * Authors : Antonio Davoli (antonio.davoli@gmail.com)											*  
+ * Authors : Antonio Davoli (antonio.davoli@gmail.com)											*
  ************************************************************************************************/
 
 
@@ -26,6 +26,6 @@
 #define __CAPWAP_Freq_Payloads__
 
 #define	CW_FREQ_CELL_INFO_PAYLOAD_SIZE 65
-#define CW_FREQ_ACK_SIZE 8 
+#define CW_FREQ_ACK_SIZE 8
 
 #endif

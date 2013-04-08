@@ -18,7 +18,7 @@
  * --------------------------------------------------------------------------------------- *
  * Project:  Capwap                                                                        *
  *                                                                                         *
- * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+ * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *
  *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
  *           Giovannini Federica (giovannini.federica@gmail.com)                           *
  *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
@@ -29,7 +29,7 @@
 #define __CAPWAP_WTPFrameReceive_HEADER__
 
 #include <sys/socket.h>
-#include <sys/types.h>  
+#include <sys/types.h>
 #include <linux/if_ether.h>
 #include <net/if.h>
 #include <sys/ioctl.h>

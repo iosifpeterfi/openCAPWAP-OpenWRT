@@ -41,7 +41,7 @@ struct version_info {
 
 int ACServerConnect(char *address, int port);
 void ACServerDisconnect(int acserver);
-struct WTPInfo *ACServerWTPList(int acserver, int *nWTPs);	
+struct WTPInfo *ACServerWTPList(int acserver, int *nWTPs);
 void freeWTPList(struct WTPInfo *wtpList, int nWTPs);
 
 int WUMGetWTPVersion(int acserver, int wtpId, struct version_info *);
