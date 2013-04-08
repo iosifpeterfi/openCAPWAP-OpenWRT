@@ -1,0 +1,37 @@
+OpenCapWap 0.93.3 - 02/12/2009
+Donato Capitella - d.capitella@gmail.com
+
+This version adds a vendor specific WTP Update System together with
+some minor bugfixes. 
+
+*----------------------------*
+|      WTP Update System     |
+*----------------------------*
+The update system consists of a tool used AC-side to send
+updates (wum) and an update agent (WUA) executed WTP-side which
+takes care of installing an update package. 
+
+*** WUA ***
+The WUA can be compiled like this:
+
+$ make WUA 
+
+Once compiled, it has to be reside in the same directory as the WTP binary.
+
+*** wum ***
+The wum commmad source code is located in the /wum sub-directory. To 
+compile it, just cd into /wum and then execute 'make'. This command
+can be installed anywhere on the AC machine and it relies on the
+AC Interface to operate.
+
+For further information about the update system and how update packages
+are biult, refer to the document WTPUpdateSystem.pdf in the /docs sub-directory 
+in this source tree.
+
+*---------------------------*
+Note about log location
+*---------------------------*
+From this version on, WTP and AC logs are stored in /var/log/.
+This behaviour can be changed editing the header files CWAC.h and
+CWWTP.h before building Open CAPWAP.
+

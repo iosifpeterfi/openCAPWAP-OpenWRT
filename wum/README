@@ -1,0 +1,10 @@
+WUM - WTP Update Manager
+
+Wum (WTP Update Manager) is the command line tool used to send update
+requests to the WTPs. Of course it is executed on the AC machine and interacts
+with the AC Interface.
+
+To compile it, just run 'make'.
+
+For further details about how to use it, refer to the document WTPUpdateSystem.pdf
+in the docs sub-directory of this source tree.

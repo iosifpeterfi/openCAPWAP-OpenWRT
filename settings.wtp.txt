@@ -1,0 +1,26 @@
+# Settings File for WTP. Lines beginning with # and blank lines will be ignored
+#
+
+#
+<IF_NAME>    mon.wlan0
+<WTP_ETH_IF_NAME>    vmnet1
+<RADIO_0_IF_NAME>    wlan0
+<BASE_MAC_IF_NAME>   vmnet1
+<BOARD_REVISION_NO>   eth0
+<WTP_MODEL_NUM>    12345678
+<WTP_SERIAL_NUM>   12345678
+
+<WTP_HOSTAPD_PORT> 6333
+<WTP_HOSTAPD_UNIX_PATH> /tmp/wtp_ipc_hostapd
+
+
+#<IF_NAME>    mon.wlan0
+#<WTP_ETH_IF_NAME>    eth0
+#<RADIO_0_IF_NAME>    wlan0
+#<BASE_MAC_IF_NAME>   lo
+#<BOARD_REVISION_NO>   eth0
+#<WTP_MODEL_NUM>    12345678
+#<WTP_SERIAL_NUM>   12345678
+
+
+

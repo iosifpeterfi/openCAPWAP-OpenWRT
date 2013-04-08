@@ -1,0 +1,128 @@
+ACBinding.c 		: n/c
+ACBinding.h 		: n/c
+AC.c        		: n/c
+ACConfigFile.c		: n/c
+ACConfigureState.c	: n/c
+ACDataCheckState.c	: n/c
+ACDiscoveryState.c	: n/c
+ACInterface.c		line 106: è stata aggiunta la funzione CWActionMenu() per inserire un nuovo menù di scelte.  
+			line 243: è stata inserita la funzione CWSetInterfaceCmd() per settare la variabile gWTPs[selection].interfaceCommand al 
+				  valore passato come parametro.
+			line 404: è stata modificata la funzione CWInterface(), all'interno dello switch sono stati aggiunti due nuovi casi e e 				  modificati alcuni di quelli già esistenti. 
+
+ACInterface.h		line 35: è stata aggiunta la variabile globale  CLEAR_CONFIG_MSG_CMD	
+ACJoinState.c		: n/c
+ACMainLoop.c		line 614: è stato inserito il case CLEAR_CONFIG_MSG_CMD per prevedere l'assemblaggio del messaggio ClearConfiguration.	 	
+ACMultiHomedSocket.c	: n/c
+ACMultiHomedSocket.h	: n/c
+ACProtocol.c		line 145: è stata aggiunta la funzione CWAssembleMsgElemAddStation() per l'assemblaggio dei messages elements per 		 					  il msg AddStation.
+			line 517: è stata inserita la funzione CWParseMsgElemDataTransferData() per il parsing dei messages elements contenuti nel msg 
+				  DataTransfer.
+
+ACProtocol.h		line 134: è stato aggiunto il prototipo della funzione CWAssembleMsgElemAddStation();
+			line 146: è stato aggiunto il prototipo della funzione CWParseMsgElemDataTransferData();
+
+ACProtocol_User.c	: n/c
+ACRetransmission.c 	: n/c
+ACRunState.c		line 46: é stato aggiunto il prototipo della funzione CWParseClearConfigurationResponseMessage();
+			line 50: è stato aggiunto il prototipo della funzione CWParseStationConfigurationResponseMessage();
+			line 54: è stato aggiunto il prototipo della funzione CWParseWTPDataTransferRequestMessage();
+			line 58: è stato aggiunto il prototipo della funzione CWAssembleWTPDataTransferResponse();
+			line 97: è stata inserita la variabile StationMacAddr[MAC_ADDR_LEN] per mantenere l'indirizzo mac della stazione associata.
+			line 101: è stato inserito un blocco di codice (fino a line 125) per le azioni da compiere nel caso l'AC riceva un pacchetto 					  dati.
+			line 202: è stato aggiunto il case CW_MSG_TYPE_VALUE_STATION_CONFIGURATION_RESPONSE all'interno dello switch (line 136) per 					  gestire la ricezione di un msg di StationConfigurationResponse.
+			line 213: è stato inserito il case CW_MSG_TYPE_VALUE_CLEAR_CONFIGURATION_RESPONSE per gestire la ricezione di un msg di 				  ClearConfigurationResponse.
+			line 235: è stato aggiunto il case CW_MSG_TYPE_VALUE_DATA_TRANSFER_REQUEST per la gestione di un messaggio DataTransferRequest 					  da parte del WTP.
+			line 388: è stata aggiunta l'implementazione della funzione  CWParseClearConfigurationResponseMessage() per il parsing del 					  ClearConfigurationResponseMessage.
+			line 423: è stata aggiunta l'implementazione della funzione  CWParseStationConfigurationResponseMessage() per il parsing del 					  StationConfigurationResponseMessage.
+			line 470: è stata aggiunta l'implementazione della funzione CWParseWTPDataTransferRequestMessage() per il parsing del 					  WTPDataTransferRequest.
+			line 735: è stata aggiunta l'implementazione della funzione CWAssembleWTPDataTransferResponse() per l'assemblaggio del 					  WTPDataTransferResponse.
+			line 1030: è stata aggiunta l'implementazione della funzione CWAssembleClearConfigurationRequest() per l'assemblaggio di un 					   ClearConfigurationRequest.
+			line 1051: è stata aggiunta l'implementazione della funzione CWAssembleStationConfigurationRequest() per l'assemblaggio di un 					   StationConfigurationRequest.
+
+ACSettingsFile.c	: n/c
+config.h		: n/c
+CWAC.h			line 46: è stata aggiunta la variabile MAC_ADDR_LEN
+			line 47: è stata aggiunta la variabile DEST_ADDR_START	
+			line 48: è stata aggiunta la variabile SOURCE_ADDR_START	
+			line 160: è stato inserito il prototipo della funzione CWAssembleStationConfigurationRequest();
+			line 165: è stato inserito il prototipo della funzione CWAssembleClearConfigurationRequest();
+
+CWBinding.c		: n/c
+CWBinding.h		: n/c
+CWCommon.c		: n/c
+CWCommon.h		: n/c
+CWConfigFile.c		: n/c
+CWConfigFile.h		: n/c
+CWErrorHandling.c	: n/c
+CWErrorHandling.h	: n/c
+CWList.c		: n/c
+CWList.h		: n/c
+CWLog.c			: n/c
+CWLog.h			: n/c
+CWNetwork.c		: n/c
+CWNetwork.h		: n/c
+CWOpenSSLBio.c		: n/c
+CWProtocol.c		: n/c
+CWProtocol.h		line 258: è stato inserito un nuovo valore per la variabile CW_NEIGHBORDEAD_INTERVAL_DEFAULT (tale modifica si rende necessaria 				  a causa di un problema riscontrato con la gestione dei timer a runtime da parte del WTP sull'AP).
+			line 264: è stato inserito un nuovo valore per la variabile CW_ECHO_INTERVAL_DEFAULT (come sopra...). 
+CWRandom.c		: n/c
+CWRandom.h		: n/c
+CWSafeList.c		: n/c
+CWSafeList.h		: n/c
+CWSecurity.c		: n/c
+CWSecurity.h		: n/c
+CWStevens.c		: n/c
+CWStevens.h		: n/c
+CWThread.c		: n/c
+CWThread.h		: n/c
+CWTimer.h		: n/c
+CWWTP.h			line 104: è stato aggiunto il prototipo della funzione CWAssembleWTPDataTansferRequest() implementata in WTPRunState.c
+			line 147: è stata inserita la direttiva del preprocessore BCM per distinguere la compilazione normale dalla cross-compilazione
+			line 159: è stata inserito il prototipo della funzione set_wme_cwmin() implementata in WTPBcmDriverInteraction.c
+			line 160: è stata inserito il prototipo della funzione set_wme_cwmax() implementata in WTPBcmDriverInteraction.c
+			line 170: è stata inserito il prototipo della funzione set_wme_aifsn() implementata in WTPBcmDriverInteraction.c
+timerlib.c		: n/c
+timerlib.h 		: n/c
+wireless_copy.h		: n/c
+WTPBcmDriverInteraction.c/.h : nuovo file introdotto per la gestione delle ioctl per l'accesso ai driver Broadcom.
+WTPBcmFrameReceive.c/.h	     : nuovo file introdotto per la gestione delle ioctl per l'accesso ai driver Broadcom.(ricezione frame dalle stazioni).
+
+WTPBinding.c		line 90:  è stata inserita la direttiva del preprocessore BCM per distinguere la compilazione normale dalla cross-compilazione
+			line 91: è stata inserito un duplicato della CWWTPInitBinding() per la cross comiplazione per inizializzare i valori del QoS
+				sui driver Broadcom.
+			line 184: è stata inserito un duplicato della CWBindingSetQosValues() per la cross compilazione per la chiamata delle funzioni
+				 set_wme_* che agiscono sui driver Broadcom.
+WTPBinding.h		: n/c
+WTP.c			: n/c
+WTPConfigFile.c		: n/c
+WTPConfigureState.c	: n/c
+WTPDataCheckState.c	: n/c
+WTPDiscoveryState.c	: n/c
+WTPDriverInteraction.c  : n/c
+WTPFrameReceive.c	: n/c
+WTPFrameReceive.h	: n/c
+WTPJoinState.c		: n/c
+WTPProtocol.c		line 98: è stata aggiunta l'implementazione della funzione CWAssembleMsgElemDataTransferData() per l'asemblaggio del msg 					 elements Data presente nel messaggio capwap DataTransfer
+			line 806: implementazione della funzione CWParseAddStation() per il parsing del msg element AddStation.
+
+WTPProtocol.h		line 93: aggiunta del prototipo della funzione CWAssembleMsgElemDataTransferData();
+			line 115: aggiunta del prototipo della funzione CWParseAddStation();
+WTPProtocol_User.c	: n/c
+WTPRetransmission.c	: n/c
+WTPRunState.c		line 66: aggiunta del prototipo della funzione CWSaveClearConfigurationRequest();
+			line 68: aggiunta del prototipo della funzione CWAssembleClearConfigurationResponse();
+			line 74: aggiunta del prototipo della funzione CWAssembleStationConfigurationResponse();
+			line 80: aggiunta del prototipo della funzione CWParseStationConfigurationRequest();
+			line 270: è stato aggiunto il case CW_MSG_TYPE_VALUE_CLEAR_CONFIGURATION_REQUEST per gestire il msg di ClearConfigurationRequest
+			line 285: è stato aggiunto il case CW_MSG_TYPE_VALUE_STATION_CONFIGURATION_REQUEST per gestire il msg di 			 		  StationConfigurationRequest
+			line 568: è stata aggiunta l'implementazione della CWAssembleWTPDataTransferRequest() per l'assemblaggio del msg 					  DataTransferRequest.
+			line 785: è stata aggiunta l'implementazione della CWAssembleClearConfigurationResponse()per l'assemblaggio della risposta ad 					  un ClearConfigurationRequest
+			line 825: è stata aggiunta l'implementazione della CWAssembleStationConfigurationResponse()per l'assemblaggio della risposta ad 					  uno StationConfigurationRequest
+			line 923: è stata aggiunta l'implementazione della CWParseStationConfigurationRequest() per il parsing di un msg di 					  StationConfigurationRequest
+			line 1040: implementazione della CWSaveClearConfigurationRequest();
+WTPRunStateCheck.c	: n/c
+WTPSettingsFile.c	: n/c
+WTPSulkingState.c	: n/c
+
+

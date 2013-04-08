@@ -1,0 +1,57 @@
+Capwap README 2009: Uci - Frequency
+
+	
+DISCLAIMER: If you want to realize new capabilities into the OpenCapwap Protocol, you need to read the IETF draft writed by CAPWAP Working Group and ACAppsProtocol.h (inside Capwap directoy) first, then you need to modify the Application server which we talk about below is just a way of centering application development, it's not meant to bypass coding in the OpenCapwap code base (many message elements are still missing, so you may have to implement some new ones). 
+
+AC side:
+
+	- All sockets, previously Unix sockets, are now Inet sockets.
+
+	To let the Access Controller receive multiple connections from other applications (the ones which add fuctionality), we added to 
+	ACInterface a multi-thread TCP server. This TCP server provides to external applications the possibility to talk to the connected
+	Wireless Termination Points tunnelling packets through the Capwap protocol.
+	
+	When the AC server is started, a standalone thread is spawned to manage the various applications' requests. 
+	Every time the TCP server receives a new connection, a new thread is spawned to manage that one specific external application.
+	The communication between the AC (through the TCP server) and external applications is ruled by a protocol which (we hope) will
+	be used for every other application (even those which are not yet implemented) as is. This simple protocol is basically made of 
+	the command id, the WTP id, the length of the attached payload and the payload itself (refer to ACAppsProtocol.h for header specs).
+	The protocol's main commands are LIST_MSG and CONF_UPDATE_MSG:
+		LIST_MSG returns the list of the WTPs attached to the AC
+		CONF_UPDATE_MSG lets the application send a Capwap Configuration Update Request Message to a single (or all) connected WTP. 
+
+	
+	At the moment, implemented Configuration Update Request/Response message elements are:
+		- OFDM Element Type ( Binding 802.11 ) 
+		- Vendor Specific Payload Type 
+
+	*** All other element types are NOT yet implemented in the OpenCapwap protocol (except those already implemented)
+
+		
+
+WTP side:
+
+	Frequencies Management:
+		To realize Frequencies management inside Capwap WTP we added an additional parsing of Configuration Update Request Message 
+		(inside code of 802.11 Binding) with Orthogonal Frequency Division Multiplexing (OFDM) Element Type. (This message, 
+		when sent by AC, force the WTP to adhere to received values).
+
+		When a new OFDM message is received, the WTP provide to forward it, through an inet socket (udp), to an external application
+		that will do the corrispondent operations (scanning, monitoring, setting).
+		We added a new thread too (WTPFreqStatsReceive) inside WTP that receive the statistics packets (or ack packet, for frequency 
+		setting operation) and provide to encapsulate them in CAPWAP Data Message that will recognize by AC through an apposite flag
+		(for more informations see CWBinding.h).
+
+
+	Remote UCI command execution via Vendor Specific Payload:
+		OpenCapwap was used to deploy basic remote administration and configuration to a number of access points. The access points
+		use OpenWrt (http://openwrt.org/) running the OpenCapwap WTP daemon. Since OpenWrt comes with a very handy, centralized 
+		configuration utility called UCI, custom Vendor Specific Payloads have been coded to implement Uci Vendor Specific Payloads.
+		These custom payloads basically carry uci commands to be executed on one or more wtps (the access points). When the AC issues 
+		a Configuration Update Request containing an Uci Vendor Specific Payload to a WTP, the WTP daemon unpacks it and forwards the
+		command to be executed to an external application. The WTP daemon and the external application talk through an inet socket (udp).
+		The external application basically executes the command and signals back the daemon if the command succeded/failed. The WTP 
+		daemon then forwards this response to the AC via a Configuration Update Response carrying an Uci Vendor Specific Payload.
+		(For more information see CWVendorPayloads.h)
+		These messages have all been handled by some new code which is completely separated from the 802.11 Binding Code. This code 
+		is essentially meant to manage Capwap Protocol Element Types (which couldn't be treated as part of a specific Technology Binding). 

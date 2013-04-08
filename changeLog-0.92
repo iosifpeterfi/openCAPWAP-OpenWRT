@@ -1,0 +1,32 @@
+OpenCapWap 0.92 - 27/10/2009
+Donato Capitella - d.capitella@gmail.com
+
+This version corrects 18 bugs mainly related to resource leakages in the WTP.
+Here follows a brief report:
+
+Note: 	TRL(Thread Resource Leakage)
+	ML (Memory Leak)
+	LE (Logic Error)
+	UMR (Uninitialized Memory Rea)
+
+(Descriptions about each bug can be found in the source code)
+
+TRL01 	-	ACInterface.c
+LE01	- 	ACInterface.c
+ML01	- 	WTPRunState.c
+TRL02 	- 	timerlib.c
+ML02 	- 	WTPConfigureState.c
+ML03 	- 	WTPJoinState.c
+ML04 	- 	WTPConfigureState.c
+ML05 	- 	WTPConfigureState.c
+ML06 	- 	WTPProtocol.c
+LE02 	- 	CWConfigFile.c
+ML07 	-	WTPJoinState.c
+ML08 	-	WTPJoinState.c
+ML09	- 	WTPProtocol.c
+UMR02 	- 	WTPFrameReceive.c
+LE03 	-	CWStevens.c
+ML11 	- 	ACDiscoveryState.c
+ML12 	- 	ACRetransmission.c
+UMR03 	-	ACMainLoop.c
+

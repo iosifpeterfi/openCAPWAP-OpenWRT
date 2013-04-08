@@ -1,0 +1,84 @@
+
+  ___                    ____                               
+ / _ \ _ __   ___ _ __  / ___|__ _ _ ____      ____ _ _ __  
+| | | | '_ \ / _ \ '_ \| |   / _` | '_ \ \ /\ / / _` | '_ \ 
+| |_| | |_) |  __/ | | | |__| (_| | |_) \ V  V / (_| | |_) |
+ \___/| .__/ \___|_| |_|\____\__,_| .__/ \_/\_/ \__,_| .__/ 
+      |_|                         |_|BUGFIX 0.01     |_|
+						 
+by mty (Matteo Latini, mtylty@gmail.com)
+
+
+
+This stuff """should""" now work the way is intended below...Please don't be harsh!!! :)
+
+===> WTP re-enters Discovery State when session times out (WTPRunstate.c in CWWTPManageGenericRunMessage when using CWResetTimers) <===
+
+===> Fixed Segfault when using configuration tags missing preceding whitespace (ACConfigFile.c and WTPConfigFile.c) <===
+
+===> *** Neighbour Dead interval timeout is now down to 70 (previous value 200). DTLS doesn't complain anymore about wrong format certificates when
+	 Neighbour Dead interval timeout drops below 200. Please read the quick note to know more... *** <===
+
+===> WTP won't crash anymore when changing the status of the interface on which its socket is binded. Now it simply reenters discovery state with
+	 a reset <=== 
+
+
+
+
+*** Quick Note: 
+		It should be possible (in my opinion) to lower the Neighbour Dead interval timeout even more... WARNING! Before doing so, another bugfix 
+		will be required. Infact, by running some tests, I found a bug (???) which I could not fix. Essentially, the problem lays in a concurrent
+		thread-wait-for-condition function of both WTP and AC, after the Neighbour dead interval alarm has been started on both daemons.
+		The condition (if I got it correctly) is just the daemon waiting for some frames on the interface. Since both daemons are waiting to hear
+		from each other, they take some time to unlock... So, if the neighbour dead interval timeout is too low, they both (the AC and the WTP) get
+		stuck in an endless loop (every time the timeout reaches zero the AC will think the WTP is dead so it will close the DTLS session while the 
+		WTP is still waiting to send Echo requests to the AC).
+		The current setting (70) is the value I found working in all my tests. 
+		DISCLAIMER: Since all tests I made were carried out on my home LAN, maybe a value below 70 is even possible (or maybe my LAN did not work
+					properly during the tests and this isn't a bug at all..) 
+
+
+
+		In case you were curious, this is the code (or at least this is where it got stuck (checked it with gdb)): 
+
+			AC Side (Function CWManageWTP inside ACMainLoop.c):
+
+				/* Wait WTP action */
+				CWThreadMutexLock(&gWTPs[i].interfaceMutex);
+
+				while ((gWTPs[i].isRequestClose == CW_FALSE) &&
+		       		(CWGetCountElementFromSafeList(gWTPs[i].packetReceiveList) == 0) &&
+		       		(gWTPs[i].interfaceCommand == NO_CMD)) {
+
+					 /*TODO: Check system */
+					CWWaitThreadCondition(&gWTPs[i].interfaceWait, 
+							      &gWTPs[i].interfaceMutex);
+				}
+
+				CWThreadMutexUnlock(&gWTPs[i].interfaceMutex);
+
+
+
+
+			WTP Side (Function CWManageWTP inside ACMainLoop.c):
+
+				/*
+				 * if there are no frames from stations
+				 * and no packets from AC...
+				 */
+				if ((CWGetCountElementFromSafeList(gPacketReceiveList) == 0) && (CWGetCountElementFromSafeList(gFrameList) == 0)) {
+					/*
+					 * ...wait at most 4 mins for a frame or packet.
+					 */
+					if (!CWErr(CWWaitThreadConditionTimeout(&gInterfaceWait, &gInterfaceMutex, &timenow))) {
+
+						CWThreadMutexUnlock(&gInterfaceMutex);
+			
+						if (CWErrorGetLastErrorCode() == CW_ERROR_TIME_EXPIRED)	{
+
+							CWLog("No Message from AC for a long time... restart Discovery State");
+							break;
+						}
+						continue;
+					}
+				}

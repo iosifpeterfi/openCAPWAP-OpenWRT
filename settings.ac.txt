@@ -1,0 +1,27 @@
+# Settings File for AC. Lines beginning with # and blank lines will be ignored
+#
+#
+#
+<CWMIN_VOICE>		2	
+<CWMAX_VOICE>		3
+<AIFS_VOICE>		1
+#
+#
+<CWMIN_VIDEO>		3
+<CWMAX_VIDEO>		4
+<AIFS_VIDEO>		1
+#
+#
+<CWMIN_BEST_EFFORT>	3
+<CWMAX_BEST_EFFORT>	10
+<AIFS_BEST_EFFORT>	2
+#
+#
+<CWMIN_BACKGROUND>	4
+<CWMAX_BACKGROUND>	10
+<AIFS_BACKGROUND>	7
+
+
+<AC_HOSTAPD_PORT> 5543
+<AC_HOSTAPD_UNIX_PATH> /tmp/ac_ipc_hostapd
+

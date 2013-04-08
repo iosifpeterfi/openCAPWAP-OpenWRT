@@ -1,0 +1,46 @@
+HOW TO BUILD AND RUN CAPWAP FOR LINUX SYSTEMS:
+
+NOTE: To run WTP you must have a wireless card with Atheros chipset and MadWifi driver (www.madwifi.org) installed.
+
+
+HOW TO BUILD AC AND WTP:
+
+  - Enter into "capwap" directory
+
+  - Run "make clean"
+
+  - Run "make"
+
+
+HOW TO RUN WTP:
+
+  - Be sure that your PCMCIA wireless card is working
+
+  - Create two wireless interfaces on the same WiFi card (one in "ap" mode and one in "mon" mode):
+
+     - Open a shell in superuser mode
+     - Destroy all previous wireless interfaces with wlanconfig command (e.g.: wlanconfig ath0 destroy)
+     - Create an interface in "ap" mode with wlanconfig command (e.g.: wlanconfig ath0 create wlandev wifi0 wlanmode ap)
+     - Activate created interface with ifconfig command (e.g.: ifconfig ath0 up)
+     - Create an interface in "mon" mode with wlanconfig command (e.g.: wlanconfig ath1 create wlandev wifi0 wlanmode mon)
+     - Activate created interface with ifconfig command (e.g.: ifconfig ath1 up)
+     - Set the SSID of Access Point (e.g.: iwconfig ath0 essid <SSID_AP> channel <CHANNEL_NUM>)
+     - Set the channel of Monitor (e.g.: iwconfig ath1 channel <AP_CHANNEL_NUM>)
+
+  - Enter into "capwap" directory
+
+  - Open the file "settings.wtp.txt" and write the "mon" interface name (e.g. ath1) after the <IF_NAME> tag
+
+  - Open the file "config.wtp" and write the AC IP-address between <AC_ADDRESSES> and </AC_ADDRESSES> tags
+
+  - Run "./WTP" in superuser mode
+
+
+
+HOW TO RUN AC:
+
+  - Enter into "capwap" directory
+
+  - Run "./AC"
+
+To set WTP and AC options edit the "config.wtp" and "config.ac" files and restart applications.

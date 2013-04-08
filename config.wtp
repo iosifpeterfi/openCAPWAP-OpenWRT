@@ -1,0 +1,48 @@
+
+# Config File for WTP. Lines beginning with # and blank lines will be ignored
+
+# List of ACs' addresses for Discovery. They can be host names (e.g. "localhost",
+# IPv4 addresses if we are an IPv4 host or IPv6 addresses if we are an
+# IPv6Host. Wecan also add limited broadcast address (255.255.255.255) or
+# multicast addresses
+<AC_ADDRESSES>
+#255.255.255.255
+#localhost
+#192.168.1.2
+#192.168.1.8
+#239.255.1.3
+172.16.151.1
+#127.0.0.1
+#10.10.3.252
+#1.1.1.2
+#172.16.1.104
+#localhost
+</AC_ADDRESSES>
+
+</WTP_NAME>My WTP 1
+</WTP_LOCATION>  Next to Fridge
+
+# Can be IPv4 or IPv6. Of course the host must have IPv6 enabled to work with the
+# setting IPv6
+</WTP_LEV3_PROTOCOL> IPv4
+
+# Force MTU to 50 bytes, used to debug fragmentation ;-) If you don't need this, simply
+# comment the line by adding a #.
+</WTP_FORCE_MTU> 1420
+
+# If you uncomment the following line, the WTP will jump to Join State
+# (without doing Discovery) and the address will be considered the AC's address.
+#</WTP_FORCE_AC_ADDRESS> 192.168.1.2
+
+# Usually the WTP knows if the AC supports Certificate or Preshared-keys authentication
+# from the Discovery Response. If we jump to the Join State using </WTP_FORCE_AC_ADDRESS>,
+# however, we must know how to behave. This setting can be X509_CERTIFICATE (default if you
+# leave the line commented) or PRESHARED. This setting is ignored if you don't use
+# </WTP_FORCE_AC_ADDRESS>.
+#</WTP_FORCE_SECURITY> PRESHARED
+</WTP_FORCE_SECURITY> X509_CERTIFICATE
+
+</AC_LOG_FILE_ENABLE> 1
+
+</AC_LOG_FILE_SIZE> 8388608
+

@@ -1,0 +1,38 @@
+# Config File for AC. Lines beginning with # and blank lines will be ignored
+
+# HW version of the AC
+</AC_HW_VERSION> 1235656
+
+# SW version of the AC
+</AC_SW_VERSION> 3256984
+
+# Max number of mobile stations supported
+</AC_MAX_STATIONS> 200
+
+# Max number of WTP supported
+</AC_MAX_WTPS> 15
+
+# Authentication mode for AC. Can be X509_CERTIFICATE or PRESHARED (for
+# preshared keys)
+#</AC_SECURITY> X509_CERTIFICATE
+</AC_SECURITY> PRESHARED
+
+# Can be IPv4 or IPv6. Of course the host must have IPv6 enabled to work with the
+# setting IPv6
+</AC_LEV3_PROTOCOL> IPv4
+
+# Force MTU to 50 bytes, used to debug fragmentation ;-) If you don't need this, simply
+# comment the line by adding a #.
+</AC_FORCE_MTU> 1420
+
+</AC_NAME> My AC
+
+# The AC will join the Multicast Groups you add here
+<AC_MCAST_GROUPS>
+#239.255.1.2
+#239.255.1.3
+</AC_MCAST_GROUPS>
+
+</AC_LOG_FILE_ENABLE> 1
+
+</AC_LOG_FILE_SIZE> 30000000

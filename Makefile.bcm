@@ -1,0 +1,72 @@
+# *******************************************************************************************
+# * Copyright (c) 2006-7 Laboratorio di Sistemi di Elaborazione e Bioingegneria Informatica *
+# *                      Universita' Campus BioMedico - Italy                               *
+# *                                                                                         *
+# * This program is free software; you can redistribute it and/or modify it under the terms *
+# * of the GNU General Public License as published by the Free Software Foundation; either  *
+# * version 2 of the License, or (at your option) any later version.                        *
+# *                                                                                         *
+# * This program is distributed in the hope that it will be useful, but WITHOUT ANY         *
+# * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 	    *
+# * PARTICULAR PURPOSE. See the GNU General Public License for more details.                *
+# *                                                                                         *
+# * You should have received a copy of the GNU General Public License along with this       *
+# * program; if not, write to the:                                                          *
+# * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,                    *
+# * MA  02111-1307, USA.                                                                    *
+# *                                                                                         *
+# * --------------------------------------------------------------------------------------- *
+# * Project:  Capwap                                                                        *
+# *                                                                                         *
+# * Author :  Ludovico Rossi (ludo@bluepixysw.com)                                          *  
+# *           Del Moro Andrea (andrea_delmoro@libero.it)                                    *
+# *           Giovannini Federica (giovannini.federica@gmail.com)                           *
+# *           Massimo Vellucci (m.vellucci@unicampus.it)                                    *
+# *           Mauro Bisson (mauro.bis@gmail.com)                                            *
+# *******************************************************************************************
+
+KAMIKAZEDIR=/home/daniele/Scrivania/kamikaze-SDK
+
+CC = $(KAMIKAZEDIR)/staging_dir_mipsel/bin/mipsel-linux-gcc 
+
+LDFLAGS =  $(KAMIKAZEDIR)/staging_dir_mipsel/usr/lib/libssl.a  $(KAMIKAZEDIR)/staging_dir_mipsel/usr/lib/libcrypto.a  $(KAMIKAZEDIR)/staging_dir_mipsel/lib/libpthread.a  $(KAMIKAZEDIR)/staging_dir_mipsel/lib/libdl.a $(KAMIKAZEDIR)/staging_dir_mipsel/usr/lib/libpcap.a -D_REENTRANT
+
+CFLAGS = -Wall -g -O0 -D_REENTRANT -DBCM -I $(KAMIKAZEDIR)/staging_dir_mipsel/usr/include #-DCW_NO_DTLS
+
+# Memory leak
+#LDFLAGS += ../dmalloc-5.5.0/libdmallocth.a
+#CFLAGS += -DDMALLOC
+
+# Capwap Debugging
+CFLAGS += -DCW_DEBUGGING
+
+RM = /bin/rm -f 
+
+# list of generated object files for WTP. 
+WTP_OBJS = WTP.o WTPBcmFrameReceive.o WTPConfigFile.o WTPProtocol.o WTPProtocol_User.o WTPDiscoveryState.o WTPJoinState.o WTPConfigureState.o WTPDataCheckState.o WTPRunState.o WTPRunStateCheck.o WTPRetransmission.o WTPSulkingState.o CWCommon.o CWConfigFile.o CWErrorHandling.o CWSafeList.o CWList.o CWLog.o CWNetwork.o CWProtocol.o CWRandom.o CWSecurity.o CWOpenSSLBio.o CWStevens.o CWThread.o CWBinding.o WTPBinding.o WTPBcmDriverInteraction.o WTPSettingsFile.o timerlib.o
+ 
+WTP_SRCS = $(WTP_OBJS:.o=.c)
+
+WTP_DEPS := $(WTP_OBJS:.o=.d)
+
+# program executables. 
+WTP_NAME = WTP 
+
+.PHONY: deps clean clean_libs libs
+
+# top-level rule, to compile everything. 
+all: $(WTP_NAME)
+
+$(WTP_NAME): $(WTP_OBJS) 
+	$(CC) -DWRITE_STD_OUTPUT $(WTP_OBJS) $(CC_FLAGS) $(LDFLAGS) -o $(WTP_NAME) 
+
+clean: 
+	$(RM) $(WTP_NAME) $(WTP_OBJS) $(WTP_DEPS)
+
+clean_deps:
+	$(WTP_DEPS)
+	
+deps: $(WTP_SRC)
+	$(CC) -MD -E -DWRITE_STD_OUTPUT $(WTP_SRCS) $(CFLAGS) >/dev/null
+
+-include $(WTP_DEPS)
