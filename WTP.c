@@ -350,28 +350,50 @@ CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 	return CW_FALSE;
 }
 
-int main(int argc, const char *argv[])
+void usage(void)
 {
+}
+
+int main(int argc, char * const argv[])
+{
+	int run_daemon = 1;
+	int c;
+
+#ifdef CW_DEBUGGING
+	const struct rlimit rlim = {
+		.rlim_cur = RLIM_INFINITY,
+		.rlim_max = RLIM_INFINITY
+	};
+
+	/* unlimited size for cores */
+	setrlimit(RLIMIT_CORE, &rlim);
+#endif
+
+	while (-1 != (c = getopt(argc, argv, "hf"))) {
+		switch(c) {
+		case 'h':
+			usage();
+			exit(1);
+			break;
+
+		case 'f':
+			run_daemon = 0;
+			break;
+
+		default:
+			usage();
+			exit(1);
+			break;
+		}
+	}
 
 	/* Daemon Mode */
-
-	pid_t pid;
-
-	if (argc <= 1)
-		printf("Usage: WTP working_path\n");
-
-	if ((pid = fork()) < 0)
-		exit(1);
-	else if (pid != 0)
-		exit(0);
-	else {
-		setsid();
-		if (chdir(argv[1]) != 0) {
-			printf("chdir Faile\n");
+	if (run_daemon)
+		if (daemon(1, 0) != 0) {
+			fprintf(stderr, "daemon failed: %s\n", strerror(errno));
 			exit(1);
+
 		}
-		fclose(stdout);
-	}
 
 	CWStateTransition nextState = CW_ENTER_DISCOVERY;
 	CWLogInitFile(WTP_LOG_FILE_NAME);

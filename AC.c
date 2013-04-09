@@ -81,19 +81,51 @@ int gIdleTimeout = 10;
 
 /*_________________________________________________________*/
 /*  *******************___FUNCTIONS___*******************  */
-int main(int argc, const char *argv[])
+
+void usage(void)
 {
+}
 
-	/* Daemon mode */
+int main(int argc, char * const argv[])
+{
+	int run_daemon = 1;
+	int c;
 
-	if (argc <= 1)
-		printf("Usage: AC working_path\n");
+#ifdef CW_DEBUGGING
+	const struct rlimit rlim = {
+		.rlim_cur = RLIM_INFINITY,
+		.rlim_max = RLIM_INFINITY
+	};
 
-	if (daemon(1, 0) < 0)
-		exit(1);
+	/* unlimited size for cores */
+	setrlimit(RLIMIT_CORE, &rlim);
+#endif
 
-	if (chdir(argv[1]) != 0)
-		exit(1);
+	while (-1 != (c = getopt(argc, argv, "hf"))) {
+		switch(c) {
+		case 'h':
+			usage();
+			exit(1);
+			break;
+
+		case 'f':
+			run_daemon = 0;
+			break;
+
+		default:
+			usage();
+			exit(1);
+			break;
+		}
+	}
+
+	/* Daemon Mode */
+	if (run_daemon)
+		if (daemon(1, 0) != 0) {
+			fprintf(stderr, "daemon failed: %s\n", strerror(errno));
+			exit(1);
+
+		}
 
 	CWACInit();
 	CWCreateConnectionWithHostapdAC();

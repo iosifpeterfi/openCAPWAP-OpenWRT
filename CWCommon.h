@@ -49,6 +49,7 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
+#include <sys/resource.h>
 #include "wireless_copy.h"
 
 // make sure the types really have the right sizes
