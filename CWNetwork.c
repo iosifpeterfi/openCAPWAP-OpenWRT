@@ -144,7 +144,7 @@ CWBool CWNetworkInitSocketClient(CWSocket * sockPtr, CWNetworkLev4Address * addr
 	char myport[8];
 
 	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;	// use IPv4 or IPv6, whichever
+	hints.ai_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;	// use IPv4 or IPv6, whichever
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	sprintf(myport, "%d", CW_CONTROL_PORT);
@@ -201,7 +201,7 @@ CWBool CWNetworkInitSocketClientDataChannel(CWSocket * sockPtr, CWNetworkLev4Add
 	CWNetworkLev4Address addrPtrDataChannel;
 
 	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;	// use IPv4 or IPv6, whichever
+	hints.ai_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;	// use IPv4 or IPv6, whichever
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	sprintf(myport, "%d", CW_DATA_PORT);
