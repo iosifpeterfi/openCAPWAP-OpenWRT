@@ -444,8 +444,8 @@ typedef struct {
 } CWDiscoveryRequestValues;
 
 typedef enum {
-	CW_X509_CERTIFICATE = 1,
-	CW_PRESHARED = 0
+	CW_X509_CERTIFICATE = 2,
+	CW_PRESHARED = 4
 } CWAuthSecurity;
 
 typedef struct {
