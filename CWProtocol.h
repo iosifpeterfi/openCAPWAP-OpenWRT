@@ -401,9 +401,19 @@ typedef struct {
 } CWWTPVendorInfos;
 
 typedef struct {
+	unsigned short WBID;
+	unsigned int encryptionCapabilities;
+} CWWTPEncryptCapValues;
+
+typedef struct {
+	int encryptCapsCount;
+	CWWTPEncryptCapValues *encryptCaps;
+} CWWTPEncryptCaps;
+
+typedef struct {
 	int maxRadios;
 	int radiosInUse;
-	int encCapabilities;
+	CWWTPEncryptCaps encCapabilities;
 	CWWTPVendorInfos vendorInfos;
 } CWWTPDescriptor;
 

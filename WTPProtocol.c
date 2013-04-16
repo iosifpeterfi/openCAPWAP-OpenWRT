@@ -261,9 +261,10 @@ CWBool CWAssembleMsgElemVendorSpecificPayload(CWProtocolMessage * msgPtr)
 
 CWBool CWAssembleMsgElemWTPDescriptor(CWProtocolMessage * msgPtr)
 {
-	const int GENERIC_RADIO_INFO_LENGTH = 4;	//First 4 bytes for Max Radios, Radios In Use and Encryption Capability
+	const int GENERIC_RADIO_INFO_LENGTH = 5;	//First 4 bytes for Max Radios, Radios In Use and Num Encryption Capability
 	const int VENDOR_ID_LENGTH = 4;	//Vendor Identifier is 4 bytes long
 	const int TLV_HEADER_LENGTH = 4;	//Type and Length of a TLV field is 4 byte long
+	CWWTPEncryptCaps encc;
 	CWWTPVendorInfos infos;
 	int i, size = 0;
 
@@ -274,8 +275,16 @@ CWBool CWAssembleMsgElemWTPDescriptor(CWProtocolMessage * msgPtr)
 	if (!CWWTPGetVendorInfos(&infos)) {
 		return CW_FALSE;
 	}
+
+	if (!CWWTPGetEncCapabilities(&encc)) {	// encryption capabilities
+		return CW_FALSE;
+	}
+
 	//Calculate msg elem size
 	size = GENERIC_RADIO_INFO_LENGTH;
+	for (i = 0; i < encc.encryptCapsCount; i++) {
+		size += 3;
+	}
 	for (i = 0; i < infos.vendorInfosCount; i++) {
 		size += (VENDOR_ID_LENGTH + TLV_HEADER_LENGTH + ((infos.vendorInfos)[i]).length);
 	}
@@ -286,7 +295,12 @@ CWBool CWAssembleMsgElemWTPDescriptor(CWProtocolMessage * msgPtr)
 
 	CWProtocolStore8(msgPtr, CWWTPGetMaxRadios());	// number of radios supported by the WTP
 	CWProtocolStore8(msgPtr, CWWTPGetRadiosInUse());	// number of radios present in the WTP
-	CWProtocolStore16(msgPtr, CWWTPGetEncCapabilities());	// encryption capabilities
+
+	CWProtocolStore8(msgPtr, encc.encryptCapsCount);
+	for (i = 0; i < encc.encryptCapsCount; i++) {
+		CWProtocolStore8(msgPtr, (encc.encryptCaps)[i].WBID & 0x1f);
+		CWProtocolStore16(msgPtr, (encc.encryptCaps)[i].encryptionCapabilities);
+	}
 
 	for (i = 0; i < infos.vendorInfosCount; i++) {
 		CWProtocolStore32(msgPtr, ((infos.vendorInfos)[i].vendorIdentifier));
@@ -309,6 +323,7 @@ CWBool CWAssembleMsgElemWTPDescriptor(CWProtocolMessage * msgPtr)
 	}
 
 	CWWTPDestroyVendorInfos(&infos);
+	CWWTPDestroyEncCapabilities(&encc);
 
 	return CWAssembleMsgElem(msgPtr, CW_MSG_ELEMENT_WTP_DESCRIPTOR_CW_TYPE);
 }

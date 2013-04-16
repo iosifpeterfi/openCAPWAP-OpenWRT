@@ -55,9 +55,29 @@ __inline__ int CWWTPGetRadiosInUse()
 	return gRadiosInfo.radioCount;
 }
 
-__inline__ int CWWTPGetEncCapabilities()
+CWBool CWWTPGetEncCapabilities(CWWTPEncryptCaps * encc)
 {
-	return 2569;
+	if (encc == NULL)
+		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
+
+	encc->encryptCapsCount = 1;
+	CW_CREATE_ARRAY_ERR((encc->encryptCaps), encc->encryptCapsCount, CWWTPEncryptCapValues,
+			    return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
+	    );
+	(encc->encryptCaps)[0].WBID = 1;
+	(encc->encryptCaps)[0].encryptionCapabilities = 2569;
+
+	return CW_TRUE;
+}
+
+void CWWTPDestroyEncCapabilities(CWWTPEncryptCaps * encc)
+{
+	int i;
+
+	if (encc == NULL)
+		return;
+
+	CW_FREE_OBJECT(encc->encryptCaps);
 }
 
 CWBool CWWTPGetBoardData(CWWTPVendorInfos * valPtr)

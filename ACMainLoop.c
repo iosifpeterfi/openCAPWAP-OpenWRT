@@ -844,7 +844,8 @@ void CWResetWTPProtocolManager(CWWTPProtocolManager * WTPProtocolManager)
 	WTPProtocolManager->sessionID = 0;
 	WTPProtocolManager->descriptor.maxRadios = 0;
 	WTPProtocolManager->descriptor.radiosInUse = 0;
-	WTPProtocolManager->descriptor.encCapabilities = 0;
+	WTPProtocolManager->descriptor.encCapabilities.encryptCapsCount = 0;
+	CW_FREE_OBJECT(WTPProtocolManager->descriptor.encCapabilities.encryptCaps);
 	WTPProtocolManager->descriptor.vendorInfos.vendorInfosCount = 0;
 	CW_FREE_OBJECT(WTPProtocolManager->descriptor.vendorInfos.vendorInfos);
 

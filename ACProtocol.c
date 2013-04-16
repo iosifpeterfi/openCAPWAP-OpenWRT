@@ -696,11 +696,15 @@ CWBool CWParseWTPDescriptor(CWProtocolMessage * msgPtr, int len, CWWTPDescriptor
 	valPtr->radiosInUse = CWProtocolRetrieve8(msgPtr);
 //  CWDebugLog("WTP Descriptor Active Radios: %d",  valPtr->radiosInUse);
 
-	valPtr->encCapabilities = CWProtocolRetrieve16(msgPtr);
-//  CWDebugLog("WTP Descriptor Encryption Capabilities: %d", valPtr->encCapabilities);
+	valPtr->encCapabilities.encryptCapsCount = CWProtocolRetrieve8(msgPtr);
+	CW_CREATE_ARRAY_ERR(valPtr->encCapabilities.encryptCaps, valPtr->encCapabilities.encryptCapsCount,
+			    CWWTPEncryptCapValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL); );
+	for (i = 0; i < valPtr->encCapabilities.encryptCapsCount; i++) {
+		(valPtr->encCapabilities.encryptCaps)[i].WBID = CWProtocolRetrieve8(msgPtr) & 0x1f;
+		(valPtr->encCapabilities.encryptCaps)[i].encryptionCapabilities = CWProtocolRetrieve16(msgPtr);
+	}
 
 	valPtr->vendorInfos.vendorInfosCount = 0;
-
 	theOffset = msgPtr->offset;
 
 	// see how many vendor ID we have in the message
