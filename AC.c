@@ -52,7 +52,7 @@ CWThreadMutex gActiveWTPsMutex;
 /* max WTPs */
 int gMaxWTPs;
 /* The Radio MAC Field of the discovery response */
-int gRMACField = 0;
+int gRMACField = 2;
 /* The Wireless Field of the discovery response */
 int gWirelessField = 0;
 /* DTLS Policy for data channel */
