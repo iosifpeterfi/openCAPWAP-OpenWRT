@@ -31,8 +31,10 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <netpacket/packet.h>
+
 #include "CWWTP.h"
 #include "CWVendorPayloads.h"
+#include "WTPipcHostapd.h"
 #include "common.h"
 #include "ieee802_11_defs.h"
 #ifdef DMALLOC
@@ -100,7 +102,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDtlsPacket(void *arg)
 
 	int readBytes;
 	char buf[CW_BUFFER_SIZE];
-	CWSocket sockDTLS = (CWSocket) arg;
+	CWSocket sockDTLS = (long) arg;
 	CWNetworkLev4Address addr;
 	char *pData;
 
@@ -135,7 +137,7 @@ extern int gRawSock;
  */
 
 #define HLEN_80211  24
-int isEAPOL_Frame(unsigned char *buf, int len)
+int isEAPOL_Frame(unsigned char *buf, unsigned int len)
 {
 	unsigned char rfc1042_header[6] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00 };
 	int i;
@@ -148,11 +150,10 @@ int isEAPOL_Frame(unsigned char *buf, int len)
 
 CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg)
 {
-
 	int n, readBytes;
 	char buf[CW_BUFFER_SIZE];
 	struct sockaddr_ll rawSockaddr;
-	CWSocket sockDTLS = (CWSocket) arg;
+	CWSocket sockDTLS = (long) arg;
 	CWNetworkLev4Address addr;
 	CWList fragments = NULL;
 	CWProtocolMessage msgPtr;

@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <wait.h>
 #include <sys/stat.h>
+#include <ctype.h>
 #include <time.h>
 #include "CWCommon.h"
 #include "WUM.h"

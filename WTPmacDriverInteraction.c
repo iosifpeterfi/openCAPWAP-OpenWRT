@@ -26,6 +26,8 @@
  *******************************************************************************************/
 
 /*prototipi da includere in CWWTP.h*/
+#include "CWWTP.h"
+
 int set_rts_threshold(int value);
 int get_rts_threshold(int *value);
 

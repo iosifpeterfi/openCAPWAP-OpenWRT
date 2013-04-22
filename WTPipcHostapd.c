@@ -24,6 +24,7 @@
 #include <netinet/in.h>
 
 #include "WTPipcHostapd.h"
+#include "WTPmacFrameReceive.h"
 
 #ifdef DMALLOC
 #include "../dmalloc-5.5.0/dmalloc.h"
@@ -37,7 +38,7 @@
 
 //#define USEIPV6
 
-int address_size;
+socklen_t address_size;
 
 #if defined(LOCALUDP)
 struct sockaddr_un client;
@@ -65,7 +66,7 @@ char gRADIO_MAC[6];
 
 int flush_pcap(u_char * buf, int len, char *filename)
 {
-	return;
+	return 0;
 
 	FILE *file;
 	file = fopen(filename, "a+");
@@ -177,7 +178,6 @@ void CWWTPsend_command_to_hostapd_ADD_WLAN(unsigned char *buf, int len)
 		goto WAITHOSTAPDADD;
 	}
 	buf[0] = ADD_WLAN;
-	int i;
 
 	if (sendto(sock, buf, len, 0, (struct sockaddr *)&client, address_size) < 0) {
 		CWDebugLog("Error to send command ADD WLAN on socket");
@@ -196,7 +196,6 @@ void CWWTPsend_command_to_hostapd_DEL_WLAN(unsigned char *buf, int len)
 		goto WAITHOSTAPDDEL;
 	}
 	buf[0] = DEL_WLAN;
-	int i;
 
 	if (sendto(sock, buf, len, 0, (struct sockaddr *)&client, address_size) < 0) {
 		CWLog("Error to send command DEL WLAN on socket");
@@ -259,9 +258,7 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 
 	unsigned char buffer[CW_BUFFER_SIZE];
 	int connect_ret;
-	int flags;
-	int n;
-	char cmd[10];
+	unsigned char cmd[10];
 
 	CWProtocolMessage *frame = NULL;
 	CWBindingDataListElement *listElement = NULL;

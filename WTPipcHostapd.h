@@ -22,10 +22,8 @@
  *                                                                                         *
  *******************************************************************************************/
 
-#ifndef __CAPWAP_WTPFrameReceive_HEADER__
-#define __CAPWAP_WTPFrameReceive_HEADER__
-
-#endif
+#ifndef __WTPipcHostapd_H
+#define __WTPipcHostapd_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,3 +35,13 @@
 #include "smac_code.h"
 
 #include "CWWTP.h"
+
+void CWWTPsend_data_to_hostapd(unsigned char *buf, int len);
+void CWWTPsend_command_to_hostapd_SET_TXQ(unsigned char *buf, int len);
+void CWWTPsend_command_to_hostapd_SET_ADDR(unsigned char *buf, int len);
+void CWWTPsend_command_to_hostapd_ADD_WLAN(unsigned char *buf, int len);
+void CWWTPsend_command_to_hostapd_DEL_WLAN(unsigned char *buf, int len);
+void CWWTPsend_command_to_hostapd_DEL_ADDR(unsigned char *buf, int len);
+void CWWTPsend_command_to_hostapd_CLOSE(unsigned char *buf, int len);
+
+#endif

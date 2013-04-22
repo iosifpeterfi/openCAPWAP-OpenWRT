@@ -247,8 +247,6 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 
 		CWDebugLog("Recv 802.11 data(len:%d) from %s", encaps_len, gRadioInterfaceName_0);
 
-		CWBindingTransportHeaderValues *bindValues;
-
 		CW_CREATE_OBJECT_ERR(listElement, CWBindingDataListElement, EXIT_FRAME_THREAD(gRawSock);
 		    );
 
