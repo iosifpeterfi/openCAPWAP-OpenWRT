@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
@@ -11,14 +12,14 @@
 #include "eloop.h"
 #include "utils/includes.h"
 
-
 #include "utils/common.h"
 #include "drivers/driver.h"
 #include "ap/hostapd.h"
 #include "ap/ap_config.h"
 #include "ap/ap_drv_ops.h"
 
-#include "file_conf.h"
+#include "ipc_capwap_wtp.h"
+#include "file_conf_wtp.h"
 #include "smac_code.h"
 
 
@@ -61,7 +62,6 @@ struct pre_txq buf_txq[8];
 	struct sockaddr_un addr;
 	struct sockaddr_un local;
 	int rn;
-
 #else
 	#if defined(USEIPV6)
 		struct sockaddr_in6 addr;
@@ -72,50 +72,69 @@ struct pre_txq buf_txq[8];
 
 
 
-int address_size;
+socklen_t address_size;
 struct wlan_state wl;
 int fd_con;
 struct sockaddr_un local, remote;
 
+static void send_response(int fd, u8 code, u8 *buf, int len);
+static void send_varesponse(int fd, u8 code, const char *fmt, ...)
+	__attribute__ ((__format__ (__printf__, 3, 4)));
 
+static void ipc_send_CLOSE_to_WTP(int fd)
+{
+	unsigned char cmd[10];
 
-void ipc_send_CLOSE_to_WTP(int fd){
-	char cmd[10];
 	send_response(fd, CLOSE, cmd, 10);
 }
 
-void ipc_send_80211_to_ac(int fd, u8 *buf, int len){
+void ipc_send_80211_to_ac(int fd, u8 *buf, int len)
+{
 	send_response(fd, DATE_TO_AC, buf, len);
 }
 
-void send_response(int fd, u8 code, u8 *buf, int len){
+static void send_varesponse(int fd, u8 code, const char *fmt, ...)
+{
+        va_list args;
+        char    buf[1024];
+	int     l;
+
+        va_start(args, fmt);
+        l = vsnprintf(buf, sizeof(buf), fmt, args);
+        va_end(args);
+
+	send_response(fd, code, (u8 *)buf, l);
+}
+
+static void send_response(int fd, u8 code, u8 *buf, int len)
+{
 	u8 tmp_buf[MAX_BUF];
 	tmp_buf[0] = code;
 	int n;
 
-	#if defined(LOCALUDP)
-		sprintf(tmp_buf + 1, "%05d", rn);
-		memcpy(tmp_buf + 6, buf, len);
-		n = sendto(fd, tmp_buf, len + 6, 0, (struct sockaddr *)&addr, address_size);
-	#else
-		memcpy(tmp_buf + 1, buf, len);
-		n = sendto(fd, tmp_buf, len + 1, 0, (struct sockaddr *)&addr, address_size);
-	#endif
-
+#if defined(LOCALUDP)
+	sprintf(tmp_buf + 1, "%05d", rn);
+	memcpy(tmp_buf + 6, buf, len);
+	n = sendto(fd, tmp_buf, len + 6, 0, (struct sockaddr *)&addr, address_size);
+#else
+	memcpy(tmp_buf + 1, buf, len);
+	n = sendto(fd, tmp_buf, len + 1, 0, (struct sockaddr *)&addr, address_size);
+#endif
 
 	if ( n < 0 ) {
 		perror("send");
 		return;
 	}
-
 }
 
 /* HANDLE */
 
-void SET_RTS_handle(int fd, u8 *buf, int len, void *hapd){
+static void SET_RTS_handle(int fd, u8 *buf, int len, void *hapd)
+{
 	struct hostapd_data *h = hapd;
-	u8 tmp[MAX_BUF];
-	memcpy(tmp,buf,len);
+	char tmp[MAX_BUF];
+
+	memcpy(tmp, buf, len);
 	tmp[len] = 0;
 
 	int rts = atoi(tmp);
@@ -125,24 +144,20 @@ void SET_RTS_handle(int fd, u8 *buf, int len, void *hapd){
 
 	int ret = hostapd_set_rts(h, rts);
 
-	u8 ret_str[10];
-	sprintf(ret_str, "%d", ret);
-	send_response(fd, SET_RTS_R, ret_str, strlen(ret_str));
+	send_varesponse(fd, SET_RTS_R, "%d", ret);
 }
 
-void GET_RTS_handle(int fd, u8 *buf, int len, void *hapd){
-
-	char tmp_str[100];
-	sprintf(tmp_str, "%d", wl.rts);
-	send_response(fd, GET_RTS_R, tmp_str, strlen(tmp_str));
-
+static void GET_RTS_handle(int fd, u8 *buf, int len, void *hapd)
+{
+	send_varesponse(fd, GET_RTS_R, "%d", wl.rts);
 }
 
 
 
-void SET_FRAG_handle(int fd, u8 *buf, int len, void *hapd){
+static void SET_FRAG_handle(int fd, u8 *buf, int len, void *hapd)
+{
 	struct hostapd_data *h = hapd;
-	u8 tmp[MAX_BUF];
+	char tmp[MAX_BUF];
 	memcpy(tmp,buf,len);
 	tmp[len] = 0;
 
@@ -151,21 +166,16 @@ void SET_FRAG_handle(int fd, u8 *buf, int len, void *hapd){
 	wl.frag = frag;
 
 	int ret = hostapd_set_frag(h, frag);
-	u8 ret_str[10];
-	sprintf(ret_str, "%d", ret);
-	send_response(fd, SET_FRAG_R, ret_str, strlen(ret_str));
+	send_varesponse(fd, SET_FRAG_R, "%d", ret);
 }
 
-void GET_FRAG_handle(int fd, u8 *buf, int len, void *hapd){
-
-	char tmp_str[100];
-	sprintf(tmp_str, "%d", wl.frag);
-	send_response(fd, GET_FRAG_R, tmp_str, strlen(tmp_str));
-
+static void GET_FRAG_handle(int fd, u8 *buf, int len, void *hapd)
+{
+	send_varesponse(fd, GET_FRAG_R, "%d", wl.frag);
 }
 
-
-void SET_FREQ_handle(int fd, u8 *buf, int len, void *hapd){
+static void SET_FREQ_handle(int fd, u8 *buf, int len, void *hapd)
+{
 	struct hostapd_data *h = hapd;
 	char str[5][10];
 
@@ -189,59 +199,40 @@ void SET_FREQ_handle(int fd, u8 *buf, int len, void *hapd){
 	wl.freq_params.channel = atoi(str[3]);
 	wl.freq_params.mode = atoi(str[4]);
 
-
 	int ret = hostapd_set_freq(h, wl.freq_params.mode, wl.freq_params.freq, wl.freq_params.channel,
-						wl.freq_params.ht_enabled, wl.freq_params.sec_channel_offset);
-	u8 ret_str[10];
-	sprintf(ret_str, "%d", ret);
-	send_response(fd, SET_FREQ_R, ret_str, strlen(ret_str));
+				   wl.freq_params.ht_enabled, wl.freq_params.sec_channel_offset);
+	send_varesponse(fd, SET_FREQ_R, "%d", ret);
 }
 
-void GET_FREQ_handle(int fd, u8 *buf, int len, void *hapd){
-
-	int ret_str[100];
-
-	sprintf(ret_str, "%d %d %d %d %d", wl.freq_params.freq,wl.freq_params.sec_channel_offset,wl.freq_params.ht_enabled,
-									   wl.freq_params.channel,wl.freq_params.mode);
-
-	send_response(fd, GET_FREQ_R, ret_str, strlen(ret_str));
-
+static void GET_FREQ_handle(int fd, u8 *buf, int len, void *hapd)
+{
+	send_varesponse(fd, GET_FREQ_R, "%d %d %d %d %d",
+			wl.freq_params.freq,       wl.freq_params.sec_channel_offset,
+			wl.freq_params.ht_enabled, wl.freq_params.channel,
+			wl.freq_params.mode);
 }
 
 
-void add_in_SET_TXQ_handle(u8 *buf, int len){
+static void add_in_SET_TXQ_handle(u8 *buf, int len)
+{
 	int i;
 	for(i=0; i<8; i++){
-		if( buf_txq[i].free == 0){
+		if( buf_txq[i].free == 0) {
 
 			buf_txq[i].buf = malloc( sizeof(char) * len);
 			memcpy( buf_txq[i].buf, buf, len);
 			buf_txq[i].len = len;
 			buf_txq[i].free = 1;
-
 		}
 	}
 }
 
-void flush_SET_TXQ_handle(int fd, void *hapd){
-
-	int i;
-	for(i=0; i<8; i++){
-		if( buf_txq[i].free == 1){
-			buf_txq[i].free = 0;
-			SET_TXQ_handle(fd, buf_txq[i].buf, buf_txq[i].len, hapd);
-
-		}
-	}
-}
-
-void SET_TXQ_handle(int fd, u8 *buf, int len, void *hapd){
-
+static void SET_TXQ_handle(int fd, u8 *buf, int len, void *hapd)
+{
 	struct hostapd_data *h = hapd;
 	char str[5][10];
 
 	buf[len]=0;
-
 
 	int i,j=0;
 	int cnt = 0;
@@ -264,19 +255,27 @@ void SET_TXQ_handle(int fd, u8 *buf, int len, void *hapd){
 	wl.que[atoi(str[0])].burst_time = atoi(str[4]);
 
 	int ret = hostapd_set_tx_queue_params(h, wl.que[atoi(str[0])].queue_id,
-											 wl.que[atoi(str[0])].aifs,
-											 wl.que[atoi(str[0])].cwmin,
-											 wl.que[atoi(str[0])].cwmax,
-											 wl.que[atoi(str[0])].burst_time);
+					      wl.que[atoi(str[0])].aifs,
+					      wl.que[atoi(str[0])].cwmin,
+					      wl.que[atoi(str[0])].cwmax,
+					      wl.que[atoi(str[0])].burst_time);
 
-
-
-	u8 ret_str[10];
-	sprintf(ret_str, "%d", ret);
-	send_response(fd, SET_TXQ_R, ret_str, strlen(ret_str));
+	send_varesponse(fd, SET_TXQ_R, "%d", ret);
 }
 
-void SET_ADDR_handle(int fd, u8 *buf, int len, void *hapd){
+void flush_SET_TXQ_handle(int fd, void *hapd)
+{
+	int i;
+	for(i=0; i<8; i++){
+		if( buf_txq[i].free == 1){
+			buf_txq[i].free = 0;
+			SET_TXQ_handle(fd, buf_txq[i].buf, buf_txq[i].len, hapd);
+		}
+	}
+}
+
+static void SET_ADDR_handle(int fd, u8 *buf, int len, void *hapd)
+{
 	wpa_printf(MSG_DEBUG, "ADD ADDR: %02X %02X %02X %02X %02X %02X",buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
 	struct hostapd_data *h = hapd;
 	static  unsigned char sup[4]={ 0x82 ,0x84 ,0x8B ,0x96 };
@@ -287,34 +286,33 @@ void SET_ADDR_handle(int fd, u8 *buf, int len, void *hapd){
 			    (u32)32931);
 }
 
-void DEL_ADDR_handle(int fd, u8 *buf, int len, void *hapd){
+void DEL_ADDR_handle(int fd, u8 *buf, int len, void *hapd)
+{
 	wpa_printf(MSG_DEBUG, "DEL ADDR: %02X %02X %02X %02X %02X %02X",buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
 	struct hostapd_data *h = hapd;
-	static  unsigned char sup[4]={ 0x82 ,0x84 ,0x8B ,0x96 };
-	hostapd_drv_sta_remove(h, buf);
+//	static unsigned char sup[4]={ 0x82 ,0x84 ,0x8B ,0x96 };
 
+	hostapd_drv_sta_remove(h, buf);
 }
 
-void DEL_WLAN_handle(int fd, u8 *buf, int len, void *hapd){
-
+static void DEL_WLAN_handle(int fd, u8 *buf, int len, void *hapd)
+{
 	struct hostapd_data *h = hapd;
 	wpa_printf(MSG_DEBUG, "DEL WLAN");
 
-	if( h->driver->hapd_deinit ){
-
+	if ( h->driver->hapd_deinit )
 		h->driver->hapd_deinit(h->iface->bss[0]->drv_priv);
 
-	}
 	hostapd_interface_free(h->iface);
 	end_ipc(fd);
 
 	exit(0);
-
 }
 
-void ADD_WLAN_handle(int fd, u8 *buf, int len, void *hapd, unsigned char *ssid_p, int *ssid_len_p){
+static void ADD_WLAN_handle(int fd, u8 *buf, int len, void *hapd, unsigned char *ssid_p, int *ssid_len_p)
+{
 	wpa_printf(MSG_DEBUG, "ADD WLAN: len:%d",len);
-	int i,k;
+	int k;
 
 	struct hostapd_data *h = hapd;
 
@@ -325,7 +323,6 @@ void ADD_WLAN_handle(int fd, u8 *buf, int len, void *hapd, unsigned char *ssid_p
 
 	wpa_printf(MSG_DEBUG, "Key Index: %d",buf[4]);
 	wpa_printf(MSG_DEBUG, "Key Status: %d",buf[5]);
-
 
 	short key_len;
 	*(&key_len + 1) = buf[6];
@@ -346,13 +343,11 @@ void ADD_WLAN_handle(int fd, u8 *buf, int len, void *hapd, unsigned char *ssid_p
 
 		char tmp_key[128];
 
-
-		for(k=0; k<key_len; k++)tmp_key[k]=*(buf+8+k);
+		for(k=0; k<key_len; k++)
+			tmp_key[k]=*(buf+8+k);
 		h->conf->ssid.wep.key[0] = malloc(128);
 
-
-	    memcpy(h->conf->ssid.wep.key[0], tmp_key, key_len);
-
+		memcpy(h->conf->ssid.wep.key[0], tmp_key, key_len);
 	}
 
 	int key_len_int = (int) key_len;
@@ -371,283 +366,292 @@ void ADD_WLAN_handle(int fd, u8 *buf, int len, void *hapd, unsigned char *ssid_p
 
 		wpa_printf(MSG_DEBUG, "SSID LEN: %d",ssid_len);
 
-		for(k=0;k<ssid_len;k++)	tmp_ssid[k]=*(buf + 19 + key_len_int +k);
+		for(k=0;k<ssid_len;k++)
+			tmp_ssid[k]=*(buf + 19 + key_len_int +k);
 
 		*ssid_len_p = ssid_len;
 		memcpy(ssid_p, tmp_ssid, ssid_len);
 
 		h->conf->ssid.ssid_len = ssid_len;
 		memcpy(h->conf->ssid.ssid, tmp_ssid, ssid_len);
-
 	}
-
 }
 
 
-void management_recv(int fd, u8 code, u8 *buf, int len, void *hapd,void *inject_func){
-
-	if(code == PING){
+static void management_recv(int fd, u8 code, u8 *buf, int len, void *hapd, void *inject_func)
+{
+	switch (code) {
+	case  PING:
 		send_response(fd, PONG, buf, len);
+		break;
 
-	}else if( code==SET_RTS ){
+	case SET_RTS:
 		SET_RTS_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==SET_FRAG ){
+	case SET_FRAG:
 		SET_FRAG_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==GET_RTS ){
+	case GET_RTS:
 		GET_RTS_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==GET_FRAG ){
+	case GET_FRAG:
 		GET_FRAG_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==SET_FREQ ){
+	case SET_FREQ:
 		SET_FREQ_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==GET_FREQ ){
+	case GET_FREQ:
 		GET_FREQ_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==SET_TXQ ){
+	case SET_TXQ:
 		SET_TXQ_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==DATE_TO_WTP ){
-		struct hostapd_data *h = hapd;
-		void (*pointer_WTP_inject_frame_in_air)(void*,unsigned char*,int);
-	    pointer_WTP_inject_frame_in_air = inject_func;
-	    pointer_WTP_inject_frame_in_air(h->drv_priv, buf, len);
+	case DATE_TO_WTP:
+		((WTP_frame_inject)inject_func)(((struct hostapd_data *)hapd)->drv_priv, buf, len);
+		break;
 
-	}else if( code==SET_ADDR ){
+	case SET_ADDR:
 		SET_ADDR_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==DEL_ADDR ){
+	case DEL_ADDR:
 		DEL_ADDR_handle(fd, buf, len, hapd);
+		break;
 
-	}else if( code==DEL_WLAN ){
+	case DEL_WLAN:
 		DEL_WLAN_handle(fd, buf, len, hapd);
+		break;
 
-
-	}else{
+	default:
 		wpa_printf(MSG_ERROR, "ERROR IPC: received unrecognizedcode: %d",code);
+		break;
 	}
 
 }
 
-int recv_request(int fd,void *hapd, void *inject_func){
-	char str[MAX_BUF];
+static void recv_request(int fd, void *hapd, void *inject_func)
+{
+	unsigned char str[MAX_BUF];
 
 	int n;
 
-	#if defined(LOCALUDP)
-		n = recvfrom(fd, str, MAX_BUF, 0,(struct sockaddr *)&local, &address_size);
-	#else
-		n = recvfrom(fd, str, MAX_BUF, 0,(struct sockaddr *)&addr, &address_size);
-	#endif
+#if defined(LOCALUDP)
+	n = recvfrom(fd, str, MAX_BUF, 0,(struct sockaddr *)&local, &address_size);
+#else
+	n = recvfrom(fd, str, MAX_BUF, 0,(struct sockaddr *)&addr, &address_size);
+#endif
 
-
-    if(n<=0){
+	if (n<=0) {
 		end_ipc(fd);
-		return -1;
+		return;
 	}
 	management_recv(fd, str[0], str + 1, n -1, hapd, inject_func);
 }
 
 
 
-int open_socket(){
-
+static int open_socket()
+{
 	wpa_printf(MSG_DEBUG, "Ip:Port  %s:%d  %s",con_wtp.ip_wtp,con_wtp.wtp_port,con_wtp.path_unix_socket);
 
-	int fd_wtp, n, con_res;
+	int fd_wtp;
 
 	char buffer[100];
 
-	#if defined(LOCALUDP)
-		srand((unsigned)time(0));
-		fd_wtp = socket(AF_UNIX, SOCK_DGRAM, 0);
+#if defined(LOCALUDP)
+	srand((unsigned)time(0));
+	fd_wtp = socket(AF_UNIX, SOCK_DGRAM, 0);
 
-	#elif defined(NETUDP)
-		#if defined(USEIPV6)
-			fd_wtp = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-		#else
-			fd_wtp = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		#endif
+#elif defined(NETUDP)
+#if defined(USEIPV6)
+	fd_wtp = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+#else
+	fd_wtp = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#endif
 
-	#else
-		#if defined(USEIPV6)
-			fd_wtp = socket(AF_INET6, SOCK_SEQPACKET, IPPROTO_SCTP);
-		#else
-			fd_wtp = socket(AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
-		#endif
+#else
+#if defined(USEIPV6)
+	fd_wtp = socket(AF_INET6, SOCK_SEQPACKET, IPPROTO_SCTP);
+#else
+	fd_wtp = socket(AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
+#endif
 
-	#endif
+#endif
 
-	#if defined(LOCALUDP)
-		addr.sun_family = AF_UNIX;
-		strcpy(addr.sun_path, con_wtp.path_unix_socket);
+#if defined(LOCALUDP)
+	addr.sun_family = AF_UNIX;
+	strcpy(addr.sun_path, con_wtp.path_unix_socket);
 
-		local.sun_family = AF_UNIX;
+	local.sun_family = AF_UNIX;
 
-		while(1){
-			rn = rand()%100000;
-			sprintf(local.sun_path, "%s%05d", con_wtp.path_unix_socket, rn);
+	while(1){
+		rn = rand()%100000;
+		sprintf(local.sun_path, "%s%05d", con_wtp.path_unix_socket, rn);
 
-			if (bind(fd_wtp, (struct sockaddr *)&local, strlen(local.sun_path) + sizeof(local.sun_family)) == -1) {
-				sleep(1);
-				continue;
-			}
-			break;
+		if (bind(fd_wtp, (struct sockaddr *)&local, strlen(local.sun_path) + sizeof(local.sun_family)) == -1) {
+			sleep(1);
+			continue;
 		}
-		wpa_printf(MSG_DEBUG, "Try connecting to %s from %s",addr.sun_path, local.sun_path);
+		break;
+	}
+	wpa_printf(MSG_DEBUG, "Try connecting to %s from %s",addr.sun_path, local.sun_path);
 
-	#else
-		#if defined(USEIPV6)
-			addr.sin6_family = AF_INET6;
-			addr.sin6_port = con_wtp.wtp_port;
-			inet_pton(AF_INET6, con_wtp.ip_wtp, &addr.sin6_addr);
+#else
+#if defined(USEIPV6)
+	addr.sin6_family = AF_INET6;
+	addr.sin6_port = con_wtp.wtp_port;
+	inet_pton(AF_INET6, con_wtp.ip_wtp, &addr.sin6_addr);
+#else
+	addr.sin_family = AF_INET;
+	addr.sin_port = con_wtp.wtp_port;
+	addr.sin_addr.s_addr = inet_addr(con_wtp.ip_wtp);
+#endif
+	wpa_printf(MSG_DEBUG, "Try connecting to %s:%d",con_wtp.ip_wtp,con_wtp.wtp_port);
 
-		#else
-			addr.sin_family = AF_INET;
-			addr.sin_port = con_wtp.wtp_port;
-			addr.sin_addr.s_addr = inet_addr(con_wtp.ip_wtp);
-
-		#endif
-		wpa_printf(MSG_DEBUG, "Try connecting to %s:%d",con_wtp.ip_wtp,con_wtp.wtp_port);
-
-	#endif
-
+#endif
 	address_size =  sizeof(addr);
-
 
 	wpa_printf(MSG_DEBUG, "<NON CONNECT>");
 
-	while(1){
-		#if defined(LOCALUDP)
-			sprintf(buffer,"Z%05dconnect",rn);
-		#else
-			sprintf(buffer,"Zconnect");
-		#endif
+	while(1) {
+#if defined(LOCALUDP)
+		sprintf(buffer,"Z%05dconnect",rn);
+#else
+		sprintf(buffer,"Zconnect");
+#endif
 
 		buffer[0] = CONNECT;
-		n = sendto(fd_wtp, buffer, strlen(buffer), 0, (struct sockaddr *)&addr, address_size);
+		sendto(fd_wtp, buffer, strlen(buffer), 0, (struct sockaddr *)&addr, address_size);
+		recvfrom(fd_wtp, buffer, sizeof(buffer), 0,(struct sockaddr *)&local, &address_size);
 
-		n = recvfrom(fd_wtp, buffer, sizeof(buffer),0,(struct sockaddr *)&local, &address_size);
-
-		if(buffer[0] == CONNECT_R){
+		if(buffer[0] == CONNECT_R)
 			break;
-		}
-		sleep(1);
 
+		sleep(1);
 	}
 	wpa_printf(MSG_DEBUG, "<CONNECTED>");
 
-    return fd_wtp;
-
+	return fd_wtp;
 }
 
-int end_ipc(int fd){
+int end_ipc(int fd)
+{
 	wpa_printf(MSG_DEBUG, "Close IPC");
 	ipc_send_CLOSE_to_WTP(fd);
 
 	if(fd>=0){
 		eloop_unregister_read_sock(fd);
-		if(close(fd)<0 ){
-
+		if (close(fd)<0)
 			return -1;
-		}
 	}
 
-	if(	fd_con>=0 ){
+	if(fd_con>=0 ){
 		if(close(fd_con)<0 ){
-
 		}
 	}
 
 	return 0;
 }
 
-void goto_preconnect(int fd, void *hapd){
-	char buf[MAX_BUF];
+static void goto_preconnect(int fd, void *hapd){
+	unsigned char buf[MAX_BUF];
 	int n;
 
-	while(1){// Wait Packet
+	do {
+		/* Wait Packet */
+#if defined(LOCALUDP)
+		n = recvfrom(fd, buf, MAX_BUF, 0,(struct sockaddr *)&local, &address_size);
+#else
+		n = recvfrom(fd, buf, MAX_BUF, 0,(struct sockaddr *)&addr, &address_size);
+#endif
 
-		#if defined(LOCALUDP)
-			n = recvfrom(fd, buf, MAX_BUF, 0,(struct sockaddr *)&local, &address_size);
-		#else
-			n = recvfrom(fd, buf, MAX_BUF, 0,(struct sockaddr *)&addr, &address_size);
-		#endif
-
-
-		if(n<=0){
+		if (n <= 0){
 			end_ipc(fd);
-			return -1;
+			return;
 		}
 
-		if( buf[0]==WTPRINFO ){
-			send_response(fd, WTPRINFO_R, wlan0_capa+8 , 1);
+		switch(buf[0]) {
+		case WTPRINFO:
+			wpa_printf(MSG_DEBUG, "Command WTPRINFO in CONNECTED State");
+			send_response(fd, WTPRINFO_R, wlan0_capa + 8, 1);
+			break;
 
-		}else if( buf[0]==GET_RATES ){
-			send_response(fd, GET_RATES_R, wlan0_capa , 8);
+		case GET_RATES:
+			wpa_printf(MSG_DEBUG, "Command GET_RATES in CONNECTED State");
+			send_response(fd, GET_RATES_R, wlan0_capa, 8);
+			break;
 
-		}else if( buf[0]==GET_MDC ){
-			send_response(fd, GET_MDC_R, wlan0_capa + 9 , 6);
+		case GET_MDC:
+			wpa_printf(MSG_DEBUG, "Command GET_MDC in CONNECTED State");
+			send_response(fd, GET_MDC_R, wlan0_capa + 9, 6);
+			break;
 
-		}else if( buf[0]==GET_MAC ){
-			send_response(fd, GET_MAC_R, wlan0_capa + 15 , 6);
+		case GET_MAC:
+			wpa_printf(MSG_DEBUG, "Command GET_MAC in CONNECTED State");
+			send_response(fd, GET_MAC_R, wlan0_capa + 15, 6);
+			break;
 
-		}else if( buf[0]==GOWAITWLAN ){
+		case GOWAITWLAN:
+			wpa_printf(MSG_DEBUG, "Command GOWAITWLAN in CONNECTED State");
 			send_response(fd, GOWAITWLAN_R, NULL, 0);
 			break;
-		}else{
-			wpa_printf(MSG_DEBUG, "Unknow Command in CONNECTED State %d",buf[0]);
+
+		default:
+			wpa_printf(MSG_DEBUG, "Unknown Command %d in CONNECTED State", buf[0]);
 		}
-	}
+	} while (buf[0] != GOWAITWLAN);
+
 	wpa_printf(MSG_DEBUG, "<WAIT WLAN>");
 }
 
-
-void wait_ADD_WLAN(int fd, unsigned char *ssid_p, int *ssid_len_p, void *hapd ){
-	char buf[MAX_BUF];
-
+static void wait_ADD_WLAN(int fd, unsigned char *ssid_p, int *ssid_len_p, void *hapd )
+{
+	unsigned char buf[MAX_BUF];
 	int n;
 
-	while(1){// Wait Packet until recv ADD WLAN
-
-		#if defined(LOCALUDP)
-			n = recvfrom(fd, buf, MAX_BUF, 0,(struct sockaddr *)&local, &address_size);
-		#else
-			n = recvfrom(fd, buf, MAX_BUF, 0,(struct sockaddr *)&addr, &address_size);
-		#endif
-
+	do {
+		/* Wait Packet until recv ADD WLAN */
+#if defined(LOCALUDP)
+		n = recvfrom(fd, buf, MAX_BUF, 0,(struct sockaddr *)&local, &address_size);
+#else
+		n = recvfrom(fd, buf, MAX_BUF, 0,(struct sockaddr *)&addr, &address_size);
+#endif
 
 		if(n<=0){
 			end_ipc(fd);
-			return -1;
+			return;
 		}
 
-		if( buf[0]==ADD_WLAN ){
-
+		switch (buf[0]) {
+		case ADD_WLAN:
 			ADD_WLAN_handle(fd, buf+1, n-1, hapd, ssid_p, ssid_len_p);
 			break;
 
-		}else if ( buf[0]==DEL_WLAN_handle ){
+		case DEL_WLAN:
 			DEL_WLAN_handle(fd, NULL, 0, hapd);
+			break;
 
-		}else if( buf[0]==SET_TXQ ){
+		case SET_TXQ:
 			add_in_SET_TXQ_handle( buf+1, n-1 );
+			break;
 
-		}else if( buf[0]==DEL_WLAN){
-			DEL_WLAN_handle(fd,NULL,0,hapd);
-
-		}else{
-			wpa_printf(MSG_DEBUG, "Unknow Command in WAITWLAN State %d",buf[0]);
+		default:
+			wpa_printf(MSG_DEBUG, "Unknown Command in WAITWLAN State %d",buf[0]);
 		}
-	}
+	} while (buf[0] != ADD_WLAN);
+
 	wpa_printf(MSG_DEBUG, "<LIVE>");
 }
 
-int start_ipc(void *hapd,unsigned char *ssid_p, int *ssid_len_p,void *inject_func, char *cap_info){
-
+int start_ipc(void *hapd, unsigned char *ssid_p, int *ssid_len_p, void *inject_func, unsigned char *cap_info)
+{
 	memcpy( wlan0_capa, cap_info, 21);
 
 	ReadConfiguration(&con_wtp);
@@ -684,9 +688,6 @@ int start_ipc(void *hapd,unsigned char *ssid_p, int *ssid_len_p,void *inject_fun
 	wl.que[3].cwmin = 31;
 	wl.que[3].cwmax = 1023;
 	wl.que[3].aifs = 7;
-
-	//void (*pointer_WTP_inject_frame_in_air)(void*,unsigned char*,int);
-	//pointer_WTP_inject_frame_in_air = inject_func;
 
 	if(sockfd){
 		if (eloop_register_read_sock(sockfd, recv_request, hapd, inject_func)) {

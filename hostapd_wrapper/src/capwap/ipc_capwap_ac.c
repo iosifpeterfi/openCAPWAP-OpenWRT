@@ -18,7 +18,8 @@
 #include "ap/ap_config.h"
 #include "ap/ap_drv_ops.h"
 
-#include "file_conf.h"
+#include "ipc_capwap_ac.h"
+#include "file_conf_ac.h"
 #include "smac_code.h"
 
 
@@ -53,9 +54,7 @@ int fd_con;
 #define CLEARBIT(ADDRESS,BIT) (ADDRESS &= ~(1<<BIT))
 #define CHECKBIT(ADDRESS,BIT) (ADDRESS & (1<<BIT))
 
-
-
-int address_size;
+socklen_t address_size;
 
 int capability_is_A(){
 	if( CHECKBIT(wlan0_capa[8],1))return 1;
@@ -114,7 +113,7 @@ int capability_get_rates(int *rate_arr){
 	return num_rates;
 }
 
-void capability_get_mac(char *buf){
+void capability_get_mac(unsigned char *buf) {
 	memcpy(buf, wlan0_capa + 15, 6);
 }
 
@@ -260,7 +259,7 @@ void ipc_send_DEL_WLAN(int fd){
 }
 
 void ipc_send_CLOSE_to_AC(int fd){
-	char cmd[10];
+	unsigned char cmd[10];
 	send_response(fd, CLOSE, cmd, 10);
 }
 
@@ -361,115 +360,109 @@ void management_recv(int fd, u8 code, u8 *buf, int len, void *hapd, void *inject
 
 }
 
-int recv_request(int fd,void *hapd, void *inject_func){
-	char str[MAX_BUF];
-
+void recv_request(int fd,void *hapd, void *inject_func)
+{
+	unsigned char str[MAX_BUF];
 	int n;
 
-	#if defined(LOCALUDP)
-		n = recvfrom(fd, str, MAX_BUF, 0, (struct sockaddr *)&local, &address_size);
-	#else
-		n = recvfrom(fd, str, MAX_BUF, 0, (struct sockaddr *)&addr, &address_size);
-	#endif
+#if defined(LOCALUDP)
+	n = recvfrom(fd, str, MAX_BUF, 0, (struct sockaddr *)&local, &address_size);
+#else
+	n = recvfrom(fd, str, MAX_BUF, 0, (struct sockaddr *)&addr, &address_size);
+#endif
 
-
-    if(n<=0){
+	if(n<=0){
 		end_ipc(fd);
-		return -1;
+		return;
 	}
-
 
 	management_recv(fd, str[0], str + 1, n -1, hapd, inject_func);
 }
 
 
 
-int open_socket(){
-
-
-	int fd_ac, n, con_res;
+int open_socket()
+{
+	int fd_ac;
 
 	char buffer[100];
 
-	#if defined(LOCALUDP)
-		srand((unsigned)time(0));
-		fd_ac = socket(AF_UNIX, SOCK_DGRAM, 0);
+#if defined(LOCALUDP)
+	srand((unsigned)time(0));
+	fd_ac = socket(AF_UNIX, SOCK_DGRAM, 0);
 
-	#elif defined(NETUDP)
-		#if defined(USEIPV6)
-			fd_ac = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-		#else
-			fd_ac = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		#endif
+#elif defined(NETUDP)
+#if defined(USEIPV6)
+	fd_ac = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+#else
+	fd_ac = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+#endif
 
-	#else
-		#if defined(USEIPV6)
-			fd_ac = socket(AF_INET6, SOCK_SEQPACKET, IPPROTO_SCTP);
-		#else
-			fd_ac = socket(AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
-		#endif
+#else
+#if defined(USEIPV6)
+	fd_ac = socket(AF_INET6, SOCK_SEQPACKET, IPPROTO_SCTP);
+#else
+	fd_ac = socket(AF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
+#endif
 
-	#endif
+#endif
 
-	#if defined(LOCALUDP)
-		addr.sun_family = AF_UNIX;
-		strcpy(addr.sun_path, con_ac.path_unix_socket);
-		local.sun_family = AF_UNIX;
+#if defined(LOCALUDP)
+	addr.sun_family = AF_UNIX;
+	strcpy(addr.sun_path, con_ac.path_unix_socket);
+	local.sun_family = AF_UNIX;
 
-		while(1){
-			rn = rand()%100000;
-			sprintf(local.sun_path, "%s%05d", con_ac.path_unix_socket, rn);
-			if( bind(fd_ac, (struct sockaddr *)&local, strlen(local.sun_path) + sizeof(local.sun_family))==-1){
-				sleep(1);
-				continue;
-			}
-			break;
+	while(1){
+		rn = rand()%100000;
+		sprintf(local.sun_path, "%s%05d", con_ac.path_unix_socket, rn);
+		if( bind(fd_ac, (struct sockaddr *)&local, strlen(local.sun_path) + sizeof(local.sun_family))==-1){
+			sleep(1);
+			continue;
 		}
-		wpa_printf(MSG_DEBUG,"Connect to %s from %s\n",addr.sun_path, local.sun_path);
+		break;
+	}
+	wpa_printf(MSG_DEBUG,"Connect to %s from %s\n",addr.sun_path, local.sun_path);
+#else
 
-	#else
-		#if defined(USEIPV6)
-			addr.sin6_family = AF_INET6;
-			addr.sin6_port = con_ac.ac_port;
-			inet_pton(AF_INET6, con_ac.ip_ac, &addr.sin6_addr);
-		#else
-			addr.sin_family = AF_INET;
-			addr.sin_port = con_ac.ac_port;
-			addr.sin_addr.s_addr = inet_addr(con_ac.ip_ac);
+#if defined(USEIPV6)
+	addr.sin6_family = AF_INET6;
+	addr.sin6_port = con_ac.ac_port;
+	inet_pton(AF_INET6, con_ac.ip_ac, &addr.sin6_addr);
+#else
+	addr.sin_family = AF_INET;
+	addr.sin_port = con_ac.ac_port;
+	addr.sin_addr.s_addr = inet_addr(con_ac.ip_ac);
+#endif
+	wpa_printf(MSG_DEBUG,"Try connecting to %s:%d\n",con_ac.ip_ac, con_ac.ac_port);
 
-		#endif
-		wpa_printf(MSG_DEBUG,"Try connecting to %s:%d\n",con_ac.ip_ac, con_ac.ac_port);
-
-	#endif
+#endif
 
 	address_size = sizeof(addr);
 
 	while(1){
-		#if defined(LOCALUDP)
-			sprintf(buffer,"X%05dconnect",rn);
-		#else
-			sprintf(buffer,"Xconnect");
-		#endif
+#if defined(LOCALUDP)
+		sprintf(buffer,"X%05dconnect",rn);
+#else
+		sprintf(buffer,"Xconnect");
+#endif
 
 		buffer[0] = CONNECT;
-		n = sendto(fd_ac, buffer, strlen(buffer), 0, (struct sockaddr *)&addr, address_size);
+		sendto(fd_ac, buffer, strlen(buffer), 0, (struct sockaddr *)&addr, address_size);
 
-		#if defined(LOCALUDP)
-			n = recvfrom(fd_ac, buffer, sizeof(buffer), 0, (struct sockaddr *)&local, &address_size);
-		#else
-			n = recvfrom(fd_ac, buffer, sizeof(buffer), 0, (struct sockaddr *)&addr, &address_size);
-		#endif
+#if defined(LOCALUDP)
+		recvfrom(fd_ac, buffer, sizeof(buffer), 0, (struct sockaddr *)&local, &address_size);
+#else
+		recvfrom(fd_ac, buffer, sizeof(buffer), 0, (struct sockaddr *)&addr, &address_size);
+#endif
 
-		if(buffer[0] == CONNECT_R){
+		if (buffer[0] == CONNECT_R){
 			break;
-
 		}else{
 			sleep(0.5);
-
 		}
 	}
 
-    return fd_ac;
+	return fd_ac;
 }
 
 
@@ -479,65 +472,74 @@ void wait_capability_from_AC(int fd, void *hapd){
 
 	sleep(0.5);
 
-	while(1){
+	do {
 
-		#if defined(LOCALUDP)
-			sprintf(buffer,"X%05d",rn);
-		#else
-			sprintf(buffer,"X");
-		#endif
+#if defined(LOCALUDP)
+		n = sprintf((char *)buffer, "X%05d", rn);
+#else
+		n = sprintf((char *)buffer, "X");
+#endif
 
 		buffer[0] = WANT_GOLIVE;
-		n = sendto(fd, buffer, strlen(buffer), 0, (struct sockaddr *)&addr, address_size);
+		n = sendto(fd, buffer, n, 0, (struct sockaddr *)&addr, address_size);
 
+#if defined(LOCALUDP)
+		n = recvfrom(fd, buffer, 10, 0, (struct sockaddr *)&local, &address_size);
+#else
+		n = recvfrom(fd, buffer, 10, 0, (struct sockaddr *)&addr, &address_size);
+#endif
 
-
-		#if defined(LOCALUDP)
-			n = recvfrom(fd, buffer, 10, 0, (struct sockaddr *)&local, &address_size);
-		#else
-			n = recvfrom(fd, buffer, 10, 0, (struct sockaddr *)&addr, &address_size);
-		#endif
-
-		if(n<=0){
+		if (n<=0) {
 			end_ipc(fd);
 			return;
 		}
 
-		if(buffer[0] == SET_WTPRINFO){
+		switch (buffer[0]) {
+		case SET_WTPRINFO:
 			wpa_printf(MSG_DEBUG,"SET_WTPRINFO: %02X\n",buffer[1]);
 			memcpy( wlan0_capa+8, buffer+1, 1);
 			send_response(fd, SET_WTPRINFO_R, NULL, 0);
+			break;
 
-		}else if(buffer[0] == SET_RATES){
-			wpa_printf(MSG_DEBUG,"SET_RATES: %02X %02X %02X %02X %02X %02X %02X %02X\n",buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8]);
+		case SET_RATES:
+			wpa_printf(MSG_DEBUG,"SET_RATES: %02X %02X %02X %02X %02X %02X %02X %02X\n",
+				   buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8]);
 			memcpy( wlan0_capa, buffer+1, 8);
 			send_response(fd, SET_RATES_R, NULL, 0);
+			break;
 
-		}else if(buffer[0] == SET_MDC){
-			wpa_printf(MSG_DEBUG,"SET_MDC: %02X %02X %02X %02X %02X %02X\n",buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6]);
+		case SET_MDC:
+			wpa_printf(MSG_DEBUG,"SET_MDC: %02X %02X %02X %02X %02X %02X\n",
+				   buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6]);
 			memcpy( wlan0_capa+9, buffer+1, 6);
 			send_response(fd, SET_MDC_R, NULL, 0);
+			break;
 
-		}else if(buffer[0] == SET_MAC){
-			wpa_printf(MSG_DEBUG,"SET_MAC: %02X %02X %02X %02X %02X %02X\n",buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6]);
+		case SET_MAC:
+			wpa_printf(MSG_DEBUG,"SET_MAC: %02X %02X %02X %02X %02X %02X\n",
+				   buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6]);
 			memcpy( wlan0_capa+15, buffer+1, 6);
 			send_response(fd, SET_MAC_R, NULL, 0);
+			break;
 
-		}else if(buffer[0] == GOLIVE){
+		case GOLIVE:
 			wpa_printf(MSG_DEBUG,"GOLIVE:\n");
 			send_response(fd, GOLIVE_R, NULL, 0);
 			break;
 
-		}else if(buffer[0] == HAVE_TO_WAIT){
+		case HAVE_TO_WAIT:
 			sleep(1);
+			break;
 
-		}else if(buffer[0] == CLOSE){
+		case CLOSE:
 			end_ipc(fd);
+			break;
 
-		}else{
+		default:
 			wpa_printf(MSG_DEBUG,"Unknow code (%d) received in CONNECTed Fase\n",buffer[0]);
+			break;
 		}
-	}
+	} while (buffer[0] != GOLIVE);
 
 }
 

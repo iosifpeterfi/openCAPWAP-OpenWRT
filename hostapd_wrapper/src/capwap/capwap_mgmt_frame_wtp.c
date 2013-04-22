@@ -30,7 +30,6 @@ void WTP_handle_assoc_cb(struct hostapd_data *hapd,const struct ieee80211_mgmt *
 	u16 status;
 	struct sta_info *sta;
 	int new_assoc = 1;
-	struct ieee80211_ht_capabilities ht_cap;
 
 	if (!ok) {
 		hostapd_logger(hapd, mgmt->da, HOSTAPD_MODULE_IEEE80211,

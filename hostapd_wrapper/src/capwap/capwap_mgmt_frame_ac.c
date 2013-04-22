@@ -56,10 +56,14 @@ int isCallBackFrame( unsigned char *buf, int len,  unsigned char *own_mac){
 	// return 1 if is it CALL Back Frame
 	// return 0 if is NOT CALL Back Frame
 	struct ieee80211_hdr *hdr;
+/*
 	u16 fc;
+*/
 
 	hdr = (struct ieee80211_hdr *) buf;
+/* capwap FIXME: needed?
 	fc = le_to_host16(hdr->frame_control);
+*/
 
 	if( same_mac(hdr->addr2,own_mac)==0 && same_mac(hdr->addr3,own_mac)==0 )return 1;
 	return 0;

@@ -1,11 +1,11 @@
-#define CONFIGFILE "hostapd_ac.conf"
+#define CONFIGFILE "hostapd_wtp.conf"
 #define VARLENGTH 1024
 
-struct config_ac {
-	int ac_port;
-	char ip_ac[50];
+struct config_wtp {
+	int wtp_port;
+	char ip_wtp[50];
 	char path_unix_socket[50];
-}config_ac;
+}config_wtp;
 
 int max_(int integer1,int integer2){
 	if(integer1>integer2)return integer1;
@@ -31,7 +31,6 @@ int isEqualString(char String1[],char String2[]){
 }
 
 int StartWith(char String1[],char String2[]){
-	int len1=countString(String1);
 	int len2=countString(String2);
 	int i;
 
@@ -76,41 +75,39 @@ void ReplaceString(char *String1,char *rep,char *String2){
 	}
 }
 
-void ReadConfiguration(struct config_ac *con_ac){
+void ReadConfiguration(struct config_wtp *con_wtp){
 	FILE *file;
 
     file=fopen(CONFIGFILE,"r");
 
 	char ss[VARLENGTH];
 
-	sprintf(con_ac->ip_ac,"");
-	sprintf(con_ac->path_unix_socket,"");
-	con_ac->ac_port=0;
+	memset(con_wtp, 0, sizeof(struct config_wtp));
 
 	while(1){
 		if (fgets(ss,VARLENGTH,file)==NULL)break;
 		if(ss[0]=='\r' || ss[0]=='\n' || ss[0]=='#')continue;
 
-		if(StartWith(ss,"ip_daemon_ac")){
-			ReplaceString(ss, "ip_daemon_ac", "");
+		if(StartWith(ss,"ip_daemon_wtp")){
+			ReplaceString(ss, "ip_daemon_wtp", "");
 			ReplaceString(ss, "=", "");
 			ReplaceString(ss, "\n", "");
 			ReplaceString(ss, " ", "");
-			sprintf(con_ac->ip_ac, "%s", ss);
+			sprintf(con_wtp->ip_wtp, "%s", ss);
 
-		}else if(StartWith(ss,"sock_path_ac")){
-			ReplaceString(ss, "sock_path_ac", "");
+		}else if(StartWith(ss,"sock_pach_wtp")){
+			ReplaceString(ss, "sock_pach_wtp", "");
 			ReplaceString(ss, "=", "");
 			ReplaceString(ss, "\n", "");
 			ReplaceString(ss, " ", "");
-			sprintf(con_ac->path_unix_socket, "%s", ss);
+			sprintf(con_wtp->path_unix_socket, "%s", ss);
 
-		}else if(StartWith(ss,"port_daemon_ac")){
-			ReplaceString(ss, "port_daemon_ac","");
+		}else if(StartWith(ss,"port_daemon_wtp")){
+			ReplaceString(ss, "port_daemon_wtp","");
 			ReplaceString(ss, "\n", "");
 			ReplaceString(ss, " ", "");
 			ReplaceString(ss, "=", "");
-			con_ac->ac_port = atoi(ss);
+			con_wtp->wtp_port = atoi(ss);
 		}
 
 	}

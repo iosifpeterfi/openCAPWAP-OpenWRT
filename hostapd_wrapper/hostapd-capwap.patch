@@ -1,0 +1,286 @@
+Index: hostapd-1.1/src/drivers/drivers.c
+===================================================================
+--- hostapd-1.1.orig/src/drivers/drivers.c	2012-11-28 22:31:16.000000000 +0100
++++ hostapd-1.1/src/drivers/drivers.c	2013-04-08 15:02:44.463597625 +0200
+@@ -21,6 +21,12 @@
+ #ifdef CONFIG_DRIVER_NL80211
+ extern struct wpa_driver_ops wpa_driver_nl80211_ops; /* driver_nl80211.c */
+ #endif /* CONFIG_DRIVER_NL80211 */
++#ifdef CONFIG_DRIVER_CAPWAP_WTP
++extern struct wpa_driver_ops wpa_driver_capwap_wtp_ops; /* driver_capwap_wtp.c */
++#endif /* CONFIG_DRIVER_CAPWAP_WTP */
++#ifdef CONFIG_DRIVER_CAPWAP
++extern struct wpa_driver_ops wpa_driver_capwap_ops; /* driver_capwap.c */
++#endif /* CONFIG_DRIVER_CAPWAP */
+ #ifdef CONFIG_DRIVER_HOSTAP
+ extern struct wpa_driver_ops wpa_driver_hostap_ops; /* driver_hostap.c */
+ #endif /* CONFIG_DRIVER_HOSTAP */
+@@ -71,6 +77,12 @@
+ #ifdef CONFIG_DRIVER_NL80211
+ 	&wpa_driver_nl80211_ops,
+ #endif /* CONFIG_DRIVER_NL80211 */
++#ifdef CONFIG_DRIVER_CAPWAP_WTP
++	&wpa_driver_capwap_wtp_ops,
++#endif /* CONFIG_DRIVER_CAPWAP_WTP */
++#ifdef CONFIG_DRIVER_CAPWAP
++	&wpa_driver_capwap_ops,
++#endif /* CONFIG_DRIVER_CAPWAP */
+ #ifdef CONFIG_DRIVER_HOSTAP
+ 	&wpa_driver_hostap_ops,
+ #endif /* CONFIG_DRIVER_HOSTAP */
+Index: hostapd-1.1/src/drivers/drivers.mak
+===================================================================
+--- hostapd-1.1.orig/src/drivers/drivers.mak	2012-11-28 22:31:16.000000000 +0100
++++ hostapd-1.1/src/drivers/drivers.mak	2013-04-08 15:02:44.463597625 +0200
+@@ -38,7 +38,7 @@
+ ifdef CONFIG_DRIVER_NL80211
+ DRV_CFLAGS += -DCONFIG_DRIVER_NL80211
+ DRV_OBJS += ../src/drivers/driver_nl80211.o
+-DRV_OBJS += ../src/utils/radiotap.o
++NEED_RADIOTAP=y
+ NEED_SME=y
+ NEED_AP_MLME=y
+ NEED_NETLINK=y
+@@ -156,2 +156,2 @@
+ NEED_RFKILL=y
+ endif
+
++ifdef CONFIG_DRIVER_CAPWAP_WTP
++DRV_CFLAGS += -DCONFIG_DRIVER_CAPWAP_WTP
++DRV_OBJS += ../src/drivers/driver_capwap_wtp.o
++NEED_RADIOTAP=y
++NEED_SME=y
++NEED_AP_MLME=y
++NEED_NETLINK=y
++NEED_LINUX_IOCTL=y
++NEED_CAPWAP_MGMT_FRAME_WTP=y
++NEED_CAPWAP_IPC_WTP=y
++NEED_SWITCH_8023=y
++NEED_RFKILL=y
++
++ifdef CONFIG_LIBNL32
++  DRV_LIBS += -lnl-3
++  DRV_LIBS += -lnl-genl-3
++  DRV_CFLAGS += -DCONFIG_LIBNL20 -I/usr/include/libnl3
++else
++  ifdef CONFIG_LIBNL_TINY
++    DRV_LIBS += -lnl-tiny
++  else
++    DRV_LIBS += -lnl
++  endif
++
++  ifdef CONFIG_LIBNL20
++    DRV_LIBS += -lnl-genl
++    DRV_CFLAGS += -DCONFIG_LIBNL20
++  endif
++endif
++endif
++
++ifdef CONFIG_DRIVER_CAPWAP
++DRV_CFLAGS += -DCONFIG_DRIVER_CAPWAP
++DRV_OBJS += ../src/drivers/driver_capwap.o
++NEED_RADIOTAP=y
++NEED_SME=y
++NEED_AP_MLME=y
++NEED_FAKE_NETLINK=y
++NEED_LINUX_FAKE_IOCTL=y
++NEED_CAPWAP_MGMT_FRAME_AC=y
++NEED_CAPWAP_IPC_AC=y
++NEED_RFKILL=y
++
++ifdef CONFIG_LIBNL32
++  DRV_LIBS += -lnl-3
++  DRV_LIBS += -lnl-genl-3
++  DRV_CFLAGS += -DCONFIG_LIBNL20 -I/usr/include/libnl3
++else
++  ifdef CONFIG_LIBNL_TINY
++    DRV_LIBS += -lnl-tiny
++  else
++    DRV_LIBS += -lnl
++  endif
++
++  ifdef CONFIG_LIBNL20
++    DRV_LIBS += -lnl-genl
++    DRV_CFLAGS += -DCONFIG_LIBNL20
++  endif
++endif
++endif
++
++ifdef NEED_RADIOTAP
++DRV_OBJS += ../src/utils/radiotap.o
++endif
++
+ ifdef NEED_NETLINK
+ DRV_OBJS += ../src/drivers/netlink.o
+ endif
+
++ifdef NEED_FAKE_NETLINK
++DRV_OBJS += ../src/drivers/netlink_fake.o
++endif
++
+ ifdef NEED_LINUX_IOCTL
+ DRV_OBJS += ../src/drivers/linux_ioctl.o
+ endif
+
++ifdef NEED_LINUX_FAKE_IOCTL
++DRV_OBJS += ../src/drivers/linux_ioctl_fake.o
++endif
++
+ ifdef NEED_RFKILL
+ DRV_OBJS += ../src/drivers/rfkill.o
+ endif
+
++ifdef NEED_CAPWAP_MGMT_FRAME_WTP
++DRV_OBJS += ../src/capwap/capwap_mgmt_frame_wtp.o
++endif
++
++ifdef NEED_CAPWAP_MGMT_FRAME_AC
++DRV_OBJS += ../src/capwap/capwap_mgmt_frame_ac.o
++endif
++
++ifdef NEED_CAPWAP_IPC_WTP
++DRV_OBJS += ../src/capwap/ipc_capwap_wtp.o
++endif
++
++ifdef NEED_CAPWAP_IPC_AC
++DRV_OBJS += ../src/capwap/ipc_capwap_ac.o
++endif
++
++ifdef NEED_SWITCH_8023
++DRV_OBJS += ../src/capwap/switch_8023_80211.o
++endif
+
+ ##### COMMON VARS
+ DRV_BOTH_CFLAGS := $(DRV_CFLAGS) $(DRV_WPA_CFLAGS) $(DRV_AP_CFLAGS)
+Index: hostapd-1.1/src/drivers/drivers.mk
+===================================================================
+--- hostapd-1.1.orig/src/drivers/drivers.mk	2012-11-28 22:31:16.000000000 +0100
++++ hostapd-1.1/src/drivers/drivers.mk	2013-04-08 15:02:44.463597625 +0200
+@@ -38,7 +38,7 @@
+ ifdef CONFIG_DRIVER_NL80211
+ DRV_CFLAGS += -DCONFIG_DRIVER_NL80211
+ DRV_OBJS += src/drivers/driver_nl80211.c
+-DRV_OBJS += src/utils/radiotap.c
++NEED_RADIOTAP=y
+ NEED_SME=y
+ NEED_AP_MLME=y
+ NEED_NETLINK=y
+
++ifdef CONFIG_DRIVER_CAPWAP_WTP
++DRV_CFLAGS += -DCONFIG_DRIVER_CAPWAP_WTP
++DRV_OBJS += src/drivers/driver_capwap_wtp.c
++NEED_RADIOTAP=y
++NEED_SME=y
++NEED_AP_MLME=y
++NEED_NETLINK=y
++NEED_LINUX_IOCTL=y
++NEED_CAPWAP_MGMT_FRAME_WTP=y
++NEED_CAPWAP_IPC_WTP=y
++NEED_SWITCH_8023=y
++NEED_RFKILL=y
++
++ifdef CONFIG_LIBNL32
++  DRV_LIBS += -lnl-3
++  DRV_LIBS += -lnl-genl-3
++  DRV_CFLAGS += -DCONFIG_LIBNL20 -I/usr/include/libnl3
++else
++  ifdef CONFIG_LIBNL_TINY
++    DRV_LIBS += -lnl-tiny
++  else
++    DRV_LIBS += -lnl
++  endif
++
++  ifdef CONFIG_LIBNL20
++    DRV_LIBS += -lnl-genl
++    DRV_CFLAGS += -DCONFIG_LIBNL20
++  endif
++endif
++endif
++
++ifdef CONFIG_DRIVER_CAPWAP
++DRV_CFLAGS += -DCONFIG_DRIVER_CAPWAP
++DRV_OBJS += src/drivers/driver_capwap.c
++NEED_RADIOTAP=y
++NEED_SME=y
++NEED_AP_MLME=y
++NEED_FAKE_NETLINK=y
++NEED_LINUX_FAKE_IOCTL=y
++NEED_CAPWAP_MGMT_FRAME_AC=y
++NEED_CAPWAP_IPC_AC=y
++NEED_RFKILL=y
++
++ifdef CONFIG_LIBNL32
++  DRV_LIBS += -lnl-3
++  DRV_LIBS += -lnl-genl-3
++  DRV_CFLAGS += -DCONFIG_LIBNL20 -I/usr/include/libnl3
++else
++  ifdef CONFIG_LIBNL_TINY
++    DRV_LIBS += -lnl-tiny
++  else
++    DRV_LIBS += -lnl
++  endif
++
++  ifdef CONFIG_LIBNL20
++    DRV_LIBS += -lnl-genl
++    DRV_CFLAGS += -DCONFIG_LIBNL20
++  endif
++endif
++endif
++
++ifdef NEED_RADIOTAP
++DRV_OBJS += src/utils/radiotap.c
++endif
++
+ ifdef NEED_NETLINK
+ DRV_OBJS += src/drivers/netlink.c
+ endif
+
++ifdef NEED_FAKE_NETLINK
++DRV_OBJS += src/drivers/netlink_fake.c
++endif
++
+ ifdef NEED_LINUX_IOCTL
+ DRV_OBJS += src/drivers/linux_ioctl.c
+ endif
+
++ifdef NEED_LINUX_FAKE_IOCTL
++DRV_OBJS += src/drivers/linux_ioctl_fake.c
++endif
++
+ ifdef NEED_RFKILL
+ DRV_OBJS += src/drivers/rfkill.c
+ endif
+
++ifdef NEED_CAPWAP_MGMT_FRAME_WTP
++DRV_OBJS += src/capwap/capwap_mgmt_frame_wtp.c
++endif
++
++ifdef NEED_CAPWAP_MGMT_FRAME_AC
++DRV_OBJS += src/capwap/capwap_mgmt_frame_ac.c
++endif
++
++ifdef NEED_CAPWAP_IPC_WTP
++DRV_OBJS += src/capwap/ipc_capwap_wtp.c
++endif
++
++ifdef NEED_CAPWAP_IPC_AC
++DRV_OBJS += src/capwap/ipc_capwap_ac.c
++endif
++
++ifdef NEED_SWITCH_8023
++DRV_OBJS += src/capwap/switch_8023_80211.c
++endif
++
+ ifdef CONFIG_DRIVER_CUSTOM
+ DRV_CFLAGS += -DCONFIG_DRIVER_CUSTOM
+ endif
+Index: hostapd-1.1/src/Makefile
+===================================================================
+--- hostapd-1.1.orig/src/Makefile	2012-11-28 22:31:16.000000000 +0100
++++ hostapd-1.1/src/Makefile	2013-04-08 15:02:44.463597625 +0200
+@@ -1,1 +1,1 @@
+-SUBDIRS=ap common crypto drivers eapol_auth eapol_supp eap_common eap_peer eap_server l2_packet p2p radius rsn_supp tls utils wps
++SUBDIRS=ap common crypto drivers eapol_auth eapol_supp eap_common eap_peer eap_server l2_packet p2p radius rsn_supp tls utils wps capwap
+
+ all:
+ 	for d in $(SUBDIRS); do [ -d $$d ] && $(MAKE) -C $$d; done

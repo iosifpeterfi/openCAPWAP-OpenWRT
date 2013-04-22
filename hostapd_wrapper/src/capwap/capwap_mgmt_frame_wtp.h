@@ -1,4 +1,8 @@
+#ifndef __CAPWAP_MGMT_FRAME_WTP_H
+#define __CAPWAP_MGMT_FRAME_WTP_H
+
 #include "drivers/driver.h"
+#include "ap/hostapd.h"
 
 void WTP_handle_assoc_cb(struct hostapd_data *hapd,const struct ieee80211_mgmt *mgmt,size_t len, int reassoc, int ok);
 
@@ -15,3 +19,6 @@ int WTP_get_SubType(u8 *buf,int len);
 
 int WTP_get_Type(u8 *buf,int len);
 
+int isEAPOL_Frame( unsigned char *buf, int len);
+
+#endif
