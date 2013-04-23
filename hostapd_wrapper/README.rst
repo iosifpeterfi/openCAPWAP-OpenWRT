@@ -24,8 +24,10 @@ Sample
 Build
 -----
 
-You can either the build the AC wrapper or the WTP wrappen, but not both
+You can either the build the AC wrapper or the WTP wrapper, but not both
 at the same time!
+
+Check hostapd's build instructions on how to configure and build it.
 
 Adjust hostapd-1.1/hostapd/.config and enable either CONFIG_DRIVER_CAPWAP_WTP or
 CONFIG_DRIVER_CAPWAP
