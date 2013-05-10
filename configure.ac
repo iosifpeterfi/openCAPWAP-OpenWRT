@@ -28,9 +28,13 @@ AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR(You need the pthread
 AC_CHECK_FUNC([sem_timedwait], [AC_DEFINE([HAVE_SEM_TIMEDWAIT], [1],
                                [Define if sem_timedwait exists.])])
 
-AC_CHECK_HEADER(ssl.h, [], [AC_MSG_ERROR(You need the ssl headers)])
-AC_CHECK_LIB([ssl], [SSL_library_init], [], [AC_MSG_ERROR(Required libssl missing)])
-AC_CHECK_LIB([crypto], [BN_bn2bin], [], [AC_MSG_ERROR(Required libcrypto missing)])
+AC_ARG_ENABLE([dtls],
+    AS_HELP_STRING([--disable-dtls], [disable DTLS support]))
 
+AS_IF([test "x$enable_foo" != "xno"], [
+  AX_CHECK_OPENSSL([], [AC_MSG_ERROR(OpenSSL not found!)])
+], [
+  CFLAGS="$CFLAGS -DCW_NO_DTLS -DCW_NO_DTLSCWParseConfigurationUpdateRequest"
+])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

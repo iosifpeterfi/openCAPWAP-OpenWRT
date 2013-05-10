@@ -1,7 +1,6 @@
 ACLOCAL_AMFLAGS=-I m4
 
 AM_CFLAGS = -I$(srcdir)/include -D_REENTRANT
-AM_CFLAGS += -DCW_NO_DTLS -DCW_NO_DTLSCWParseConfigurationUpdateRequest
 AM_CFLAGS += -DOPENSSL_NO_KRB5
 
 # Capwap Debugging
@@ -31,6 +30,9 @@ libcapwap_la_SOURCES = \
 	CWVendorPayloadsAC.c \
 	CWVendorPayloadsWTP.c \
 	timerlib.c
+
+libcapwap_la_CFLAGS = ${OPENSSL_INCLUDES}
+libcapwap_la_LIBADD = ${OPENSSL_LDFLAGS} ${OPENSSL_LIBS}
 
 AC_SOURCES = \
 	AC.c \
