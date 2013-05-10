@@ -411,32 +411,47 @@ CWBool CWSecurityInitContext(CWSecurityContext * ctxPtr,
 			SSL_CTX_set_verify((*ctxPtr), SSL_VERIFY_PEER, CWSecurityVerifyCB);
 		}
 
-		/*
-		 * 1. (TLS_RSA_WITH_AES_128_CBC_SHA) CAPWAP says: MUST be supported
-		 * 2. (TLS_RSA_WITH_3DES_EDE_CBC_SHA) CAPWAP says: MUST be supported
-		 * 3. (TLS_DH_RSA_WITH_AES_128_CBC_SHA) CAPWAP says: SHOULD be supported
-		 * 4. Not implemented in OpenSSL (TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA)
-		 *    CAPWAP says: SHOULD be supported
+		/* RFC 5415 ciphers:
+		 *
+		 * MUST support:
+		 * - TLS_RSA_WITH_AES_128_CBC_SHA
+		 *
+		 * SHOULD support:
+		 * - TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+		 * - TLS_RSA_WITH_AES_256_CBC_SHA
+		 *
+		 * MAY support:
+		 * - TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+		 *
+		 * Explicitly add ECDHE ciphers as they are much faster, especialy on slower hardware
 		 */
+
 		/* set the ciphers supported by CAPWAP */
-		SSL_CTX_set_cipher_list((*ctxPtr), "AES128-SHA:DES-CBC3-SHA:DH-RSA-AES128-SHA");
+		SSL_CTX_set_cipher_list((*ctxPtr), "ECDHE-RSA-AES128-SHA:DHE-RSA-AES128-SHA:AES128-SHA");
 	} else {
 		/* pre-shared keys */
-		printf("OpenSSL PrivateSharedKey not ready\n");
-		exit(0);
-		/*
-		   useCertificate = CW_FALSE;
-		   SSL_CTX_set_cipher_list( (*ctxPtr), "TLSv1");   // current implementation of PSK for OpenSSL doesn't support CAPWAP's cipher.
-		   // Better than nothing.
 
-		   if(isClient) {
-		   CWDebugLog("Client PSK");
-		   SSL_CTX_set_psk_client_callback( (*ctxPtr), CWSecurityPSKClientCB);
-		   } else {
-		   CWDebugLog("Server PSK");
-		   SSL_CTX_set_psk_server_callback( (*ctxPtr), CWSecurityPSKServerCB);
-		   }
+		/* RFC 5415 ciphers:
+		 *
+		 * MUST support:
+		 * - TLS_PSK_WITH_AES_128_CBC_SHA
+		 * - TLS_DHE_PSK_WITH_AES_128_CBC_SHA (not supported in OpenSSL)
+		 *
+		 * MAY support:
+		 * - TLS_PSK_WITH_AES_256_CBC_SHA
+		 * - TLS_DHE_PSK_WITH_AES_256_CBC_SHA (not supported in OpenSSL)
 		 */
+
+		useCertificate = CW_FALSE;
+		SSL_CTX_set_cipher_list((*ctxPtr), "PSK-AES128-CBC-SHA:PSK-AES256-CBC-SHA");
+
+		if(isClient) {
+			CWDebugLog("Client PSK");
+			SSL_CTX_set_psk_client_callback( (*ctxPtr), CWSecurityPSKClientCB);
+		} else {
+			CWDebugLog("Server PSK");
+			SSL_CTX_set_psk_server_callback( (*ctxPtr), CWSecurityPSKServerCB);
+		}
 	}
 
 	/* needed for DTLS */
@@ -595,6 +610,7 @@ unsigned int CWSecurityPSKClientCB(SSL * ssl,
 				   unsigned int max_identity_len, unsigned char *psk, unsigned int max_psk_len)
 {
 
+	/* TO-DO load identity from config */
 	if (snprintf(identity, max_identity_len, "CLient_identity") < 0)
 		return 0;
 
