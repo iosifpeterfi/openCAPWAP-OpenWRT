@@ -894,13 +894,7 @@ CWBool CWAssembleEchoRequest(CWProtocolMessage ** messagesPtr,
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_ECHO_REQUEST,
-				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLSCWParseConfigurationUpdateRequest
-				CW_PACKET_PLAIN
-#else
-				CW_PACKET_CRYPT
-#endif
-	      )))
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount)))
 		return CW_FALSE;
 
 	CWLog("Echo Request Assembled");
@@ -960,13 +954,7 @@ CWBool CWAssembleWTPDataTransferRequest(CWProtocolMessage ** messagesPtr, int *f
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_DATA_TRANSFER_REQUEST,
-				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN
-#else
-				CW_PACKET_CRYPT
-#endif
-	      )))
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount)))
 		return CW_FALSE;
 
 	CWLog("WTP Data Transfer Request Assembled");
@@ -1057,13 +1045,7 @@ CWBool CWAssembleWTPEventRequest(CWProtocolMessage ** messagesPtr,
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_WTP_EVENT_REQUEST,
-				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN
-#else
-				CW_PACKET_CRYPT
-#endif
-	      )))
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount)))
 		return CW_FALSE;
 
 	CWLog("WTP Event Request Assembled");
@@ -1141,13 +1123,7 @@ CWBool CWAssembleConfigurationUpdateResponse(CWProtocolMessage ** messagesPtr,
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_CONFIGURE_UPDATE_RESPONSE,
-				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN
-#else
-				CW_PACKET_CRYPT
-#endif
-	      )))
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount)))
 		return CW_FALSE;
 
 	CWLog("Configuration Update Response Assembled");
@@ -1181,13 +1157,7 @@ CWBool CWAssembleClearConfigurationResponse(CWProtocolMessage ** messagesPtr, in
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_CLEAR_CONFIGURATION_RESPONSE,
-				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN
-#else
-				CW_PACKET_CRYPT
-#endif
-	      )))
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount)))
 		return CW_FALSE;
 
 	CWLog("Clear Configuration Response Assembled");
@@ -1222,13 +1192,7 @@ CWBool CWAssembleStationConfigurationResponse(CWProtocolMessage ** messagesPtr, 
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_STATION_CONFIGURATION_RESPONSE,
-				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN
-#else
-				CW_PACKET_CRYPT
-#endif
-	      )))
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount)))
 		return CW_FALSE;
 
 	CWLog("Station Configuration Response Assembled");
@@ -1268,13 +1232,7 @@ CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage ** messagesPtr, int
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_WLAN_CONFIGURATION_RESPONSE,
-				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN
-#else
-				CW_PACKET_CRYPT
-#endif
-	      )))
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount)))
 		return CW_FALSE;
 
 	CWLog("WLAN Configuration Response Assembled");

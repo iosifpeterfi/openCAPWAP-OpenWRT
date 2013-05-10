@@ -302,14 +302,8 @@ CWBool CWAssembleConfigureResponse(CWProtocolMessage ** messagesPtr, int *fragme
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_CONFIGURE_RESPONSE,
-				msgElems, MsgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN))) {
-#else
-				CW_PACKET_CRYPT))) {
-#endif
+				msgElems, MsgElemCount, msgElemsBinding, msgElemBindingCount)))
 		return CW_FALSE;
-	}
 
 	CWDebugLog("Configure Response Assembled");
 	return CW_TRUE;

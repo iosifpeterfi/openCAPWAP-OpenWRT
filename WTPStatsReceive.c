@@ -95,12 +95,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveStats(void *arg)
 			bindingValuesPtr->dataRate = -1;	//to distinguish between wireless frame e data message (Daniele) see CWBindig.c line 224
 
 			if (CWAssembleDataMessage(&completeMsgPtr, &fragmentsNum, gWTPPathMTU, data, bindingValuesPtr,
-#ifdef CW_NO_DTLS
-						  CW_PACKET_PLAIN
-#else
-						  CW_PACKET_CRYPT
-#endif
-						  , 0)) {
+						  CW_PACKET_PLAIN, 0)) {
 				for (k = 0; k < fragmentsNum; k++) {
 #ifdef CW_NO_DTLS
 					if (!CWNetworkSendUnsafeConnected

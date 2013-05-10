@@ -211,12 +211,7 @@ CWBool CWAssembleJoinResponse(CWProtocolMessage ** messagesPtr,
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_JOIN_RESPONSE,
-				msgElems, msgElemCount + mandatoryMsgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN)))
-#else
-				CW_PACKET_CRYPT)))
-#endif
+				msgElems, msgElemCount + mandatoryMsgElemCount, msgElemsBinding, msgElemBindingCount)))
 	    return CW_FALSE;
 
 	CWDebugLog("Join Response Assembled");

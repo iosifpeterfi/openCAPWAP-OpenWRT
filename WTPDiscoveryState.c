@@ -434,7 +434,7 @@ CWBool CWAssembleDiscoveryRequest(CWProtocolMessage ** messagesPtr, int seqNum)
 				 0,
 				 seqNum,
 				 CW_MSG_TYPE_VALUE_DISCOVERY_REQUEST,
-				 msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount, CW_PACKET_PLAIN);
+				 msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount);
 }
 
 /*

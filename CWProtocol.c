@@ -466,7 +466,7 @@ CWBool CWAssembleMsgElemResultCode(CWProtocolMessage * msgPtr, CWProtocolResultC
 // completeMsgPtr is an array of fragments (can be of size 1 if the packet doesn't need fragmentation
 CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumPtr, int PMTU, int seqNum,
 			 int msgTypeValue, CWProtocolMessage * msgElems, const int msgElemNum,
-			 CWProtocolMessage * msgElemsBinding, const int msgElemBindingNum, int is_crypted)
+			 CWProtocolMessage * msgElemsBinding, const int msgElemBindingNum)
 {
 	CWProtocolMessage transportHdr, controlHdr, msg;
 	int msgElemsLen = 0;
@@ -556,7 +556,7 @@ CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumP
 		    );
 
 		transportVal.isFragment = transportVal.last = transportVal.fragmentOffset = transportVal.fragmentID = 0;
-		transportVal.payloadType = is_crypted;
+		transportVal.payloadType = CW_PACKET_PLAIN;
 //      transportVal.last = 1;
 
 		// Assemble Message Elements
@@ -592,7 +592,7 @@ CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumP
 			transportVal.isFragment = 1;
 			transportVal.fragmentOffset = msg.offset / 8;
 			transportVal.fragmentID = fragID;
-			transportVal.payloadType = is_crypted;
+			transportVal.payloadType = CW_PACKET_PLAIN;
 
 			if (i < ((*fragmentsNumPtr) - 1)) {	// not last fragment
 				fragSize = PMTU;
@@ -992,12 +992,7 @@ CWBool CWAssembleUnrecognizedMessageResponse(CWProtocolMessage ** messagesPtr, i
 	if (!
 	    (CWAssembleMessage
 	     (messagesPtr, fragmentsNumPtr, PMTU, seqNum, msgType, msgElems, msgElemCount, msgElemsBinding,
-	      msgElemBindingCount
-#ifdef CW_NO_DTLS
-	      , CW_PACKET_PLAIN)))
-#else
-	      , CW_PACKET_CRYPT)))
-#endif
+	      msgElemBindingCount)))
 	    return CW_FALSE;
 
 	CWLog("Unrecognized Message Response Assembled");

@@ -207,12 +207,7 @@ CWBool CWAssembleChangeStateEventResponse(CWProtocolMessage ** messagesPtr, int 
 				PMTU,
 				seqNum,
 				CW_MSG_TYPE_VALUE_CHANGE_STATE_EVENT_RESPONSE,
-				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount,
-#ifdef CW_NO_DTLS
-				CW_PACKET_PLAIN)))
-#else
-				CW_PACKET_CRYPT)))
-#endif
+				msgElems, msgElemCount, msgElemsBinding, msgElemBindingCount)))
 	    return CW_FALSE;
 
 	CWDebugLog("Change State Event Response Assembled");

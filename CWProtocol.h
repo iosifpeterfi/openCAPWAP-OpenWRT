@@ -684,7 +684,7 @@ CWBool CWAssembleTransportHeaderKeepAliveData(CWProtocolMessage * transportHdrPt
 CWBool CWAssembleControlHeader(CWProtocolMessage * controlHdrPtr, CWControlHeaderValues * valPtr);
 CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumPtr, int PMTU, int seqNum,
 			 int msgTypeValue, CWProtocolMessage * msgElems, const int msgElemNum,
-			 CWProtocolMessage * msgElemsBinding, const int msgElemBindingNum, int is_crypted);
+			 CWProtocolMessage * msgElemsBinding, const int msgElemBindingNum);
 CWBool CWAssembleMsgElem(CWProtocolMessage * msgPtr, unsigned int type);
 CWBool CWAssembleUnrecognizedMessageResponse(CWProtocolMessage ** messagesPtr, int *fragmentsNumPtr, int PMTU,
 					     int seqNum, int msgType);

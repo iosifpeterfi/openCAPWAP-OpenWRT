@@ -99,12 +99,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFreqStats(void *arg)
 			/* Capwap Message Assembling */
 
 			if (CWAssembleDataMessage(&completeMsgPtr, &fragmentsNum, gWTPPathMTU, data, bindingValuesPtr,
-#ifdef CW_NO_DTLS
-						  CW_PACKET_PLAIN
-#else
-						  CW_PACKET_CRYPT
-#endif
-						  , 0) == CW_TRUE)
+						  CW_PACKET_PLAIN, 0) == CW_TRUE)
 			{
 				for (k = 0; k < fragmentsNum; k++) {
 
