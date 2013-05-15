@@ -138,21 +138,14 @@ CWBool CWNetworkReceiveUnsafe(CWSocket sock,
  */
 CWBool CWNetworkInitSocketClient(CWSocket * sockPtr, CWNetworkLev4Address * addrPtr)
 {
-
 	int yes = 1;
-	struct addrinfo hints, *res;
-	char myport[8];
+#ifdef IPv6
+	struct sockaddr_in6 sockaddr;
+#else
+	struct sockaddr_in sockaddr;
+#endif
+	socklen_t addrlen = sizeof(sockaddr);
 
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;	// use IPv4 or IPv6, whichever
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-	sprintf(myport, "%d", CW_CONTROL_PORT);
-	getaddrinfo(NULL, myport, &hints, &res);
-
-	/* NULL addrPtr means that we don't want to connect to a
-	 * specific address
-	 */
 	if (sockPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
@@ -165,15 +158,29 @@ CWBool CWNetworkInitSocketClient(CWSocket * sockPtr, CWNetworkLev4Address * addr
 		CWNetworkRaiseSystemError(CW_ERROR_CREATING);
 	}
 
-	setsockopt(*sockPtr, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-	if (bind(*sockPtr, res->ai_addr, res->ai_addrlen) < 0) {
+	memset(&sockaddr, 0, addrlen);
+#ifdef IPv6
+	sockaddr.sin6_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;
+#else
+	sockaddr.sin_family == AF_INET;
+#endif
+	if (bind(*sockPtr, (const struct sockaddr *)&sockaddr, addrlen) < 0) {
 		close(*sockPtr);
 		CWDebugLog("failed to bind Client socket in <%s> line:%d.\n", __func__, __LINE__);
 		return CW_FALSE;
 	}
 
-	CWLog("Binding Client socket with UDP port:%d\n", CW_CONTROL_PORT);
+	if (getsockname(*sockPtr, (struct sockaddr *)&sockaddr, &addrlen) < 0)
+		CWNetworkRaiseSystemError(CW_ERROR_GENERAL);
 
+#ifdef IPv6
+	CWLog("Created Client socket on %s UDP port %d\n", sockaddr.sin6_family == AF_INET6 ? "IPv6" : "IPv4", sockaddr.sin6_port);
+#else
+	CWLog("Created Client socket on IPv4 UDP port %d\n", sockaddr.sin_port);
+#endif
+
+	/* NULL addrPtr means that we don't want to connect to a
+	 * specific address */
 	if (addrPtr != NULL) {
 		CWUseSockNtop(((struct sockaddr *)addrPtr), CWDebugLog(str);
 		    );
@@ -196,20 +203,14 @@ CWBool CWNetworkInitSocketClientDataChannel(CWSocket * sockPtr, CWNetworkLev4Add
 {
 
 	int yes = 1;
-	struct addrinfo hints, *res;
-	char myport[8];
+#ifdef IPv6
+	struct sockaddr_in6 sockaddr;
+#else
+	struct sockaddr_in sockaddr;
+#endif
+	socklen_t addrlen = sizeof(sockaddr);
 	CWNetworkLev4Address addrPtrDataChannel;
 
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;	// use IPv4 or IPv6, whichever
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-	sprintf(myport, "%d", CW_DATA_PORT);
-	getaddrinfo(NULL, myport, &hints, &res);
-
-	/* NULL addrPtr means that we don't want to connect to a
-	 * specific address
-	 */
 	if (sockPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
@@ -222,17 +223,29 @@ CWBool CWNetworkInitSocketClientDataChannel(CWSocket * sockPtr, CWNetworkLev4Add
 		CWNetworkRaiseSystemError(CW_ERROR_CREATING);
 	}
 
-	setsockopt(*sockPtr, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-
-	if (bind(*sockPtr, res->ai_addr, res->ai_addrlen) < 0) {
-
+	memset(&sockaddr, 0, addrlen);
+#ifdef IPv6
+	sockaddr.sin6_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;
+#else
+	sockaddr.sin_family == AF_INET;
+#endif
+	if (bind(*sockPtr, (const struct sockaddr *)&sockaddr, addrlen) < 0) {
 		close(*sockPtr);
 		CWDebugLog("failed to bind Client socket in <%s> line:%d.\n", __func__, __LINE__);
 		return CW_FALSE;
 	}
 
-	CWLog("Binding Client socket with UDP data port:%d\n", CW_DATA_PORT);
+	if (getsockname(*sockPtr, (struct sockaddr *)&sockaddr, &addrlen) < 0)
+		CWNetworkRaiseSystemError(CW_ERROR_GENERAL);
 
+#ifdef IPv6
+	CWLog("Created Client socket on %s UDP data port %d\n", sockaddr.sin6_family == AF_INET6 ? "IPv6" : "IPv4", sockaddr.sin6_port);
+#else
+	CWLog("Created Client socket on IPv4 UDP data port %d\n", sockaddr.sin_port);
+#endif
+
+	/* NULL addrPtr means that we don't want to connect to a
+	 * specific address */
 	if (addrPtr != NULL) {
 		CW_COPY_NET_ADDR_PTR(&addrPtrDataChannel, addrPtr);
 		sock_set_port_cw((struct sockaddr *)&addrPtrDataChannel, htons(CW_DATA_PORT));
