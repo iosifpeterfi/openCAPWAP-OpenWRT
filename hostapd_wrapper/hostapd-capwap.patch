@@ -1,8 +1,6 @@
-Index: hostapd-1.1/src/drivers/drivers.c
-===================================================================
---- hostapd-1.1.orig/src/drivers/drivers.c	2012-11-28 22:31:16.000000000 +0100
-+++ hostapd-1.1/src/drivers/drivers.c	2013-04-08 15:02:44.463597625 +0200
-@@ -21,6 +21,12 @@
+--- hostapd-1.1/src/drivers/drivers.c.orig	2012-11-28 22:31:16.000000000 +0100
++++ hostapd-1.1/src/drivers/drivers.c	2013-05-17 09:37:54.948673120 +0200
+@@ -21,6 +21,12 @@ extern struct wpa_driver_ops wpa_driver_
  #ifdef CONFIG_DRIVER_NL80211
  extern struct wpa_driver_ops wpa_driver_nl80211_ops; /* driver_nl80211.c */
  #endif /* CONFIG_DRIVER_NL80211 */
@@ -15,7 +13,7 @@ Index: hostapd-1.1/src/drivers/drivers.c
  #ifdef CONFIG_DRIVER_HOSTAP
  extern struct wpa_driver_ops wpa_driver_hostap_ops; /* driver_hostap.c */
  #endif /* CONFIG_DRIVER_HOSTAP */
-@@ -71,6 +77,12 @@
+@@ -71,6 +77,12 @@ struct wpa_driver_ops *wpa_drivers[] =
  #ifdef CONFIG_DRIVER_NL80211
  	&wpa_driver_nl80211_ops,
  #endif /* CONFIG_DRIVER_NL80211 */
@@ -28,11 +26,9 @@ Index: hostapd-1.1/src/drivers/drivers.c
  #ifdef CONFIG_DRIVER_HOSTAP
  	&wpa_driver_hostap_ops,
  #endif /* CONFIG_DRIVER_HOSTAP */
-Index: hostapd-1.1/src/drivers/drivers.mak
-===================================================================
---- hostapd-1.1.orig/src/drivers/drivers.mak	2012-11-28 22:31:16.000000000 +0100
-+++ hostapd-1.1/src/drivers/drivers.mak	2013-04-08 15:02:44.463597625 +0200
-@@ -38,7 +38,7 @@
+--- hostapd-1.1/src/drivers/drivers.mak.orig	2012-11-28 22:31:16.000000000 +0100
++++ hostapd-1.1/src/drivers/drivers.mak	2013-05-17 09:42:21.132678984 +0200
+@@ -38,7 +38,7 @@ endif
  ifdef CONFIG_DRIVER_NL80211
  DRV_CFLAGS += -DCONFIG_DRIVER_NL80211
  DRV_OBJS += ../src/drivers/driver_nl80211.o
@@ -41,10 +37,10 @@ Index: hostapd-1.1/src/drivers/drivers.mak
  NEED_SME=y
  NEED_AP_MLME=y
  NEED_NETLINK=y
-@@ -156,2 +156,2 @@
+@@ -156,18 +156,110 @@ DRV_WPA_OBJS += ../src/drivers/driver_we
  NEED_RFKILL=y
  endif
-
+ 
 +ifdef CONFIG_DRIVER_CAPWAP_WTP
 +DRV_CFLAGS += -DCONFIG_DRIVER_CAPWAP_WTP
 +DRV_OBJS += ../src/drivers/driver_capwap_wtp.o
@@ -113,7 +109,7 @@ Index: hostapd-1.1/src/drivers/drivers.mak
  ifdef NEED_NETLINK
  DRV_OBJS += ../src/drivers/netlink.o
  endif
-
+ 
 +ifdef NEED_FAKE_NETLINK
 +DRV_OBJS += ../src/drivers/netlink_fake.o
 +endif
@@ -121,7 +117,7 @@ Index: hostapd-1.1/src/drivers/drivers.mak
  ifdef NEED_LINUX_IOCTL
  DRV_OBJS += ../src/drivers/linux_ioctl.o
  endif
-
+ 
 +ifdef NEED_LINUX_FAKE_IOCTL
 +DRV_OBJS += ../src/drivers/linux_ioctl_fake.o
 +endif
@@ -129,7 +125,7 @@ Index: hostapd-1.1/src/drivers/drivers.mak
  ifdef NEED_RFKILL
  DRV_OBJS += ../src/drivers/rfkill.o
  endif
-
+ 
 +ifdef NEED_CAPWAP_MGMT_FRAME_WTP
 +DRV_OBJS += ../src/capwap/capwap_mgmt_frame_wtp.o
 +endif
@@ -149,14 +145,12 @@ Index: hostapd-1.1/src/drivers/drivers.mak
 +ifdef NEED_SWITCH_8023
 +DRV_OBJS += ../src/capwap/switch_8023_80211.o
 +endif
-
+ 
  ##### COMMON VARS
  DRV_BOTH_CFLAGS := $(DRV_CFLAGS) $(DRV_WPA_CFLAGS) $(DRV_AP_CFLAGS)
-Index: hostapd-1.1/src/drivers/drivers.mk
-===================================================================
---- hostapd-1.1.orig/src/drivers/drivers.mk	2012-11-28 22:31:16.000000000 +0100
-+++ hostapd-1.1/src/drivers/drivers.mk	2013-04-08 15:02:44.463597625 +0200
-@@ -38,7 +38,7 @@
+--- hostapd-1.1/src/drivers/drivers.mk.orig	2012-11-28 22:31:16.000000000 +0100
++++ hostapd-1.1/src/drivers/drivers.mk	2013-05-17 09:41:38.964678055 +0200
+@@ -38,7 +38,7 @@ endif
  ifdef CONFIG_DRIVER_NL80211
  DRV_CFLAGS += -DCONFIG_DRIVER_NL80211
  DRV_OBJS += src/drivers/driver_nl80211.c
@@ -165,7 +159,10 @@ Index: hostapd-1.1/src/drivers/drivers.mk
  NEED_SME=y
  NEED_AP_MLME=y
  NEED_NETLINK=y
-
+@@ -156,18 +156,111 @@ DRV_WPA_OBJS += src/drivers/driver_wext.
+ NEED_RFKILL=y
+ endif
+ 
 +ifdef CONFIG_DRIVER_CAPWAP_WTP
 +DRV_CFLAGS += -DCONFIG_DRIVER_CAPWAP_WTP
 +DRV_OBJS += src/drivers/driver_capwap_wtp.c
@@ -234,7 +231,7 @@ Index: hostapd-1.1/src/drivers/drivers.mk
  ifdef NEED_NETLINK
  DRV_OBJS += src/drivers/netlink.c
  endif
-
+ 
 +ifdef NEED_FAKE_NETLINK
 +DRV_OBJS += src/drivers/netlink_fake.c
 +endif
@@ -242,7 +239,7 @@ Index: hostapd-1.1/src/drivers/drivers.mk
  ifdef NEED_LINUX_IOCTL
  DRV_OBJS += src/drivers/linux_ioctl.c
  endif
-
+ 
 +ifdef NEED_LINUX_FAKE_IOCTL
 +DRV_OBJS += src/drivers/linux_ioctl_fake.c
 +endif
@@ -250,7 +247,7 @@ Index: hostapd-1.1/src/drivers/drivers.mk
  ifdef NEED_RFKILL
  DRV_OBJS += src/drivers/rfkill.c
  endif
-
+ 
 +ifdef NEED_CAPWAP_MGMT_FRAME_WTP
 +DRV_OBJS += src/capwap/capwap_mgmt_frame_wtp.c
 +endif
@@ -274,13 +271,11 @@ Index: hostapd-1.1/src/drivers/drivers.mk
  ifdef CONFIG_DRIVER_CUSTOM
  DRV_CFLAGS += -DCONFIG_DRIVER_CUSTOM
  endif
-Index: hostapd-1.1/src/Makefile
-===================================================================
---- hostapd-1.1.orig/src/Makefile	2012-11-28 22:31:16.000000000 +0100
-+++ hostapd-1.1/src/Makefile	2013-04-08 15:02:44.463597625 +0200
-@@ -1,1 +1,1 @@
+--- hostapd-1.1/src/Makefile.orig	2012-11-28 22:31:16.000000000 +0100
++++ hostapd-1.1/src/Makefile	2013-05-17 09:41:27.788677809 +0200
+@@ -1,4 +1,4 @@
 -SUBDIRS=ap common crypto drivers eapol_auth eapol_supp eap_common eap_peer eap_server l2_packet p2p radius rsn_supp tls utils wps
 +SUBDIRS=ap common crypto drivers eapol_auth eapol_supp eap_common eap_peer eap_server l2_packet p2p radius rsn_supp tls utils wps capwap
-
+ 
  all:
  	for d in $(SUBDIRS); do [ -d $$d ] && $(MAKE) -C $$d; done
