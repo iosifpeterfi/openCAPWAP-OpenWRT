@@ -27,6 +27,7 @@
  ************************************************************************************************/
 
 #include "CWAC.h"
+#include "ACipcHostapd.h"
 #include "CWVendorPayloads.h"
 #include "CWFreqPayloads.h"
 #include "WUM.h"

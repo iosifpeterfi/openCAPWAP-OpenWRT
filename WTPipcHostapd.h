@@ -43,5 +43,8 @@ void CWWTPsend_command_to_hostapd_ADD_WLAN(unsigned char *buf, int len);
 void CWWTPsend_command_to_hostapd_DEL_WLAN(unsigned char *buf, int len);
 void CWWTPsend_command_to_hostapd_DEL_ADDR(unsigned char *buf, int len);
 void CWWTPsend_command_to_hostapd_CLOSE(unsigned char *buf, int len);
+void CWWTP_get_WTP_MDC(unsigned char *buf);
+void CWWTP_get_WTP_Rates(unsigned char *buf);
+unsigned char CWTP_get_WTP_Radio_Information(void);
 
 #endif

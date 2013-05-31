@@ -149,6 +149,9 @@ CWBool CWUpdatePendingMsgBox(CWPendingRequestMessage * pendingRequestMsgs,
 int set_wme_cwmin(int acclass, int value);
 int set_wme_cwmax(int acclass, int value);
 int set_wme_aifsn(int acclass, int value);
+int set_txq(int code, int cwmin, int cwmax, int aifs, int burst_time);
+
+
 #else
 
 #ifndef BCM

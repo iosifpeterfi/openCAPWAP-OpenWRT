@@ -139,6 +139,11 @@ CWBool CWAssembleMsgElemCWTimer(CWProtocolMessage * msgPtr);	//12
 CWBool CWAssembleMsgElemDecryptErrorReportPeriod(CWProtocolMessage * msgPtr);	//16
 CWBool CWAssembleMsgElemIdleTimeout(CWProtocolMessage * msgPtr);	//23
 CWBool CWAssembleMsgElemWTPFallback(CWProtocolMessage * msgPtr);	//37
+CWBool CWAssembleWLANConfigurationRequest(CWProtocolMessage ** messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum,
+					  unsigned char *recv_packet, int Operation, int len_packet);
+CWBool CWAssembleMsgElemACWTPRadioInformation(CWProtocolMessage * msgPtr);
+CWBool CWAssembleMsgElemAddWLAN(int radioID, CWProtocolMessage * msgPtr, unsigned char *recv_packet, int len_packet);
+CWBool CWAssembleMsgElemDeleteWLAN(int radioID, CWProtocolMessage * msgPtr, unsigned char *recv_packet, int len_packet);
 
 //---------------------------------------------------------/
 

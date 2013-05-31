@@ -26,6 +26,7 @@
  *******************************************************************************************/
 
 #include "CWWTP.h"
+#include "WTPipcHostapd.h"
 
 #ifdef DMALLOC
 #include "../dmalloc-5.5.0/dmalloc.h"

@@ -35,6 +35,7 @@
 #include "CWWTP.h"
 #include "CWVendorPayloads.h"
 #include "WTPipcHostapd.h"
+#include "WTPmacFrameReceive.h"
 #include "common.h"
 #include "ieee802_11_defs.h"
 #ifdef DMALLOC

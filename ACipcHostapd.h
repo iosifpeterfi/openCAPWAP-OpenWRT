@@ -25,8 +25,6 @@
 #ifndef __CAPWAP_WTPFrameReceive_HEADER__
 #define __CAPWAP_WTPFrameReceive_HEADER__
 
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -37,3 +35,7 @@
 
 #include "smac_code.h"
 #include "CWAC.h"
+
+void CWACsend_data_to_hostapd(int WTPIndex, unsigned char *buf, int len);
+
+#endif

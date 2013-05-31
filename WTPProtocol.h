@@ -154,6 +154,10 @@ int CWWTPGetFrameTunnelMode();
 CWBool CWGetWTPRadiosOperationalState(int radioID, CWRadiosOperationalInfo * valPtr);
 CWBool CWAssembleMsgElemDecryptErrorReport(CWProtocolMessage * msgPtr, int radioID);
 CWBool CWAssembleMsgElemDuplicateIPv6Address(CWProtocolMessage * msgPtr);
+CWBool CWAssembleMsgElemVendorSpecificPayload(CWProtocolMessage * msgPtr);
+
+CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len);
+CWBool CWParseDeleteWLAN(CWProtocolMessage * msgPtr, int len);
 
 //---------------------------------------------------------/
 void CWWTPDestroyVendorInfos(CWWTPVendorInfos * valPtr);
