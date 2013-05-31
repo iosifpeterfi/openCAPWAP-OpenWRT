@@ -1133,10 +1133,10 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 
 	tmp_buf[5] = CWProtocolRetrieve8(msgPtr);
 	tmp_buf[6] = CWProtocolRetrieve8(msgPtr);
-	short keyLength = CWProtocolRetrieve16(msgPtr);
+	unsigned short keyLength = CWProtocolRetrieve16(msgPtr);
 
-	tmp_buf[7] = *(&keyLength + 1);
-	tmp_buf[8] = *(&keyLength + 0);
+	tmp_buf[7] = keyLength >> 8;
+	tmp_buf[8] = keyLength & 0xff;
 
 	if (keyLength) {
 		unsigned char *key;
