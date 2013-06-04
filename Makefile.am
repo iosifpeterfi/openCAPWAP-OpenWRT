@@ -22,14 +22,18 @@ libcapwap_la_SOURCES = \
 	CWNetwork.c \
 	CWProtocol.c \
 	CWRandom.c \
-	CWSecurity.c \
-	CWOpenSSLBio.c \
 	CWStevens.c \
 	CWThread.c \
 	CWBinding.c \
 	CWVendorPayloadsAC.c \
 	CWVendorPayloadsWTP.c \
 	timerlib.c
+
+if USE_SSL
+libcapwap_la_SOURCES += \
+	CWSecurity.c \
+	CWOpenSSLBio.c
+endif
 
 libcapwap_la_CFLAGS = ${OPENSSL_INCLUDES}
 libcapwap_la_LIBADD = ${OPENSSL_LDFLAGS} ${OPENSSL_LIBS}

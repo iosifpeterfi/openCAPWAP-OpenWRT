@@ -458,7 +458,7 @@ CW_THREAD_RETURN_TYPE CWManageWTP(void *arg)
 			CWThreadMutexUnlock(&gWTPs[i].interfaceMutex);
 
 			if (bCrypt) {
-
+#ifndef CW_NO_DTLS
 				if (!CWErr(CWSecurityReceive(gWTPs[i].session,
 							     gWTPs[i].buf, CW_BUFFER_SIZE - 1, &readBytes))) {
 					/* error */
@@ -468,7 +468,12 @@ CW_THREAD_RETURN_TYPE CWManageWTP(void *arg)
 
 					continue;
 				}
+#else
+				CWDebugLog("CAPWAP DTLS in not supported");
+				CWThreadSetSignals(SIG_UNBLOCK, 1, CW_SOFT_TIMER_EXPIRED_SIGNAL);
 
+				continue;
+#endif
 			} else {
 				CWThreadMutexLock(&gWTPs[i].interfaceMutex);
 				pBuffer =
@@ -718,10 +723,12 @@ void _CWCloseThread(int i)
 
 	CWDebugLog("Close Thread: %08x", (unsigned int)CWThreadSelf());
 
+#ifndef CW_NO_DTLS
 	if (gWTPs[i].subState != CW_DTLS_HANDSHAKE_IN_PROGRESS) {
 
 		CWSecurityDestroySession(gWTPs[i].session);
 	}
+#endif
 
 	/* this will do nothing if the timer isn't active */
 	CWTimerCancel(&(gWTPs[i].currentTimer));

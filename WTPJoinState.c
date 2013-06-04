@@ -62,8 +62,10 @@ CWStateTransition CWWTPEnterJoin()
 
 	/* reset Join state */
 	CWNetworkCloseSocket(gWTPSocket);
+#ifndef CW_NO_DTLS
 	CWSecurityDestroySession(gWTPSession);
 	CWSecurityDestroyContext(gWTPSecurityContext);
+#endif
 	gWTPSecurityContext = NULL;
 	gWTPSession = NULL;
 

@@ -31,7 +31,8 @@ AC_CHECK_FUNC([sem_timedwait], [AC_DEFINE([HAVE_SEM_TIMEDWAIT], [1],
 AC_ARG_ENABLE([dtls],
     AS_HELP_STRING([--disable-dtls], [disable DTLS support]))
 
-AS_IF([test "x$enable_foo" != "xno"], [
+AM_CONDITIONAL([USE_SSL], [test "x$enable_dtls" != "xno"])
+AS_IF([test "x$enable_dtls" != "xno"], [
   AX_CHECK_OPENSSL([], [AC_MSG_ERROR(OpenSSL not found!)])
 ], [
   CFLAGS="$CFLAGS -DCW_NO_DTLS -DCW_NO_DTLSCWParseConfigurationUpdateRequest"

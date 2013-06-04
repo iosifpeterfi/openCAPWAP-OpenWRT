@@ -197,4 +197,5 @@ void CWDestroyDiscoveryRequestValues(CWDiscoveryRequestValues * valPtr);
 
 CWBool CWProtocolAssembleConfigurationUpdateRequest(CWProtocolMessage ** msgElems, int *msgElemCountPtr,
 						    int MsgElementType);
+
 #endif

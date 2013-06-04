@@ -279,7 +279,9 @@ void CWACDestroy()
 	   }
 	 */
 
+#ifndef CW_NO_DTLS
 	CWSslCleanUp();
+#endif
 
 	CWDestroyThreadMutex(&gWTPsMutex);
 	CWDestroyThreadMutex(&gCreateIDMutex);

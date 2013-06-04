@@ -102,13 +102,15 @@ CWBool CWConfigFileDestroyLib()
 	gLimit = gConfigValues[2].value.int_value;
 	gMaxWTPs = gConfigValues[3].value.int_value;
 
+#ifndef CW_NO_DTLS
 	if (gConfigValues[4].value.str_value != NULL && !strcmp(gConfigValues[4].value.str_value, "PRESHARED")) {
-
 		gACDescriptorSecurity = CW_PRESHARED;
 	} else {
 		/* default */
 		gACDescriptorSecurity = CW_X509_CERTIFICATE;
 	}
+#endif
+
 	if (gConfigValues[5].value.str_value != NULL) {
 
 		CW_CREATE_STRING_FROM_STRING_ERR(gACName,
