@@ -331,7 +331,7 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 #endif
 #endif
 
-	int address_size_tmp = sizeof(client_tmp);
+	socklen_t address_size_tmp = sizeof(client_tmp);
 
 	for (i = 0; i < CW_MAX_WTP; i++) {
 		ch[i].associated = 0;
@@ -370,7 +370,7 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 	CW_REPEAT_FOREVER {
 
 		tmp_WTPIndex = -1;
-		len = recvfrom(sock, buffer, 3000, 0, (struct sockaddr *)&client_tmp, &address_size_tmp);
+		len = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_tmp, &address_size_tmp);
 
 #if defined(LOCALUDP)
 		sprintf(client_tmp.sun_path, "%s%c%c%c%c%c", server.sun_path, buffer[1], buffer[2], buffer[3],
