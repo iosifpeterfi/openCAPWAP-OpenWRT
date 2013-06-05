@@ -30,10 +30,6 @@
 #include "common.h"
 #include "ieee802_11_defs.h"
 
-#define SETBIT(ADDRESS,BIT) (ADDRESS |= (1<<BIT))
-#define CLEARBIT(ADDRESS,BIT) (ADDRESS &= ~(1<<BIT))
-#define CHECKBIT(ADDRESS,BIT) (ADDRESS & (1<<BIT))
-
 #define TYPE_LEN 2
 #define ETH_ALEN 6
 #define ETH_HLEN 14
@@ -55,15 +51,13 @@ int from_8023_to_80211(unsigned char *inbuffer, int inlen, unsigned char *outbuf
 	struct ieee80211_hdr hdr;
 	os_memset(&hdr, 0, sizeof(struct ieee80211_hdr));
 
-	hdr.frame_control = IEEE80211_FC(WLAN_FC_TYPE_DATA, WLAN_FC_STYPE_DATA);
+	hdr.frame_control = IEEE80211_FC(WLAN_FC_TYPE_DATA, WLAN_FC_STYPE_DATA) | host_to_le16(WLAN_FC_FROMDS);
 	hdr.duration_id = 0;
 	hdr.seq_ctrl = 0;
 
 	os_memcpy(hdr.addr1, inbuffer, ETH_ALEN);
 	os_memcpy(hdr.addr2, own_addr, ETH_ALEN);
 	os_memcpy(hdr.addr3, inbuffer + ETH_ALEN, ETH_ALEN);
-	CLEARBIT(hdr.frame_control, 8);
-	SETBIT(hdr.frame_control, 9);
 
 	os_memcpy(outbuffer + indx, &hdr, sizeof(hdr));
 	indx += sizeof(hdr);
