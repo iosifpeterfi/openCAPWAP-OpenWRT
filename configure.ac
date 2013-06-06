@@ -28,6 +28,10 @@ AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR(You need the pthread
 AC_CHECK_FUNC([sem_timedwait], [AC_DEFINE([HAVE_SEM_TIMEDWAIT], [1],
                                [Define if sem_timedwait exists.])])
 
+AC_ARG_ENABLE([debug],
+    AS_HELP_STRING([--enable-debug], [enable debug]),
+    [CFLAGS="$CFLAGS -DCW_DEBUGGING"], [])
+
 AC_ARG_ENABLE([dtls],
     AS_HELP_STRING([--disable-dtls], [disable DTLS support]))
 
