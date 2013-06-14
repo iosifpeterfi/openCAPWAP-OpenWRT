@@ -76,6 +76,9 @@ extern CWSocket gWTPDataSocket;
 
 extern int gWTPPathMTU;
 
+extern unsigned char gWTPMACMode;
+extern unsigned char gWTPTunnelMode;
+
 extern CWACDescriptor *gCWACList;
 extern CWACInfoValues *gACInfoPtr;
 

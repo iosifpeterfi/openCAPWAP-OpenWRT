@@ -91,6 +91,9 @@ CWWTPRadiosInfo gRadiosInfo;
 /* path MTU of the current session */
 int gWTPPathMTU = 0;
 
+unsigned char gWTPMACMode = CW_SPLIT_MAC;
+unsigned char gWTPTunnelMode = CW_TUNNEL_MODE_802_DOT_11_TUNNEL;
+
 int gWTPRetransmissionCount;
 
 CWPendingRequestMessage gPendingRequestMsgs[MAX_PENDING_REQUEST_MSGS];

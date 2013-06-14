@@ -232,27 +232,36 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 			continue;
 		}
 
-		encaps_len = from_8023_to_80211(buffer, n, buf80211, macAddr);
-
-		if (!extract802_11_Frame(&frame, buf80211, encaps_len)) {
-			CWDebugLog("THR FRAME: Error extracting a frame");
-			EXIT_FRAME_THREAD(gRawSock);
-		}
-
-		CWDebugLog("Recv 802.11 data(len:%d) from %s", encaps_len, gRadioInterfaceName_0);
-
 		CW_CREATE_OBJECT_ERR(listElement, CWBindingDataListElement, EXIT_FRAME_THREAD(gRawSock);
 		    );
 
-		listElement->frame = frame;
-		listElement->bindingValues = NULL;
+		if (gWTPTunnelMode == CW_TUNNEL_MODE_802_DOT_11_TUNNEL) {
+			encaps_len = from_8023_to_80211(buffer, n, buf80211, macAddr);
 
-		listElement->frame->data_msgType = CW_IEEE_802_11_FRAME_TYPE;
+			if (!extract802_11_Frame(&listElement->frame, buf80211, encaps_len)) {
+				CWDebugLog("THR FRAME: Error extracting a frame");
+				EXIT_FRAME_THREAD(gRawSock);
+			}
+
+			listElement->frame->data_msgType = CW_IEEE_802_11_FRAME_TYPE;
+
+			CWDebugLog("Recv 802.11 data(len:%d) from %s", encaps_len, gRadioInterfaceName_0);
+		} else {
+			if (!extract802_11_Frame(&listElement->frame, buffer, n)) {
+				CWDebugLog("THR FRAME: Error extracting a frame");
+				EXIT_FRAME_THREAD(gRawSock);
+			}
+
+			listElement->frame->data_msgType = CW_IEEE_802_3_FRAME_TYPE;
+
+			CWDebugLog("Recv 802.3 data(len:%d) from %s", n, gRadioInterfaceName_0);
+		}
+
+		listElement->bindingValues = NULL;
 
 		CWLockSafeList(gFrameList);
 		CWAddElementToSafeListTail(gFrameList, listElement, sizeof(CWBindingDataListElement));
 		CWUnlockSafeList(gFrameList);
-
 	}
 
 	close(gRawSock);

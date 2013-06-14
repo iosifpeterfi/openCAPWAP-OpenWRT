@@ -1153,10 +1153,10 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 
 	tmp_buf[15 + keyLength] = CWProtocolRetrieve8(msgPtr);
 
-	tmp_buf[16 + keyLength] = CWProtocolRetrieve8(msgPtr);
-	tmp_buf[17 + keyLength] = CWProtocolRetrieve8(msgPtr);
-	tmp_buf[18 + keyLength] = CWProtocolRetrieve8(msgPtr);
-	tmp_buf[19 + keyLength] = CWProtocolRetrieve8(msgPtr);
+	tmp_buf[16 + keyLength] = CWProtocolRetrieve8(msgPtr);			/* Auth Type */
+	tmp_buf[17 + keyLength] = gWTPMACMode = CWProtocolRetrieve8(msgPtr);	/* MAC Mode */
+	tmp_buf[18 + keyLength] = gWTPTunnelMode = CWProtocolRetrieve8(msgPtr);	/* Tunnel Mode */
+	tmp_buf[19 + keyLength] = CWProtocolRetrieve8(msgPtr);			/* Suppress SSID */
 
 	ssid = (unsigned char *)CWProtocolRetrieveRawBytes(msgPtr, len - (19 + keyLength));
 

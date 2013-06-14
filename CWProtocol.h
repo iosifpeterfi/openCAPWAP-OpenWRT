@@ -426,6 +426,12 @@ typedef enum {
 } CWframeTunnelMode;
 
 typedef enum {
+	CW_TUNNEL_MODE_LOCAL_BRIDGING = 0,
+	CW_TUNNEL_MODE_802_DOT_3_TUNNEL = 1,
+	CW_TUNNEL_MODE_802_DOT_11_TUNNEL = 2
+} CWTunnelMode;
+
+typedef enum {
 	CW_LOCAL_MAC = 0,
 	CW_SPLIT_MAC = 1,
 	CW_BOTH = 2

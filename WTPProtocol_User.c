@@ -170,7 +170,7 @@ __inline__ int CWWTPGetFrameTunnelMode()
 	//it may be also 802.3_FrameTunnelMode - NativeFrameTunnelMode - All
 
 #ifdef SOFTMAC
-	return CW_NATIVE_BRIDGING;
+	return CW_NATIVE_BRIDGING | CW_802_DOT_3_BRIDGING;
 #else
 	return CW_LOCAL_BRIDGING;
 #endif
@@ -181,7 +181,7 @@ __inline__ int CWWTPGetMACType()
 {
 
 #ifdef SOFTMAC
-	return CW_SPLIT_MAC;
+	return CW_BOTH;
 #else
 	return CW_LOCAL_MAC;
 #endif
