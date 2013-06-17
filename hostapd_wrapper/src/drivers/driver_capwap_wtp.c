@@ -73,6 +73,7 @@ struct wtp_info {
 	int fd_udp;
 	int fd_ipc;
 };
+
 struct priv_params {
 	unsigned char ssid[32];
 	int ssid_len;
@@ -303,6 +304,10 @@ struct wpa_driver_capwap_data {
 	int last_freq;
 	int last_freq_ht;
 #endif /* HOSTAPD */
+
+#define CW_LOCAL_MAC   0
+#define CW_SPLIT_MAC   1
+	int mac_mode;
 };
 
 
@@ -4529,7 +4534,7 @@ static int wpa_driver_capwap_set_ap(void *priv,
 	u32 suites[10];
 	u32 ver;
 
-
+	drv->mac_mode = params->mac_mode;
 	beacon_set = bss->beacon_set;
 
 
@@ -5051,7 +5056,6 @@ static void handle_monitor_read(int sock, void *eloop_ctx, void *sock_ctx){
 	int ret;
 	int datarate = 0, ssi_signal = 0;
 	int injected = 0, failed = 0, rxflags = 0;
-	int prob_request_recv = 0;
 	len = recv(sock, buf, sizeof(buf), 0);
 
 	/* Scarto i pacchetti Beacon ricevutti */
@@ -5103,49 +5107,74 @@ static void handle_monitor_read(int sock, void *eloop_ctx, void *sock_ctx){
 		}
 	}
 
-
-
-		int type = WTP_get_Type(buf + iter.max_length,len - iter.max_length);
-
-		if(type == WLAN_FC_TYPE_DATA){
-			wpa_printf(MSG_DEBUG, "EAPOL Data Frame 3 (%d)\n",len - iter.max_length);
-
-			ipc_send_80211_to_ac(generic_wtp_info.fd_ipc, buf  + iter.max_length,len - iter.max_length);
-
-			return;
-
-		}else if(type == WLAN_FC_TYPE_MGMT){
-
-			int stype = WTP_get_SubType(buf + iter.max_length,len - iter.max_length);
-
-			if( stype == WLAN_FC_STYPE_BEACON ){
-				return;
-
-			}else if( stype == WLAN_FC_STYPE_PROBE_REQ ){
-				prob_request_recv = 1;
-
-			}else if( stype == WLAN_FC_STYPE_PROBE_RESP ){
-				/* Probe Response (only from Call Back) */
-
-			}else if(stype==WLAN_FC_STYPE_ASSOC_RESP || stype==WLAN_FC_STYPE_REASSOC_RESP){
-
-				ipc_send_80211_to_ac(generic_wtp_info.fd_ipc, buf  + iter.max_length,len - iter.max_length);
- 				return;
-
-			}else{												// All other packet sent to AC
-				ipc_send_80211_to_ac(generic_wtp_info.fd_ipc,buf  + iter.max_length,len - iter.max_length);
- 				return;
-			}
-
-		}else{
-			wpa_printf(MSG_ERROR, "ERROR RECV CONTROLL TRAFIC on MONITOR INTERFACE");
-			return;
-		}
-
-
 	if (rxflags && injected)
 		return;
 
+	struct ieee80211_hdr *hdr;
+	u16 fc;
+
+	hdr = (struct ieee80211_hdr *)(buf + iter.max_length);
+	fc = le_to_host16(hdr->frame_control);
+
+	switch (WLAN_FC_GET_TYPE(fc)) {
+	case WLAN_FC_TYPE_DATA:
+		wpa_printf(MSG_DEBUG, "EAPOL Data Frame 3 (%d)\n", len - iter.max_length);
+		ipc_send_80211_to_ac(generic_wtp_info.fd_ipc, buf  + iter.max_length,len - iter.max_length);
+		return;
+
+	case WLAN_FC_TYPE_MGMT:
+		switch (WLAN_FC_GET_STYPE(fc)) {
+		case WLAN_FC_STYPE_BEACON:
+			/* TODO: why are beacon frames not forwarded to hostapd */
+			return;
+
+		case WLAN_FC_STYPE_PROBE_REQ:
+		case WLAN_FC_STYPE_PROBE_RESP:
+			/* handled by hostapd */
+			break;
+
+		case WLAN_FC_STYPE_ASSOC_REQ:
+		case WLAN_FC_STYPE_REASSOC_REQ:
+			/* always forward to AC */
+			ipc_send_80211_to_ac(generic_wtp_info.fd_ipc,buf  + iter.max_length,len - iter.max_length);
+
+			if (drv->mac_mode == CW_SPLIT_MAC)
+				/* in Split MAC mode the AC handles the rest */
+				return;
+
+			break;
+
+		case WLAN_FC_STYPE_ASSOC_RESP:
+		case WLAN_FC_STYPE_REASSOC_RESP:
+			if (drv->mac_mode == CW_SPLIT_MAC)
+				/* don't mirror responses back to the AC */
+				return;
+
+			/* handled by hostapd in Local MAC Mode*/
+			break;
+
+		case WLAN_FC_STYPE_AUTH:
+			if (!injected)
+				/* forward to AC */
+				ipc_send_80211_to_ac(generic_wtp_info.fd_ipc,buf  + iter.max_length,len - iter.max_length);
+
+			if (drv->mac_mode == CW_SPLIT_MAC)
+				/* handled by hostapd in Local MAC Mode*/
+				return;
+
+			break;
+
+		default:
+			// All other packet sent to AC
+			ipc_send_80211_to_ac(generic_wtp_info.fd_ipc,buf  + iter.max_length,len - iter.max_length);
+			return;
+		}
+		break;
+
+	default:
+		wpa_printf(MSG_ERROR, "ERROR RECV CONTROLL TRAFIC on MONITOR INTERFACE");
+		return;
+	}
 
 	if (!injected)
 		handle_frame(drv, buf + iter.max_length,
@@ -5154,11 +5183,10 @@ static void handle_monitor_read(int sock, void *eloop_ctx, void *sock_ctx){
 		handle_tx_callback(drv->ctx, buf + iter.max_length,
 				   len - iter.max_length, !failed);
 
-
-	if(prob_request_recv){
+	if (drv->mac_mode == CW_SPLIT_MAC &&
+	    WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT &&
+	    WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_PROBE_REQ)
 		ipc_send_80211_to_ac(generic_wtp_info.fd_ipc, buf  + iter.max_length,len - iter.max_length);
- 	}
-
 }
 
 

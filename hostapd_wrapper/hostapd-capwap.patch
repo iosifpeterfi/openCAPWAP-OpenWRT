@@ -1,6 +1,79 @@
---- hostapd-1.1/src/drivers/drivers.c.orig	2012-11-28 22:31:16.000000000 +0100
-+++ hostapd-1.1/src/drivers/drivers.c	2013-05-17 09:37:54.948673120 +0200
-@@ -21,6 +21,12 @@ extern struct wpa_driver_ops wpa_driver_
+diff --git a/hostapd/Makefile b/hostapd/Makefile
+index e46561e..b027b43 100644
+--- a/hostapd/Makefile
++++ b/hostapd/Makefile
+@@ -765,6 +765,10 @@ ifdef CONFIG_DEBUG_FILE
+ CFLAGS += -DCONFIG_DEBUG_FILE
+ endif
+ 
++ifdef CONFIG_DRIVER_CAPWAP_WTP
++CFLAGS += -DCONFIG_DRIVER_CAPWAP_WTP
++endif
++
+ ALL=hostapd hostapd_cli
+ 
+ all: verify_config $(ALL)
+diff --git a/src/Makefile b/src/Makefile
+index d73a175..7c09a0d 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -1,4 +1,4 @@
+-SUBDIRS=ap common crypto drivers eapol_auth eapol_supp eap_common eap_peer eap_server l2_packet p2p radius rsn_supp tls utils wps
++SUBDIRS=ap common crypto drivers eapol_auth eapol_supp eap_common eap_peer eap_server l2_packet p2p radius rsn_supp tls utils wps capwap
+ 
+ all:
+ 	for d in $(SUBDIRS); do [ -d $$d ] && $(MAKE) -C $$d; done
+diff --git a/src/ap/ap_config.h b/src/ap/ap_config.h
+index fe20fc2..3c65570 100644
+--- a/src/ap/ap_config.h
++++ b/src/ap/ap_config.h
+@@ -361,6 +361,9 @@ struct hostapd_bss_config {
+ 	/* IEEE 802.11u - Roaming Consortium list */
+ 	unsigned int roaming_consortium_count;
+ 	struct hostapd_roaming_consortium *roaming_consortium;
++#ifdef CONFIG_DRIVER_CAPWAP_WTP
++	int mac_mode;
++#endif
+ };
+ 
+ 
+diff --git a/src/ap/beacon.c b/src/ap/beacon.c
+index 63b708a..bdba1da 100644
+--- a/src/ap/beacon.c
++++ b/src/ap/beacon.c
+@@ -621,6 +621,9 @@ void ieee802_11_set_beacon(struct hostapd_data *hapd)
+ 	    !is_zero_ether_addr(hapd->conf->hessid))
+ 		params.hessid = hapd->conf->hessid;
+ 	params.access_network_type = hapd->conf->access_network_type;
++#ifdef CONFIG_DRIVER_CAPWAP_WTP
++	params.mac_mode = hapd->conf->mac_mode;
++#endif
+ 	if (hostapd_drv_set_ap(hapd, &params))
+ 		wpa_printf(MSG_ERROR, "Failed to set beacon parameters");
+ 	hostapd_free_ap_extra_ies(hapd, beacon, proberesp, assocresp);
+diff --git a/src/drivers/driver.h b/src/drivers/driver.h
+index c7b7363..a22a6c6 100644
+--- a/src/drivers/driver.h
++++ b/src/drivers/driver.h
+@@ -672,6 +672,13 @@ struct wpa_driver_ap_params {
+ 	 * enabled.
+ 	 */
+ 	u8 access_network_type;
++
++#ifdef CONFIG_DRIVER_CAPWAP_WTP
++	/**
++	 * CAPWAP MAC Mode
++	 */
++	int mac_mode;
++#endif
+ };
+ 
+ /**
+diff --git a/src/drivers/drivers.c b/src/drivers/drivers.c
+index b710778..e8f9c26 100644
+--- a/src/drivers/drivers.c
++++ b/src/drivers/drivers.c
+@@ -21,6 +21,12 @@ extern struct wpa_driver_ops wpa_driver_wext_ops; /* driver_wext.c */
  #ifdef CONFIG_DRIVER_NL80211
  extern struct wpa_driver_ops wpa_driver_nl80211_ops; /* driver_nl80211.c */
  #endif /* CONFIG_DRIVER_NL80211 */
@@ -26,8 +99,10 @@
  #ifdef CONFIG_DRIVER_HOSTAP
  	&wpa_driver_hostap_ops,
  #endif /* CONFIG_DRIVER_HOSTAP */
---- hostapd-1.1/src/drivers/drivers.mak.orig	2012-11-28 22:31:16.000000000 +0100
-+++ hostapd-1.1/src/drivers/drivers.mak	2013-05-17 09:42:21.132678984 +0200
+diff --git a/src/drivers/drivers.mak b/src/drivers/drivers.mak
+index b1f70e0..eca1c7f 100644
+--- a/src/drivers/drivers.mak
++++ b/src/drivers/drivers.mak
 @@ -38,7 +38,7 @@ endif
  ifdef CONFIG_DRIVER_NL80211
  DRV_CFLAGS += -DCONFIG_DRIVER_NL80211
@@ -37,7 +112,7 @@
  NEED_SME=y
  NEED_AP_MLME=y
  NEED_NETLINK=y
-@@ -156,18 +156,110 @@ DRV_WPA_OBJS += ../src/drivers/driver_we
+@@ -156,18 +156,110 @@ DRV_WPA_OBJS += ../src/drivers/driver_wext.o
  NEED_RFKILL=y
  endif
  
@@ -148,8 +223,10 @@
  
  ##### COMMON VARS
  DRV_BOTH_CFLAGS := $(DRV_CFLAGS) $(DRV_WPA_CFLAGS) $(DRV_AP_CFLAGS)
---- hostapd-1.1/src/drivers/drivers.mk.orig	2012-11-28 22:31:16.000000000 +0100
-+++ hostapd-1.1/src/drivers/drivers.mk	2013-05-17 09:41:38.964678055 +0200
+diff --git a/src/drivers/drivers.mk b/src/drivers/drivers.mk
+index 2d1ad9d..d6a4c22 100644
+--- a/src/drivers/drivers.mk
++++ b/src/drivers/drivers.mk
 @@ -38,7 +38,7 @@ endif
  ifdef CONFIG_DRIVER_NL80211
  DRV_CFLAGS += -DCONFIG_DRIVER_NL80211
@@ -159,7 +236,7 @@
  NEED_SME=y
  NEED_AP_MLME=y
  NEED_NETLINK=y
-@@ -156,18 +156,111 @@ DRV_WPA_OBJS += src/drivers/driver_wext.
+@@ -156,18 +156,111 @@ DRV_WPA_OBJS += src/drivers/driver_wext.c
  NEED_RFKILL=y
  endif
  
@@ -271,11 +348,3 @@
  ifdef CONFIG_DRIVER_CUSTOM
  DRV_CFLAGS += -DCONFIG_DRIVER_CUSTOM
  endif
---- hostapd-1.1/src/Makefile.orig	2012-11-28 22:31:16.000000000 +0100
-+++ hostapd-1.1/src/Makefile	2013-05-17 09:41:27.788677809 +0200
-@@ -1,4 +1,4 @@
--SUBDIRS=ap common crypto drivers eapol_auth eapol_supp eap_common eap_peer eap_server l2_packet p2p radius rsn_supp tls utils wps
-+SUBDIRS=ap common crypto drivers eapol_auth eapol_supp eap_common eap_peer eap_server l2_packet p2p radius rsn_supp tls utils wps capwap
- 
- all:
- 	for d in $(SUBDIRS); do [ -d $$d ] && $(MAKE) -C $$d; done

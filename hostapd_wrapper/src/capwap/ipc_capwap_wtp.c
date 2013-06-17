@@ -360,6 +360,8 @@ static void ADD_WLAN_handle(int fd, u8 *buf, int len, void *hapd, unsigned char 
 	wpa_printf(MSG_DEBUG, "Tunnel Mode:  %02X",buf[17+key_len_int]);
 	wpa_printf(MSG_DEBUG, "Suppress SSID:  %02X",buf[18+key_len_int]);
 
+	h->conf->mac_mode = buf[pos_mac_mod];
+
 	if( buf[18+key_len_int]!=0x00 ){
 		int ssid_len = len - 19 - key_len_int;
 		char tmp_ssid[33];
