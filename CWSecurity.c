@@ -193,17 +193,23 @@ CWBool CWSecurityInitSessionClient(CWSocket sock,
 	i = BIO_ctrl_set_connected(sbio, 1, &peer);
 
 	/* BIO_ctrl(sbio, BIO_CTRL_DGRAM_MTU_DISCOVER, 0, NULL); // TO-DO (pass MTU?) */
+	BIO_ctrl(sbio, BIO_CTRL_DGRAM_MTU_DISCOVER, 0, NULL);
+
 	/*
 	 * TO-DO if we don't set a big MTU, the DTLS implementation will
 	 * not be able to use a big certificate
 	 */
-	BIO_ctrl(sbio, BIO_CTRL_DGRAM_SET_MTU, 10000, NULL);
+	/* BIO_ctrl(sbio, BIO_CTRL_DGRAM_SET_MTU, 10000, NULL); */
+	BIO_ctrl(sbio, BIO_CTRL_DGRAM_SET_MTU, 1388, NULL);
 
 	/*
 	 * Let the verify_callback catch the verify_depth error so that we get
 	 * an appropriate error in the logfile.
 	 */
 	SSL_set_verify_depth((*sessionPtr), CW_DTLS_CERT_VERIFY_DEPTH + 1);
+
+	SSL_set_options((*sessionPtr), SSL_OP_NO_QUERY_MTU);
+	SSL_set_mtu((*sessionPtr), 1388);
 
 	/* required by DTLS implementation to avoid data loss */
 	SSL_set_read_ahead((*sessionPtr), 1);
@@ -223,7 +229,8 @@ CWBool CWSecurityInitSessionClient(CWSocket sock,
 		CWDebugLog("Certificate Error (%d)", SSL_get_verify_result(*sessionPtr));
 	}
 
-	*PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_QUERY_MTU, 0, NULL);
+	/* *PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_QUERY_MTU, 0, NULL); */
+	*PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_GET_MTU, 0, NULL);
 
 	CWDebugLog("PMTU: %d", *PMTUPtr);
 
@@ -301,17 +308,24 @@ CWBool CWSecurityInitSessionServer(CWWTPManager * pWtp,
 	}
 
 	/* BIO_ctrl(sbio, BIO_CTRL_DGRAM_MTU_DISCOVER, 0, NULL); // TO-DO (pass MTU?) */
+	BIO_ctrl(sbio, BIO_CTRL_DGRAM_MTU_DISCOVER, 0, NULL);
+
 	/*
 	 * TO-DO if we don't set a big MTU, the DTLS implementation will
 	 * not be able to use a big certificate
 	 */
-	BIO_ctrl(sbio, BIO_CTRL_DGRAM_SET_MTU, 10000, NULL);
+	/* BIO_ctrl(sbio, BIO_CTRL_DGRAM_SET_MTU, 10000, NULL); */
+	BIO_ctrl(sbio, BIO_CTRL_DGRAM_SET_MTU, 1388, NULL);
 
 	/*
 	 * Let the verify_callback catch the verify_depth error so that we get
 	 * an appropriate error in the logfile.
 	 */
 	SSL_set_verify_depth((*sessionPtr), CW_DTLS_CERT_VERIFY_DEPTH + 1);
+
+	SSL_set_options((*sessionPtr), SSL_OP_NO_QUERY_MTU);
+	SSL_set_mtu((*sessionPtr), 1388);
+
 	/* required by DTLS implementation to avoid data loss */
 	SSL_set_read_ahead((*sessionPtr), 1);
 	/* turn on cookie exchange */
@@ -346,7 +360,9 @@ CWBool CWSecurityInitSessionServer(CWWTPManager * pWtp,
 		}
 	}
 
-	*PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_QUERY_MTU, 0, NULL);
+	/* PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_QUERY_MTU, 0, NULL); */
+	*PMTUPtr = BIO_ctrl(sbio, BIO_CTRL_DGRAM_GET_MTU, 0, NULL);
+
 	CWDebugLog("PMTU: %d", *PMTUPtr);
 
 	return CW_TRUE;
