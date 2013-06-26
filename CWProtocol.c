@@ -526,7 +526,7 @@ CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumP
 	}
 	CW_FREE_OBJECT(msgElemsBinding);
 
-//  CWDebugLog("PMTU: %d", PMTU);
+	CWDebugLog("PMTU: %d", PMTU);
 
 	// handle fragmentation
 	PMTU = PMTU - gMaxDTLSHeaderSize - gMaxCAPWAPHeaderSize;
@@ -536,11 +536,11 @@ CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumP
 		if (PMTU == 0)
 			goto cw_dont_fragment;
 
-		//CWDebugLog("Aligned PMTU: %d", PMTU);
+		CWDebugLog("Aligned PMTU: %d", PMTU);
 		*fragmentsNumPtr = msg.offset / PMTU;
 		if ((msg.offset % PMTU) != 0)
 			(*fragmentsNumPtr)++;
-		//CWDebugLog("Fragments #: %d", *fragmentsNumPtr);
+		CWDebugLog("Fragments #: %d", *fragmentsNumPtr);
 	} else {
  cw_dont_fragment:
 		*fragmentsNumPtr = 1;
@@ -579,7 +579,7 @@ CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumP
 	} else {
 		int fragID = CWGetFragmentID();
 		int totalSize = msg.offset;
-		//CWDebugLog("%d Fragments", *fragmentsNumPtr);
+		CWDebugLog("%d Fragments", *fragmentsNumPtr);
 
 		CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(*completeMsgPtr, *fragmentsNumPtr,
 						 return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
@@ -602,7 +602,7 @@ CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumP
 				transportVal.last = 1;
 			}
 
-			//CWDebugLog("Fragment #:%d, offset:%d, bytes stored:%d/%d", i, transportVal.fragmentOffset, fragSize, totalSize);
+			CWDebugLog("Fragment #:%d, offset:%d, bytes stored:%d/%d", i, transportVal.fragmentOffset, fragSize, totalSize);
 
 			// Assemble Transport Header for this fragment
 			if (!(CWAssembleTransportHeader(&transportHdr, &transportVal))) {
