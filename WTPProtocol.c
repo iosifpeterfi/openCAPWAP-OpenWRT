@@ -163,7 +163,7 @@ CWBool CWAssembleMsgElemLocationData(CWProtocolMessage * msgPtr)
 	CW_CREATE_PROTOCOL_MESSAGE(*msgPtr, strlen(location), return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 	    );
 
-//  CWDebugLog("Location Data: %s", location);
+	CWDebugLog("Location Data: %s", location);
 	CWProtocolStoreStr(msgPtr, location);
 
 	return CWAssembleMsgElem(msgPtr, CW_MSG_ELEMENT_LOCATION_DATA_CW_TYPE);

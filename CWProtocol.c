@@ -468,6 +468,7 @@ CWBool CWAssembleMessage(CWProtocolMessage ** completeMsgPtr, int *fragmentsNumP
 			 int msgTypeValue, CWProtocolMessage * msgElems, const int msgElemNum,
 			 CWProtocolMessage * msgElemsBinding, const int msgElemBindingNum)
 {
+	CWDebugLog("CWAssembleMessage()");
 	CWProtocolMessage transportHdr, controlHdr, msg;
 	int msgElemsLen = 0;
 	int i;
