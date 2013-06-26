@@ -152,6 +152,7 @@ CWBool CWAssembleMsgElemDiscoveryType(CWProtocolMessage * msgPtr)
 
 CWBool CWAssembleMsgElemLocationData(CWProtocolMessage * msgPtr)
 {
+	CWDebugLog("CWAssembleMsgElemLocationData()");
 	char *location;
 
 	if (msgPtr == NULL)
