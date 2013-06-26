@@ -33,6 +33,7 @@
 
 static CWBool gSuccessfulHandshake = CW_TRUE;
 int gCWWaitJoin = CW_JOIN_INTERVAL_DEFAULT;
+int gCWDiscoveryCount;
 
 /*__________________________________________________________*/
 /*  *******************___PROTOTYPES___*******************  */
@@ -435,11 +436,15 @@ CWBool CWSaveJoinResponseMessage(CWProtocolJoinResponseValues * joinResponse)
 		 *
 		 * 19/10/2009 - Donato Capitella
 		 */
-		int i;
-		for (i = 0; i < gACInfoPtr->vendorInfos.vendorInfosCount; i++) {
-			CW_FREE_OBJECT(gACInfoPtr->vendorInfos.vendorInfos[i].valuePtr);
+		// Applies only if Discovey has run 
+		if { gCWDiscoveryCount != NULL ) {
+			int i;
+			for (i = 0; i < gACInfoPtr->vendorInfos.vendorInfosCount; i++) {
+				CW_FREE_OBJECT(gACInfoPtr->vendorInfos.vendorInfos[i].valuePtr);
+			}
+			CW_FREE_OBJECT(gACInfoPtr->vendorInfos.vendorInfos);
+			gWTPForceACAddress = NULL;
 		}
-		CW_FREE_OBJECT(gACInfoPtr->vendorInfos.vendorInfos);
 
 		gACInfoPtr->vendorInfos = (joinResponse->ACInfoPtr).vendorInfos;
 

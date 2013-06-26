@@ -37,8 +37,8 @@ int gCWMaxDiscoveries = 10;
 
 /*_________________________________________________________*/
 /*  *******************___VARIABLES___*******************  */
-int gCWDiscoveryCount;
 
+int gCWDiscoveryCount;
 #ifdef CW_DEBUGGING
 int gCWDiscoveryInterval = 3;	//5;
 int gCWMaxDiscoveryInterval = 4;	//20;

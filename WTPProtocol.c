@@ -1220,7 +1220,7 @@ CWBool CWParseCWControlIPv4Addresses(CWProtocolMessage * msgPtr, int len, CWProt
 	    );
 
 	valPtr->WTPCount = CWProtocolRetrieve16(msgPtr);
-//  CWDebugLog("WTP Count: %d", valPtr->WTPCount);
+	CWDebugLog("WTP Count: %d", valPtr->WTPCount);
 
 	CWParseMessageElementEnd();
 }
