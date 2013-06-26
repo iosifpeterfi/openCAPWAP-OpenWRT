@@ -301,7 +301,7 @@ CWBool CWSaveConfigureResponseMessage(CWProtocolConfigureResponseValues * config
 
 	if ((configureResponse->ACIPv4ListInfo).ACIPv4ListCount > 0) {
 
-		CW_FREE_OBJECT((gACInfoPtr->ACIPv4ListInfo).ACIPv4List);
+		//CW_FREE_OBJECT((gACInfoPtr->ACIPv4ListInfo).ACIPv4List);
 		(gACInfoPtr->ACIPv4ListInfo).ACIPv4ListCount = (configureResponse->ACIPv4ListInfo).ACIPv4ListCount;
 		(gACInfoPtr->ACIPv4ListInfo).ACIPv4List = (configureResponse->ACIPv4ListInfo).ACIPv4List;
 	}
@@ -310,7 +310,7 @@ CWBool CWSaveConfigureResponseMessage(CWProtocolConfigureResponseValues * config
 
 	if ((configureResponse->ACIPv6ListInfo).ACIPv6ListCount > 0) {
 
-		CW_FREE_OBJECT((gACInfoPtr->ACIPv6ListInfo).ACIPv6List);
+		//CW_FREE_OBJECT((gACInfoPtr->ACIPv6ListInfo).ACIPv6List);
 		(gACInfoPtr->ACIPv6ListInfo).ACIPv6ListCount = (configureResponse->ACIPv6ListInfo).ACIPv6ListCount;
 		(gACInfoPtr->ACIPv6ListInfo).ACIPv6List = (configureResponse->ACIPv6ListInfo).ACIPv6List;
 	}
@@ -351,9 +351,9 @@ CWBool CWSaveConfigureResponseMessage(CWProtocolConfigureResponseValues * config
 	 * BUGs ML02-ML04-ML05
 	 * 16/10/2009 - Donato Capitella
 	 */
-	CW_FREE_OBJECT(configureResponse->radioOperationalInfo);
-	CW_FREE_OBJECT(configureResponse->radiosDecryptErrorPeriod.radios);
-	CW_FREE_OBJECT(configureResponse->bindingValues);
+	//CW_FREE_OBJECT(configureResponse->radioOperationalInfo);
+	//CW_FREE_OBJECT(configureResponse->radiosDecryptErrorPeriod.radios);
+	//CW_FREE_OBJECT(configureResponse->bindingValues);
 
 	CWDebugLog("Configure Response Saved");
 	return CW_TRUE;
