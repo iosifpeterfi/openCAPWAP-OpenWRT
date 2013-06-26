@@ -445,21 +445,18 @@ CWBool CWSaveJoinResponseMessage(CWProtocolJoinResponseValues * joinResponse)
 			}
 			CW_FREE_OBJECT(gACInfoPtr->vendorInfos.vendorInfos);
 			gWTPForceACAddress = NULL;
+			if (joinResponse->ACIPv4ListInfo.ACIPv4ListCount > 0) {
+				gACInfoPtr->ACIPv4ListInfo.ACIPv4ListCount = joinResponse->ACIPv4ListInfo.ACIPv4ListCount;
+				gACInfoPtr->ACIPv4ListInfo.ACIPv4List = joinResponse->ACIPv4ListInfo.ACIPv4List;
+			}
+			if (joinResponse->ACIPv6ListInfo.ACIPv6ListCount > 0) {
+
+				gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount = joinResponse->ACIPv6ListInfo.ACIPv6ListCount;
+				gACInfoPtr->ACIPv6ListInfo.ACIPv6List = joinResponse->ACIPv6ListInfo.ACIPv6List;
+			}
 		}
 
 		gACInfoPtr->vendorInfos = (joinResponse->ACInfoPtr).vendorInfos;
-
-		if (joinResponse->ACIPv4ListInfo.ACIPv4ListCount > 0) {
-
-			gACInfoPtr->ACIPv4ListInfo.ACIPv4ListCount = joinResponse->ACIPv4ListInfo.ACIPv4ListCount;
-			gACInfoPtr->ACIPv4ListInfo.ACIPv4List = joinResponse->ACIPv4ListInfo.ACIPv4List;
-		}
-
-		if (joinResponse->ACIPv6ListInfo.ACIPv6ListCount > 0) {
-
-			gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount = joinResponse->ACIPv6ListInfo.ACIPv6ListCount;
-			gACInfoPtr->ACIPv6ListInfo.ACIPv6List = joinResponse->ACIPv6ListInfo.ACIPv6List;
-		}
 
 		/*
 		 * This field name was allocated for storing the AC name; however, it

@@ -1006,7 +1006,7 @@ CWBool CWParseACIPv4List(CWProtocolMessage * msgPtr, int len, ACIPv4ListValues *
 	for (i = 0; i < valPtr->ACIPv4ListCount; i++) {
 		struct sockaddr_in addr;
 		(valPtr->ACIPv4List)[i] = CWProtocolRetrieve32(msgPtr);
-//      CWDebugLog("AC IPv4 List (%d): %d", i+1, (valPtr->ACIPv4List)[i]);
+		CWDebugLog("AC IPv4 List (%d): %d", i+1, (valPtr->ACIPv4List)[i]);
 		addr.sin_addr.s_addr = (valPtr->ACIPv4List)[i];
 		addr.sin_family = AF_INET;
 		addr.sin_port = 1024;
