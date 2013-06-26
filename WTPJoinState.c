@@ -422,6 +422,7 @@ CWBool CWSaveJoinResponseMessage(CWProtocolJoinResponseValues * joinResponse)
 		if (gACInfoPtr == NULL)
 			return CWErrorRaise(CW_ERROR_NEED_RESOURCE, NULL);
 
+		gACInfoPtr->name = (joinResponse->ACInfoPtr).name;
 		gACInfoPtr->stations = (joinResponse->ACInfoPtr).stations;
 		gACInfoPtr->limit = (joinResponse->ACInfoPtr).limit;
 		gACInfoPtr->activeWTPs = (joinResponse->ACInfoPtr).activeWTPs;

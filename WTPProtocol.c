@@ -41,7 +41,7 @@ CWBool CWAssembleMsgElemACName(CWProtocolMessage * msgPtr)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
 	name = CWWTPGetACName();
-//  CWDebugLog("AC Name: %s", name);
+	CWDebugLog("AC Name: %s", name);
 
 	// create message
 	CW_CREATE_PROTOCOL_MESSAGE(*msgPtr, strlen(name), return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
