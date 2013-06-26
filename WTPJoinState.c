@@ -437,7 +437,7 @@ CWBool CWSaveJoinResponseMessage(CWProtocolJoinResponseValues * joinResponse)
 		 * 19/10/2009 - Donato Capitella
 		 */
 		// Applies only if Discovey has run 
-		if { gCWDiscoveryCount != NULL ) {
+		if (gCWDiscoveryCount != NULL) {
 			int i;
 			for (i = 0; i < gACInfoPtr->vendorInfos.vendorInfosCount; i++) {
 				CW_FREE_OBJECT(gACInfoPtr->vendorInfos.vendorInfos[i].valuePtr);
