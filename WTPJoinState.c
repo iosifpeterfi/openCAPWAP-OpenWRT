@@ -70,6 +70,7 @@ CWStateTransition CWWTPEnterJoin()
 	gWTPSession = NULL;
 
 	/* Initialize gACInfoPtr */
+	gACInfoPtr = malloc(sizeof(CWACInfoValues));
 	gACInfoPtr->ACIPv4ListInfo.ACIPv4ListCount = 0;
 	gACInfoPtr->ACIPv4ListInfo.ACIPv4List = NULL;
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount = 0;

@@ -80,7 +80,7 @@ CWThreadMutex gInterfaceMutex;
 /* infos about the ACs to discover */
 CWACDescriptor *gCWACList = NULL;
 /* infos on the better AC we discovered so far */
-CWACInfoValues *gACInfoPtr = malloc(sizeof(CWACInfoValues));
+CWACInfoValues *gACInfoPtr = NULL;
 
 /* WTP statistics timer */
 int gWTPStatisticsTimer = CW_STATISTIC_TIMER_DEFAULT;
