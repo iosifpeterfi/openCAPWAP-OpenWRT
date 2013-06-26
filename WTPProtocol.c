@@ -185,6 +185,7 @@ CWBool CWAssembleMsgElemStatisticsTimer(CWProtocolMessage * msgPtr)
 
 CWBool CWAssembleMsgElemWTPBoardData(CWProtocolMessage * msgPtr)
 {
+	CWDebugLog("CWAssembleMsgElemWTPBoardData()");
 	const int VENDOR_ID_LENGTH = 4;	//Vendor Identifier is 4 bytes long
 	const int TLV_HEADER_LENGTH = 4;	//Type and Length of a TLV field is 4 byte long
 	CWWTPVendorInfos infos;

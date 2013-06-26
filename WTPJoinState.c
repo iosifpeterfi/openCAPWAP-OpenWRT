@@ -217,7 +217,7 @@ CWBool CWAssembleJoinRequest(CWProtocolMessage ** messagesPtr,
 	CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems, msgElemCount, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 	    );
 
-	CWLog("Sending Join Request...");
+	CWLog("Assembling Join Request Message Elements...");
 
 	/* Assemble Message Elements */
 	if ((!(CWAssembleMsgElemLocationData(&(msgElems[++k])))) ||
@@ -238,6 +238,8 @@ CWBool CWAssembleJoinRequest(CWProtocolMessage ** messagesPtr,
 		/* error will be handled by the caller */
 		return CW_FALSE;
 	}
+
+	CWLog("Assembling and Sending Join Request Message ...");
 
 	return CWAssembleMessage(messagesPtr,
 				 fragmentsNumPtr,
