@@ -359,7 +359,7 @@ void usage(void)
 
 int main(int argc, char * const argv[])
 {
-	fprintf(stderr, "main()");
+	fprintf(stderr, "main()\n");
 	int run_daemon = 1;
 	int c;
 
@@ -401,12 +401,14 @@ int main(int argc, char * const argv[])
 
 	CWStateTransition nextState = CW_ENTER_DISCOVERY;
 	CWLogInitFile(WTP_LOG_FILE_NAME);
+        fprintf(stderr, "log init done\n");
 
 #ifndef CW_SINGLE_THREAD
 	CWDebugLog("Use Threads");
 #else
 	CWDebugLog("Don't Use Threads");
 #endif
+	fprintf(stderr, "log init done\n");
 	CWErrorHandlingInitLib();
 	if (!CWParseSettingsFile()) {
 		CWLog("Can't start WTP");
