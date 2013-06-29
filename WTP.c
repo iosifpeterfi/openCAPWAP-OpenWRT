@@ -359,6 +359,7 @@ void usage(void)
 
 int main(int argc, char * const argv[])
 {
+	CWDebugLog("main()");
 	int run_daemon = 1;
 	int c;
 
