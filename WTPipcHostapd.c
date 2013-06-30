@@ -232,7 +232,7 @@ void CWWTPsend_command_to_hostapd_CLOSE(unsigned char *buf, int len)
 
 CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 {
-
+	/*
 	   CWThreadMutexLock(&gRADIO_MAC_mutex);
 	   gRADIO_MAC[0]=0xAA;
 	   gRADIO_MAC[1]=0xBB;
@@ -241,7 +241,7 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 	   gRADIO_MAC[4]=0xEE;
 	   gRADIO_MAC[5]=0xFF;
 	   CWThreadMutexUnlock(&gRADIO_MAC_mutex);
-
+	*/
 	int len;
 
 #if defined(LOCALUDP)
