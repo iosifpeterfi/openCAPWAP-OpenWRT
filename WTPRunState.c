@@ -1206,7 +1206,7 @@ CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage ** messagesPtr, int
 {
 
 	CWProtocolMessage *msgElems = NULL;
-	const int msgElemCount = 2;
+	const int msgElemCount = 1;
 	CWProtocolMessage *msgElemsBinding = NULL;
 	const int msgElemBindingCount = 0;
 	int k = -1;
@@ -1223,10 +1223,12 @@ CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage ** messagesPtr, int
 		CW_FREE_OBJECT(msgElems);
 		return CW_FALSE;
 	}
+	/*
 	if (!(CWAssembleMsgElemVendorSpecificPayload((&(msgElems[++k]))))) {
 		CW_FREE_OBJECT(msgElems);
 		return CW_FALSE;
 	}
+	*/
 
 	if (!(CWAssembleMessage(messagesPtr,
 				fragmentsNumPtr,
