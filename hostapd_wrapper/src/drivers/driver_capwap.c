@@ -59,7 +59,7 @@
 #include "rfkill.h"
 #include "driver.h"
 
-
+struct priv_params params;
 
 
 #define SETBIT(ADDRESS,BIT) (ADDRESS |= (1<<BIT))
