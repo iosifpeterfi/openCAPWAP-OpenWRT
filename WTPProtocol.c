@@ -1143,7 +1143,7 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 	tmp_buf[7] = keyLength >> 8;
 	tmp_buf[8] = keyLength & 0xff;
 
-	CWDebugLog("CWParseAddWLAN() 3");
+	CWDebugLog("CWParseAddWLAN() 4");
 
 	if (keyLength) {
 		unsigned char *key;
@@ -1151,12 +1151,14 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 		memcpy(tmp_buf + 9, key, keyLength);
 	}
 
-	CWDebugLog("CWParseAddWLAN() 4");
+	CWDebugLog("CWParseAddWLAN() 5");
 
 	tmp_buf[9 + keyLength] = CWProtocolRetrieve8(msgPtr);
+	CWDebugLog("CWParseAddWLAN() 6");
 	tmp_buf[10 + keyLength] = CWProtocolRetrieve8(msgPtr);
+	CWDebugLog("CWParseAddWLAN() 7");
 	tmp_buf[11 + keyLength] = CWProtocolRetrieve8(msgPtr);
-	CWDebugLog("CWParseAddWLAN() 5");
+	CWDebugLog("CWParseAddWLAN() 8");
 	tmp_buf[12 + keyLength] = CWProtocolRetrieve8(msgPtr);
 	tmp_buf[13 + keyLength] = CWProtocolRetrieve8(msgPtr);
 	tmp_buf[14 + keyLength] = CWProtocolRetrieve8(msgPtr);
