@@ -1147,8 +1147,11 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 
 	if (keyLength) {
 		unsigned char *key;
+		CWDebugLog("CWParseAddWLAN() 5");
 		key = (unsigned char *)CWProtocolRetrieveRawBytes(msgPtr, keyLength);
+		CWDebugLog("CWParseAddWLAN() 6");
 		memcpy(tmp_buf + 9, key, keyLength);
+		CWDebugLog("CWParseAddWLAN() 7");
 	}
 
 	CWDebugLog("CWParseAddWLAN() 5");
