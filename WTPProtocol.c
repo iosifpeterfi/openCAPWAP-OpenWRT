@@ -1116,7 +1116,7 @@ CWBool CWParseDeleteWLAN(CWProtocolMessage * msgPtr, int len)
 
 CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 {
-	CWDebugLog("CWParseAddWLAN()");
+	CWDebugLog("CWParseAddWLAN() 1");
 	int Length = 0;
 	unsigned char *ssid;
 	unsigned char tmp_buf[len + 1];
@@ -1128,7 +1128,7 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 	oldOffset = msgPtr->offset;
 	/*----------------------------------------------------------------------------------*/
-
+	CWDebugLog("CWParseAddWLAN() 2");
 	tmp_buf[1] = CWProtocolRetrieve8(msgPtr);
 	tmp_buf[2] = CWProtocolRetrieve8(msgPtr);
 	tmp_buf[3] = CWProtocolRetrieve8(msgPtr);
@@ -1137,6 +1137,8 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 	tmp_buf[5] = CWProtocolRetrieve8(msgPtr);
 	tmp_buf[6] = CWProtocolRetrieve8(msgPtr);
 	unsigned short keyLength = CWProtocolRetrieve16(msgPtr);
+
+	CWDebugLog("CWParseAddWLAN() 3");
 
 	tmp_buf[7] = keyLength >> 8;
 	tmp_buf[8] = keyLength & 0xff;
@@ -1154,6 +1156,8 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 	tmp_buf[13 + keyLength] = CWProtocolRetrieve8(msgPtr);
 	tmp_buf[14 + keyLength] = CWProtocolRetrieve8(msgPtr);
 
+	CWDebugLog("CWParseAddWLAN() 4");
+
 	tmp_buf[15 + keyLength] = CWProtocolRetrieve8(msgPtr);
 
 	tmp_buf[16 + keyLength] = CWProtocolRetrieve8(msgPtr);			/* Auth Type */
@@ -1161,10 +1165,15 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 	tmp_buf[18 + keyLength] = gWTPTunnelMode = CWProtocolRetrieve8(msgPtr);	/* Tunnel Mode */
 	tmp_buf[19 + keyLength] = CWProtocolRetrieve8(msgPtr);			/* Suppress SSID */
 
+	CWDebugLog("CWParseAddWLAN() 5");
+
 	ssid = (unsigned char *)CWProtocolRetrieveRawBytes(msgPtr, len - (19 + keyLength));
+
+	CWDebugLog("CWParseAddWLAN() 6");
 
 	memcpy(tmp_buf + 20 + keyLength, ssid, len - 19 - keyLength);
 
+	CWDebugLog("CWParseAddWLAN() 7");
 	CWWTPsend_command_to_hostapd_ADD_WLAN(tmp_buf, len + 1);
 
 	CWParseMessageElementEnd();
