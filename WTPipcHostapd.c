@@ -170,7 +170,7 @@ void CWWTPsend_command_to_hostapd_SET_ADDR(unsigned char *buf, int len)
 
 void CWWTPsend_command_to_hostapd_ADD_WLAN(unsigned char *buf, int len)
 {
-
+	CWDebugLog("CWWTPsend_command_to_hostapd_ADD_WLAN()");
  WAITHOSTAPDADD:
 
 	if (!connected) {

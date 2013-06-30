@@ -1116,6 +1116,7 @@ CWBool CWParseDeleteWLAN(CWProtocolMessage * msgPtr, int len)
 
 CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 {
+	CWDebugLog("CWParseAddWLAN()");
 	int Length = 0;
 	unsigned char *ssid;
 	unsigned char tmp_buf[len + 1];
