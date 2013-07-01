@@ -58,9 +58,9 @@ CWStateTransition CWWTPEnterJoin()
 	int seqNum;
 	CWProtocolJoinResponseValues values;
 
-	gRADIO_MAC = NULL;
+	gRADIO_MAC[0] = NULL;
 	CWLog("Waiting for hostapd to connect...");
-       	while(gRADIO_MAC == NULL) sleep(1);
+       	while(gRADIO_MAC[0] == NULL) sleep(1);
 
 	CWLog("\n");
 	CWLog("######### Join State #########");
