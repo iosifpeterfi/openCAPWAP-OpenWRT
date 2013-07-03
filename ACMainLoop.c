@@ -45,7 +45,7 @@ void CWCriticalTimerExpiredHandler(int arg);
 void CWSoftTimerExpiredHandler(int arg);
 
 void CWACManageIncomingPacket(CWSocket sock,
-			      char *buf,
+			      unsigned char *buf,
 			      int len, int incomingInterfaceIndex, CWNetworkLev4Address * addrPtr, CWBool dataFlag);
 void _CWCloseThread(int i);
 void CWResetWTPProtocolManager(CWWTPProtocolManager * WTPProtocolManager);
