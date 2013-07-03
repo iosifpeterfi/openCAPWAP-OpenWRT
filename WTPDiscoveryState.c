@@ -120,9 +120,9 @@ CWStateTransition CWWTPEnterDiscovery()
 				CWUseSockNtop(&(gACInfoPtr->preferredAddress), CWDebugLog(str);
 				    );
 
-				j = CWErr(CWNetworkSendUnsafeUnconnected(gWTPSocket,
-									 &(gACInfoPtr->preferredAddress),
-									 (*msgPtr).msg, (*msgPtr).offset));
+				//j = CWErr(CWNetworkSendUnsafeUnconnected(gWTPSocket,
+				//					 &(gACInfoPtr->preferredAddress),
+				//					 (*msgPtr).msg, (*msgPtr).offset));
 				/*
 				 * log eventual error and continue
 				 * CWUseSockNtop(&(gACInfoPtr->preferredAddress),

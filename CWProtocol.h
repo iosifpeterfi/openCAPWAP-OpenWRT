@@ -392,7 +392,7 @@ typedef struct {
 		CW_BOOT_VERSION = 2
 	} type;
 	int length;
-	unsined char *valuePtr;
+	unsigned char *valuePtr;
 } CWWTPVendorInfoValues;
 
 typedef struct {
