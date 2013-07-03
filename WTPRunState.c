@@ -385,7 +385,6 @@ CWStateTransition CWWTPEnterRun()
 
 			CWProtocolMessage msg;
 
-			msg_len = msg.offset;
 			msg.msg = NULL;
 			msg.offset = 0;
 
