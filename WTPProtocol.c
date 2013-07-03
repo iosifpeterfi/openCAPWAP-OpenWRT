@@ -218,7 +218,7 @@ CWBool CWAssembleMsgElemWTPBoardData(CWProtocolMessage * msgPtr)
 			*((infos.vendorInfos)[i].valuePtr) = htonl(*((infos.vendorInfos)[i].valuePtr));
 		}
 
-		CWProtocolStoreRawBytes(msgPtr, (char *)((infos.vendorInfos)[i].valuePtr),
+		CWProtocolStoreRawBytes(msgPtr, (unsigned char *)((infos.vendorInfos)[i].valuePtr),
 					(infos.vendorInfos)[i].length);
 
 //      CWDebugLog("Board Data: %d - %d - %d - %d", (infos.vendorInfos)[i].vendorIdentifier, (infos.vendorInfos)[i].type, (infos.vendorInfos)[i].length, *((infos.vendorInfos)[i].valuePtr));
@@ -235,7 +235,7 @@ CWBool CWAssembleMsgElemVendorSpecificPayload(CWProtocolMessage * msgPtr)
 	const int ELEMENT_ID = 2;	//Type and Length of a TLV field is 4 byte long
 	const int DATA_LEN = 2;
 	CWWTPVendorInfos infos;
-	int i, size = 0;
+	int size = 0;
 	int element_id_zero = 0;
 	int data_zero = 0;
 
@@ -314,7 +314,7 @@ CWBool CWAssembleMsgElemWTPDescriptor(CWProtocolMessage * msgPtr)
 			*((infos.vendorInfos)[i].valuePtr) = htonl(*((infos.vendorInfos)[i].valuePtr));
 		}
 
-		CWProtocolStoreRawBytes(msgPtr, (char *)((infos.vendorInfos)[i].valuePtr),
+		CWProtocolStoreRawBytes(msgPtr, (unsigned char *)((infos.vendorInfos)[i].valuePtr),
 					(infos.vendorInfos)[i].length);
 
 //      CWDebugLog("WTP Descriptor Vendor ID: %d", (infos.vendorInfos)[i].vendorIdentifier);
@@ -568,7 +568,7 @@ CWBool CWAssembleMsgElemWTPRebootStatistics(CWProtocolMessage * msgPtr)
 CWBool CWAssembleMsgElemDuplicateIPv4Address(CWProtocolMessage * msgPtr)
 {
 	const int duplicate_ipv4_length = 11;
-	char *macAddress;
+	unsigned char *macAddress;
 
 	if (msgPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
@@ -607,7 +607,7 @@ CWBool CWAssembleMsgElemDuplicateIPv4Address(CWProtocolMessage * msgPtr)
 CWBool CWAssembleMsgElemDuplicateIPv6Address(CWProtocolMessage * msgPtr)
 {
 	const int duplicate_ipv6_length = 23;
-	char *macAddress;
+	unsigned char *macAddress;
 
 	if (msgPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
@@ -621,7 +621,7 @@ CWBool CWAssembleMsgElemDuplicateIPv6Address(CWProtocolMessage * msgPtr)
 
 	struct sockaddr_in6 myAddr;
 	CWWTPGetIPv6Address(&myAddr);
-	CWProtocolStoreRawBytes(msgPtr, (char *)myAddr.sin6_addr.s6_addr, 16);
+	CWProtocolStoreRawBytes(msgPtr, myAddr.sin6_addr.s6_addr, 16);
 
 	CWProtocolStore8(msgPtr, CWWTPGetIPv6StatusDuplicate());
 
@@ -785,7 +785,7 @@ CWBool CWAssembleMsgElemDecryptErrorReport(CWProtocolMessage * msgPtr, int radio
 
 		CWProtocolStore8(&(msgs[i]), (unsigned char)sizeof(CWMACAddress) * (infos.radios[i].numEntries));
 
-		CWProtocolStoreRawBytes(&(msgs[i]), (char *)*(infos.radios[i].decryptErrorMACAddressList),
+		CWProtocolStoreRawBytes(&(msgs[i]), (unsigned char *)*(infos.radios[i].decryptErrorMACAddressList),
 					sizeof(CWMACAddress) * (infos.radios[i].numEntries));
 
 		/*
@@ -942,14 +942,14 @@ CWBool CWParseACDescriptor(CWProtocolMessage * msgPtr, int len, CWACInfoValues *
 	// see how many vendor ID we have in the message
 	while ((msgPtr->offset - oldOffset) < len) {	// oldOffset stores msgPtr->offset's value at the beginning of this function.
 		// See the definition of the CWParseMessageElementStart() macro.
-		int tmp, id = 0, type = 0;
+		int tmp;
 
 		//CWDebugLog("differenza:%d, offset:%d, oldOffset:%d", (msgPtr->offset-oldOffset), (msgPtr->offset), oldOffset);
 
-		id = CWProtocolRetrieve32(msgPtr);
+		//id = CWProtocolRetrieve32(msgPtr);
 //      CWDebugLog("ID: %d", id); // ID
 
-		type = CWProtocolRetrieve16(msgPtr);
+		//type = CWProtocolRetrieve16(msgPtr);
 //      CWDebugLog("TYPE: %d",type); // type
 
 		tmp = CWProtocolRetrieve16(msgPtr);
@@ -1054,7 +1054,7 @@ CWBool CWParseACIPv6List(CWProtocolMessage * msgPtr, int len, ACIPv6ListValues *
 
 CWBool CWParseDeleteStation(CWProtocolMessage * msgPtr, int len)
 {
-	int radioID = 0, Length = 0;
+	int Length = 0;
 	unsigned char *StationMacAddress;
 
 	//CWParseMessageElementStart();  sostituire al posto delle righe successive quando passerò valPtr alla funzione CWarseAddStation
@@ -1065,7 +1065,7 @@ CWBool CWParseDeleteStation(CWProtocolMessage * msgPtr, int len)
 	oldOffset = msgPtr->offset;
 	/*----------------------------------------------------------------------------------*/
 
-	radioID = CWProtocolRetrieve8(msgPtr);
+	//radioID = CWProtocolRetrieve8(msgPtr);
 	//CWDebugLog("radio ID %d",radioID);
 	Length = CWProtocolRetrieve8(msgPtr);
 	//CWDebugLog("Length of mac address field %d",Length);
@@ -1187,7 +1187,7 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 
 CWBool CWParseAddStation(CWProtocolMessage * msgPtr, int len)
 {
-	int radioID = 0, Length;
+	int Length;
 	unsigned char *StationMacAddress;
 
 	//CWParseMessageElementStart();  sostituire al posto delle righe successive quando passerò valPtr alla funzione CWarseAddStation
@@ -1198,7 +1198,7 @@ CWBool CWParseAddStation(CWProtocolMessage * msgPtr, int len)
 	oldOffset = msgPtr->offset;
 	/*----------------------------------------------------------------------------------*/
 
-	radioID = CWProtocolRetrieve8(msgPtr);
+	//radioID = CWProtocolRetrieve8(msgPtr);
 	//CWDebugLog("radio ID %d",radioID);
 	Length = CWProtocolRetrieve8(msgPtr);
 	//CWDebugLog("Length of mac address field %d",Length);

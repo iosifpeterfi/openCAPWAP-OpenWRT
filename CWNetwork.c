@@ -77,7 +77,7 @@ CWBool CWNetworkSendUnsafeUnconnected(CWSocket sock, CWNetworkLev4Address * addr
 /*
  * Send buf on a "connected" UDP socket. Unsafe means that we don't use DTLS.
  */
-CWBool CWNetworkSendUnsafeConnected(CWSocket sock, const char *buf, int len)
+CWBool CWNetworkSendUnsafeConnected(CWSocket sock, unsigned char *buf, int len)
 {
 
 	if (buf == NULL)

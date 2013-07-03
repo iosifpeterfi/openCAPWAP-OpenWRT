@@ -107,7 +107,7 @@ CWBool CWReceiveMessage(CWProtocolMessage * msgPtr);
 CWBool CWWTPSendAcknowledgedPacket(int seqNum,
 				   CWList msgElemlist,
 				   CWBool(assembleFunc) (CWProtocolMessage **, int *, int, int, CWList),
-				   CWBool(parseFunc) (char *, int, int, void *),
+				   CWBool(parseFunc) (unsigned char *, int, int, void *),
 				   CWBool(saveFunc) (void *), void *valuesPtr);
 void CWWTPDestroy();
 

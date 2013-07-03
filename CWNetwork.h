@@ -70,7 +70,7 @@ extern CWNetworkLev3Service gNetworkPreferredFamily;
 #define     CWNetworkCloseSocket(x)     { shutdown(SHUT_RDWR, x); close(x); }
 
 int CWNetworkGetAddressSize(CWNetworkLev4Address * addrPtr);
-CWBool CWNetworkSendUnsafeConnected(CWSocket sock, const char *buf, int len);
+CWBool CWNetworkSendUnsafeConnected(CWSocket sock, unsigned char *buf, int len);
 CWBool CWNetworkSendUnsafeUnconnected(CWSocket sock, CWNetworkLev4Address * addrPtr, unsigned char *buf, int len);
 CWBool CWNetworkReceiveUnsafe(CWSocket sock, unsigned char *buf, int len, int flags, CWNetworkLev4Address * addrPtr,
 			      int *readBytesPtr);
