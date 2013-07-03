@@ -667,7 +667,7 @@ void CWProtocolStore16(CWProtocolMessage * msgPtr, unsigned short val);
 void CWProtocolStore32(CWProtocolMessage * msgPtr, unsigned int val);
 void CWProtocolStoreStr(CWProtocolMessage * msgPtr, char *str);
 void CWProtocolStoreMessage(CWProtocolMessage * msgPtr, CWProtocolMessage * msgToStorePtr);
-void CWProtocolStoreRawBytes(CWProtocolMessage * msgPtr, char *bytes, int len);
+void CWProtocolStoreRawBytes(CWProtocolMessage * msgPtr, unsigned char *bytes, int len);
 
 unsigned char CWProtocolRetrieve8(CWProtocolMessage * msgPtr);
 unsigned short CWProtocolRetrieve16(CWProtocolMessage * msgPtr);

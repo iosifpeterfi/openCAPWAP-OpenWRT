@@ -957,7 +957,7 @@ CWBool CWParseControlHeader(CWProtocolMessage * msgPtr, CWControlHeaderValues * 
 	valPtr->msgElemsLen = CWProtocolRetrieve16(msgPtr);
 //  CWDebugLog("MESSAGE_ELEMENT_LENGTH: %u", valPtr->msgElemsLen );
 
-	flags = CWProtocolRetrieve8(msgPtr);
+	CWProtocolRetrieve8(msgPtr);
 //  CWDebugLog("FLAGS: %u", flags);
 
 //  valPtr->timestamp = CWProtocolRetrieve32(msgPtr);
