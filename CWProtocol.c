@@ -79,7 +79,7 @@ void CWProtocolStoreMessage(CWProtocolMessage * msgPtr, CWProtocolMessage * msgT
 }
 
 // stores len bytes in the message, increments the current offset in bytes.
-void CWProtocolStoreRawBytes(CWProtocolMessage * msgPtr, char *bytes, int len)
+void CWProtocolStoreRawBytes(CWProtocolMessage * msgPtr, unsigned char *bytes, int len)
 {
 	CW_COPY_MEMORY(&((msgPtr->msg)[(msgPtr->offset)]), bytes, len);
 	(msgPtr->offset) += len;
@@ -403,6 +403,8 @@ CWBool CWAssembleVendorMsgElemResultCodeWithPayload(CWProtocolMessage * msgPtr, 
 		if (wumPayload->type == WTP_VERSION_RESPONSE)
 			payloadSize = sizeof(unsigned char) * 4;
 		break;
+	default:
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Invalid vendorPayloadType");
 	}
 
 	// create message
@@ -651,7 +653,7 @@ CWBool CWCompareFragment(void *newFrag, void *oldFrag)
 // parse a sigle fragment. If it is the last fragment we need or the only fragment, return the reassembled message in
 // *reassembleMsg. If we need at lest one more fragment, save this fragment in the list. You then call this function again
 // with a new fragment and the same list untill we got all the fragments.
-CWBool CWProtocolParseFragment(char *buf, int readBytes, CWList * fragmentsListPtr, CWProtocolMessage * reassembledMsg,
+CWBool CWProtocolParseFragment(unsigned char *buf, int readBytes, CWList * fragmentsListPtr, CWProtocolMessage * reassembledMsg,
 			       CWBool * dataFlagPtr, char *RadioMAC)
 {
 
@@ -942,8 +944,6 @@ CWBool CWParseTransportHeader(CWProtocolMessage * msgPtr, CWProtocolTransportHea
 // Parse Control Header
 CWBool CWParseControlHeader(CWProtocolMessage * msgPtr, CWControlHeaderValues * valPtr)
 {
-	unsigned char flags = 0;
-
 	if (msgPtr == NULL || valPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 

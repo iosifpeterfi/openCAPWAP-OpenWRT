@@ -161,7 +161,7 @@ CWBool CWSecurityInitSessionClient(CWSocket sock,
 				   CWSafeList packetReceiveList,
 				   CWSecurityContext ctx, CWSecuritySession * sessionPtr, int *PMTUPtr)
 {
-
+	int i = 0;
 	BIO *sbio = NULL;
 	CWNetworkLev4Address peer;
 	int peerlen = sizeof(peer);
