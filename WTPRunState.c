@@ -1302,7 +1302,6 @@ CWBool CWParseVendorMessage(char *msg, int len, void **valuesPtr)
 		break;
 	}
 
-	i = 0;
 	completeMsg.offset = 0;
 	while (completeMsg.offset < len) {
 		unsigned short int type = 0;
