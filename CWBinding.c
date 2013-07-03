@@ -214,7 +214,7 @@ CWBool CWAssembleTransportHeaderBinding(CWProtocolMessage * transportHdrPtr, CWB
 	return CW_TRUE;
 }
 
-CWBool CWParseTransportHeaderMACAddress(CWProtocolMessage * msgPtr, char *mac_ptr)
+CWBool CWParseTransportHeaderMACAddress(CWProtocolMessage * msgPtr, unsigned char *mac_ptr)
 {
 
 	if (msgPtr == NULL)

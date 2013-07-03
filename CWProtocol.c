@@ -1001,7 +1001,7 @@ CWBool CWAssembleUnrecognizedMessageResponse(CWProtocolMessage ** messagesPtr, i
 	return CW_TRUE;
 }
 
-CWBool CWAssembleMsgElemSessionID(CWProtocolMessage * msgPtr, char *sessionID)
+CWBool CWAssembleMsgElemSessionID(CWProtocolMessage * msgPtr, unsigned char *sessionID)
 {
 	if (msgPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);

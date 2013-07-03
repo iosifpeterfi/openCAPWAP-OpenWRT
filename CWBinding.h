@@ -140,6 +140,6 @@ CWBool CWAssembleTransportHeaderBinding(CWProtocolMessage * transportHdrPtr,
 					CWBindingTransportHeaderValues * valuesPtr);
 CWBool CWBindingCheckType(int elemType);
 CWBool CWParseTransportHeaderBinding(CWProtocolMessage * msgPtr, CWBindingTransportHeaderValues * valuesPtr);
-CWBool CWParseTransportHeaderMACAddress(CWProtocolMessage * msgPtr, char *mac_ptr);
+CWBool CWParseTransportHeaderMACAddress(CWProtocolMessage * msgPtr,unsigned char *mac_ptr);
 
 #endif

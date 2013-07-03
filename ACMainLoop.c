@@ -158,7 +158,6 @@ void CWACManageIncomingPacket(CWSocket sock,
 		if (!CWErr(CWThreadMutexLock(&gActiveWTPsMutex)))
 			exit(1);
 
-		tmp = gActiveWTPs;
 		CWThreadMutexUnlock(&gActiveWTPsMutex);
 
 		if (gActiveWTPs >= gMaxWTPs) {
