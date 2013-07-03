@@ -37,7 +37,7 @@ pthread_mutex_t gRADIO_MAC_mutex;
 static const int gCWIANATimes256 = CW_IANA_ENTERPRISE_NUMBER * 256;
 static const int gMaxDTLSHeaderSize = 25;	// see http://crypto.stanford.edu/~nagendra/papers/dtls.pdf
 static const int gMaxCAPWAPHeaderSize = 8;	// note: this include optional Wireless field
-char gRADIO_MAC[6];		// note: this include optional Wireless field
+unsigned char gRADIO_MAC[6];		// note: this include optional Wireless field
 
 // stores 8 bits in the message, increments the current offset in bytes
 void CWProtocolStore8(CWProtocolMessage * msgPtr, unsigned char val)

@@ -60,7 +60,7 @@ extern int gCWACCount;
 
 extern int gHostapd_port;
 extern char *gHostapd_unix_path;
-extern char unsigned gRADIO_MAC[6];
+extern unsigned char gRADIO_MAC[6];
 extern pthread_mutex_t gRADIO_MAC_mutex;
 
 extern char *gWTPLocation;

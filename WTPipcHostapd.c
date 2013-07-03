@@ -62,7 +62,7 @@ unsigned char WTP_Radio_Information = 0;
 unsigned char WTP_Rates[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 unsigned char WTP_MDC[6] = { 0, 0, 0, 0, 0, 0 };
 
-char gRADIO_MAC[6];
+unsigned char gRADIO_MAC[6];
 
 int flush_pcap(u_char * buf, int len, char *filename)
 {
