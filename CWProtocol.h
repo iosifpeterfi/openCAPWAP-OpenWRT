@@ -699,7 +699,7 @@ CWBool CWAssembleMsgElemRadioAdminState(CWProtocolMessage * msgPtr);	//29
 CWBool CWAssembleMsgElemRadioOperationalState(int radioID, CWProtocolMessage * msgPtr);	//30
 CWBool CWAssembleMsgElemResultCode(CWProtocolMessage * msgPtr, CWProtocolResultCode code);	//31
 CWBool CWAssembleVendorMsgElemResultCodeWithPayload(CWProtocolMessage * msgPtr, CWProtocolResultCode code, CWProtocolVendorSpecificValues * payload);	//49
-CWBool CWAssembleMsgElemSessionID(CWProtocolMessage * msgPtr, char *sessionID);	//32
+CWBool CWAssembleMsgElemSessionID(CWProtocolMessage * msgPtr, unsigned char *sessionID);	//32
 
 CWBool CWParseACName(CWProtocolMessage * msgPtr, int len, char **valPtr);
 CWBool CWParseWTPRadioOperationalState(CWProtocolMessage * msgPtr, int len, CWRadioOperationalInfoValues * valPtr);	//30
