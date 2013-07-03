@@ -1,5 +1,5 @@
 /*******************************************************************************************
- * Copyright (c) 2006-7 Laboratorio di Sistemi di Elaborazione e Bioingegneria Informatica *
+ * Copyright (c) 2005-7 Laboratorio di Sistemi di Elaborazione e Bioingegneria Informatica *
  *                      Universita' Campus BioMedico - Italy                               *
  *                                                                                         *
  * This program is free software; you can redistribute it and/or modify it under the terms *
@@ -60,7 +60,7 @@ extern int gCWACCount;
 
 extern int gHostapd_port;
 extern char *gHostapd_unix_path;
-extern char gRADIO_MAC[6];
+extern char unsigned gRADIO_MAC[6];
 extern pthread_mutex_t gRADIO_MAC_mutex;
 
 extern char *gWTPLocation;

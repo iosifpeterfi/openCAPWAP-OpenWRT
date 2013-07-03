@@ -374,7 +374,7 @@ typedef struct {
 } CWControlHeaderValues;
 
 typedef struct {
-	char *data;
+	unsiged char *data;
 	int dataLen;
 	CWProtocolTransportHeaderValues transportVal;
 } CWProtocolFragment;
@@ -675,12 +675,12 @@ unsigned int CWProtocolRetrieve32(CWProtocolMessage * msgPtr);
 char *CWProtocolRetrieveStr(CWProtocolMessage * msgPtr, int len);
 char *CWProtocolRetrieveRawBytes(CWProtocolMessage * msgPtr, int len);
 
-CWBool CWProtocolParseFragment(char *buf, int readBytes, CWList * fragmentsListPtr, CWProtocolMessage * reassembledMsg,
-			       CWBool * dataFlag, char *RadioMAC);
+CWBool CWProtocolParseFragment(unsigned char *buf, int readBytes, CWList * fragmentsListPtr, CWProtocolMessage * reassembledMsg,
+			       CWBool * dataFlag, unsigned char *RadioMAC);
 void CWProtocolDestroyFragment(void *f);
 
 CWBool CWParseTransportHeader(CWProtocolMessage * msgPtr, CWProtocolTransportHeaderValues * valuesPtr,
-			      CWBool * dataFlag, char *RadioMAC);
+			      CWBool * dataFlag, unsigned char *RadioMAC);
 CWBool CWParseControlHeader(CWProtocolMessage * msgPtr, CWControlHeaderValues * valPtr);
 CWBool CWParseFormatMsgElem(CWProtocolMessage * completeMsg, unsigned short int *type, unsigned short int *len);
 

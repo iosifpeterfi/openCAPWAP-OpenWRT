@@ -654,7 +654,7 @@ CWBool CWCompareFragment(void *newFrag, void *oldFrag)
 // *reassembleMsg. If we need at lest one more fragment, save this fragment in the list. You then call this function again
 // with a new fragment and the same list untill we got all the fragments.
 CWBool CWProtocolParseFragment(unsigned char *buf, int readBytes, CWList * fragmentsListPtr, CWProtocolMessage * reassembledMsg,
-			       CWBool * dataFlagPtr, char *RadioMAC)
+			       CWBool * dataFlagPtr, unsigned char *RadioMAC)
 {
 
 	CWProtocolTransportHeaderValues values;
@@ -813,7 +813,7 @@ CWBool CWProtocolParseFragment(unsigned char *buf, int readBytes, CWList * fragm
 
 // Parse Transport Header
 CWBool CWParseTransportHeader(CWProtocolMessage * msgPtr, CWProtocolTransportHeaderValues * valuesPtr,
-			      CWBool * dataFlagPtr, char *RadioMAC)
+			      CWBool * dataFlagPtr, unsigned char *RadioMAC)
 {
 
 	int transport4BytesLen;
