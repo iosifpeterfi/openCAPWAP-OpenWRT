@@ -152,7 +152,7 @@ void CWACManageIncomingPacket(CWSocket sock,
 		CWUnlockSafeList(wtpPtr->packetReceiveList);
 	} else {
 		/* unknown WTP */
-		int seqNum, tmp;
+		int seqNum;
 		CWDiscoveryRequestValues values;
 
 		if (!CWErr(CWThreadMutexLock(&gActiveWTPsMutex)))

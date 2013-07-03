@@ -1093,9 +1093,6 @@ CWBool CWParseDeleteStation(CWProtocolMessage * msgPtr, int len)
 
 CWBool CWParseDeleteWLAN(CWProtocolMessage * msgPtr, int len)
 {
-	int Length = 0;
-	unsigned char *ssid;
-
 	//CWParseMessageElementStart();  sostituire al posto delle righe successive quando passerò valPtr alla funzione CWarseAddStation
 	/*--------------------------------------------------------------------------------------*/
 	int oldOffset;
@@ -1104,8 +1101,8 @@ CWBool CWParseDeleteWLAN(CWProtocolMessage * msgPtr, int len)
 	oldOffset = msgPtr->offset;
 	/*----------------------------------------------------------------------------------*/
 
-	int radioID = CWProtocolRetrieve8(msgPtr);
-	int wlanID = CWProtocolRetrieve8(msgPtr);
+	CWProtocolRetrieve8(msgPtr);
+	CWProtocolRetrieve8(msgPtr);
 
 	unsigned char tmp_ssid[3];
 
@@ -1117,7 +1114,6 @@ CWBool CWParseDeleteWLAN(CWProtocolMessage * msgPtr, int len)
 CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 {
 	CWDebugLog("CWParseAddWLAN() 1");
-	int Length = 0;
 	unsigned char *ssid;
 	unsigned char tmp_buf[len + 1];
 
@@ -1191,7 +1187,7 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 
 CWBool CWParseAddStation(CWProtocolMessage * msgPtr, int len)
 {
-	int radioID = 0, Length = 0;
+	int radioID = 0, Length;
 	unsigned char *StationMacAddress;
 
 	//CWParseMessageElementStart();  sostituire al posto delle righe successive quando passerò valPtr alla funzione CWarseAddStation

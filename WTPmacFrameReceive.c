@@ -173,7 +173,6 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 
 	struct sockaddr_ll addr;
 
-	CWProtocolMessage *frame = NULL;
 	CWBindingDataListElement *listElement = NULL;
 	struct ifreq ethreq;
 

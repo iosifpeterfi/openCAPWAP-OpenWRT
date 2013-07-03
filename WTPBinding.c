@@ -596,6 +596,8 @@ CWBool CWBindingParseConfigurationUpdateRequest(char *msg, int len, void **value
 				     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 		    );
 		break;
+	default:
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,"Message elemet type unrecognized"); 
 	}
 
 	i = 0;

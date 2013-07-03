@@ -165,7 +165,6 @@ CWBool CWSecurityInitSessionClient(CWSocket sock,
 	BIO *sbio = NULL;
 	CWNetworkLev4Address peer;
 	int peerlen = sizeof(peer);
-	int i;
 
 	if (ctx == NULL || sessionPtr == NULL || PMTUPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);

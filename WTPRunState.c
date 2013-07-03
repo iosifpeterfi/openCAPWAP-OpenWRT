@@ -151,10 +151,9 @@ int isEAPOL_Frame(unsigned char *buf, unsigned int len)
 
 CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg)
 {
-	int n, readBytes;
+	int readBytes;
 	char buf[CW_BUFFER_SIZE];
 	struct sockaddr_ll rawSockaddr;
-	CWSocket sockDTLS = (long) arg;
 	CWNetworkLev4Address addr;
 	CWList fragments = NULL;
 	CWProtocolMessage msgPtr;
@@ -246,7 +245,6 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg)
 		} else {
 			if (msgPtr.data_msgType == CW_DATA_MSG_KEEP_ALIVE_TYPE) {
 
-				char *valPtr = NULL;
 				unsigned short int elemType = 0;
 				unsigned short int elemLen = 0;
 
@@ -328,7 +326,7 @@ int wtpInRunState = 0;
 CWStateTransition CWWTPEnterRun()
 {
 
-	int k, msg_len;
+	int k;
 
 	CWLog("\n");
 	CWLog("######### WTP enters in RUN State #########");
@@ -1250,7 +1248,6 @@ CWBool CWAssembleWLANConfigurationResponse(CWProtocolMessage ** messagesPtr, int
     filling in valuesPtr*/
 CWBool CWParseVendorMessage(char *msg, int len, void **valuesPtr)
 {
-	int i;
 	CWProtocolMessage completeMsg;
 	unsigned short int GlobalElemType = 0;	// = CWProtocolRetrieve32(&completeMsg);
 
@@ -1299,6 +1296,9 @@ CWBool CWParseVendorMessage(char *msg, int len, void **valuesPtr)
 				     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 		    );
 		/*Allocate various other vendor specific fields */
+		break;
+	default:
+		vendPtr = NULL;
 		break;
 	}
 

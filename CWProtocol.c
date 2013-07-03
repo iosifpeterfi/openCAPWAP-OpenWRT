@@ -216,9 +216,9 @@ CWBool CWAssembleTransportHeader(CWProtocolMessage * transportHdrPtr, CWProtocol
 	if (radio_mac_present)
 		if (valuesPtr->bindingValuesPtr != NULL)
 			CWSetField32(val,
-				     CW_TRANSPORT_HEADER_HLEN_START, CW_TRANSPORT_HEADER_HLEN_LEN, CW_BINDING_HLEN + 2);
+				     CW_TRANSPORT_HEADER_HLEN_START, CW_TRANSPORT_HEADER_HLEN_LEN, (CW_BINDING_HLEN + 2));
 		else
-			CWSetField32(val, CW_TRANSPORT_HEADER_HLEN_START, CW_TRANSPORT_HEADER_HLEN_LEN, 2 + 2);
+			CWSetField32(val, CW_TRANSPORT_HEADER_HLEN_START, CW_TRANSPORT_HEADER_HLEN_LEN, (2 + 2));
 	else if (valuesPtr->bindingValuesPtr != NULL)
 		CWSetField32(val, CW_TRANSPORT_HEADER_HLEN_START, CW_TRANSPORT_HEADER_HLEN_LEN, CW_BINDING_HLEN);
 	else

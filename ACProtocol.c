@@ -782,11 +782,9 @@ CWBool CWParseWTPMACType(CWProtocolMessage * msgPtr, int len, CWMACType * valPtr
 
 CWBool CWParseWTPRadioInformation(CWProtocolMessage * msgPtr, int len, unsigned char *valPtr)
 {
-
 	CWParseMessageElementStart();
-	int RadioID;
 
-	RadioID = CWProtocolRetrieve8(msgPtr);	// Radio ID
+	CWProtocolRetrieve8(msgPtr);	// Radio ID
 	CWProtocolRetrieve8(msgPtr);	// Res
 	CWProtocolRetrieve8(msgPtr);	// Res
 	CWProtocolRetrieve8(msgPtr);	// Res
@@ -800,10 +798,9 @@ CWBool CWParseWTPSupportedRates(CWProtocolMessage * msgPtr, int len, unsigned ch
 {
 
 	CWParseMessageElementStart();
-	int RadioID;
 	unsigned char sup_rates[8];
 
-	RadioID = CWProtocolRetrieve8(msgPtr);
+	CWProtocolRetrieve8(msgPtr);
 
 	sup_rates[0] = CWProtocolRetrieve8(msgPtr);
 	sup_rates[1] = CWProtocolRetrieve8(msgPtr);
@@ -823,10 +820,9 @@ CWBool CWParseWTPMultiDomainCapability(CWProtocolMessage * msgPtr, int len, char
 {
 
 	CWParseMessageElementStart();
-	int RadioID;
 	unsigned char sup_cap[6];
 
-	RadioID = CWProtocolRetrieve8(msgPtr);
+	CWProtocolRetrieve8(msgPtr);
 	CWProtocolRetrieve8(msgPtr);
 
 	sup_cap[0] = CWProtocolRetrieve8(msgPtr);

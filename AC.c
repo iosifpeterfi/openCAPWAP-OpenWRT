@@ -131,6 +131,7 @@ int main(int argc, char * const argv[])
 	CWCreateConnectionWithHostapdAC();
 	CWACEnterMainLoop();
 	CWACDestroy();
+	CWLogCloseFile();
 
 	return 0;
 }

@@ -47,8 +47,8 @@ CWBool ACEnterConfigure(int WTPIndex, CWProtocolMessage * msgPtr)
 {
 
 	/*** tmp Radio Info ***/
-	char tmp_RadioInformationABGN;
-	char tmp_SuppRates[8];
+	unsigned char tmp_RadioInformationABGN;
+	unsigned char tmp_SuppRates[8];
 	char tmp_MultiDomCapa[6];
 
 	int seqNum;

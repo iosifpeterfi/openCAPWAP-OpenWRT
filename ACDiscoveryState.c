@@ -98,7 +98,7 @@ CWBool CWParseDiscoveryRequestMessage(char *msg, int len, int *seqNumPtr, CWDisc
 
 	CWControlHeaderValues controlVal;
 	CWProtocolTransportHeaderValues transportVal;
-	char RadioInfoABGN;
+	unsigned char RadioInfoABGN;
 	int offsetTillMessages;
 
 	CWProtocolMessage completeMsg;

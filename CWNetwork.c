@@ -162,7 +162,7 @@ CWBool CWNetworkInitSocketClient(CWSocket * sockPtr, CWNetworkLev4Address * addr
 #ifdef IPv6
 	sockaddr.sin6_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;
 #else
-	sockaddr.sin_family == AF_INET;
+	sockaddr.sin_family = AF_INET;
 #endif
 	if (bind(*sockPtr, (const struct sockaddr *)&sockaddr, addrlen) < 0) {
 		close(*sockPtr);
@@ -202,7 +202,6 @@ CWBool CWNetworkInitSocketClient(CWSocket * sockPtr, CWNetworkLev4Address * addr
 CWBool CWNetworkInitSocketClientDataChannel(CWSocket * sockPtr, CWNetworkLev4Address * addrPtr)
 {
 
-	int yes = 1;
 #ifdef IPv6
 	struct sockaddr_in6 sockaddr;
 #else
@@ -227,7 +226,7 @@ CWBool CWNetworkInitSocketClientDataChannel(CWSocket * sockPtr, CWNetworkLev4Add
 #ifdef IPv6
 	sockaddr.sin6_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;
 #else
-	sockaddr.sin_family == AF_INET;
+	sockaddr.sin_family = AF_INET;
 #endif
 	if (bind(*sockPtr, (const struct sockaddr *)&sockaddr, addrlen) < 0) {
 		close(*sockPtr);

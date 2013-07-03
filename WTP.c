@@ -530,6 +530,7 @@ int main(int argc, char * const argv[])
 			break;
 		case CW_QUIT:
 			CWWTPDestroy();
+			CWLogCloseFile();
 			return 0;
 		}
 	}

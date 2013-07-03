@@ -333,7 +333,7 @@ typedef enum {
 } CWProtocolResultCode;
 
 typedef struct {
-	char *msg;
+	unsigned char *msg;
 	int offset;
 	int data_msgType;
 } CWProtocolMessage;

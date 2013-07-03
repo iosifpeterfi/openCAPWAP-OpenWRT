@@ -58,9 +58,9 @@ CWStateTransition CWWTPEnterJoin()
 	int seqNum;
 	CWProtocolJoinResponseValues values;
 
-	gRADIO_MAC[0] = NULL;
+	gRADIO_MAC[0] = '\0';
 	CWLog("Waiting for hostapd to connect...");
-       	while(gRADIO_MAC[0] == NULL) sleep(1);
+       	while(gRADIO_MAC[0] == '\0') sleep(1);
 
 	CWLog("\n");
 	CWLog("######### Join State #########");
@@ -442,7 +442,7 @@ CWBool CWSaveJoinResponseMessage(CWProtocolJoinResponseValues * joinResponse)
 		 * 19/10/2009 - Donato Capitella
 		 */
 		// Applies only if Discovey has run 
-		if (gCWDiscoveryCount != NULL) {
+		if (gCWDiscoveryCount != 0) {
 			int i;
 			for (i = 0; i < gACInfoPtr->vendorInfos.vendorInfosCount; i++) {
 				CW_FREE_OBJECT(gACInfoPtr->vendorInfos.vendorInfos[i].valuePtr);

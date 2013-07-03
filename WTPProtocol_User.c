@@ -72,8 +72,6 @@ CWBool CWWTPGetEncCapabilities(CWWTPEncryptCaps * encc)
 
 void CWWTPDestroyEncCapabilities(CWWTPEncryptCaps * encc)
 {
-	int i;
-
 	if (encc == NULL)
 		return;
 

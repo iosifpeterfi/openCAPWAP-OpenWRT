@@ -68,7 +68,6 @@ CWBool CWParseDiscoveryResponseMessage(char *msg, int len, int *seqNumPtr, CWACI
 CWStateTransition CWWTPEnterDiscovery()
 {
 	int i;
-	CWBool j;
 
 	CWLog("\n");
 	CWLog("######### Discovery State #########");

@@ -939,6 +939,9 @@ CWBool CWSaveConfigurationUpdateResponseMessage(CWProtocolResultCode resultCode,
 			if (wumPayloadBytes[0] == WTP_COMMIT_ACK && resultCode == CW_PROTOCOL_SUCCESS)
 				closeWTPManager = CW_TRUE;
 			break;
+		default:
+			payloadSize = 0;
+			break;
 		}
 
 		if ((responseBuffer = malloc(headerSize + payloadSize)) != NULL) {
@@ -1194,7 +1197,6 @@ CWBool CWSaveWTPEventRequestMessage(CWProtocolWTPEventRequestValues * WTPEventRe
 	if ((WTPEventRequest->WTPOperationalStatisticsCount) > 0) {
 
 		int i, k;
-		CWBool found = CW_FALSE;
 
 		for (i = 0; i < (WTPEventRequest->WTPOperationalStatisticsCount); i++) {
 
@@ -1229,7 +1231,6 @@ CWBool CWSaveWTPEventRequestMessage(CWProtocolWTPEventRequestValues * WTPEventRe
 	if ((WTPEventRequest->WTPRadioStatisticsCount) > 0) {
 
 		int i, k;
-		CWBool found;
 
 		for (i = 0; i < (WTPEventRequest->WTPRadioStatisticsCount); i++) {
 			found = CW_FALSE;
