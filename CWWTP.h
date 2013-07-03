@@ -125,7 +125,7 @@ CWBool CWWTPCheckForBindingFrame();
 /* in WTPProtocol_User.c */
 CWBool CWWTPGetACNameWithIndex(CWACNamesWithIndex * ACsInfo);
 int getInterfaceMacAddr(char *interface, unsigned char *macAddr);
-int initWTPSessionID(char *sessionID);
+int initWTPSessionID(unsigned char *sessionID);
 int CWWTPGetStatisticsTimer();
 void CWWTPGetIPv6Address(struct sockaddr_in6 *myAddr);
 CWBool CWGetWTPRadiosAdminState(CWRadiosAdminInfo * valPtr);

@@ -54,7 +54,7 @@ int gIPv6StatusDuplicate = 0;
 
 char *gWTPLocation = NULL;
 char *gWTPName = NULL;
-unsinged char gWTPSessionID[16];
+unsigned char gWTPSessionID[16];
 
 /* if not NULL, jump Discovery and use this address for Joining */
 char *gWTPForceACAddress = NULL;
