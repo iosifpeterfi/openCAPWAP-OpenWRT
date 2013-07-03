@@ -105,7 +105,7 @@ typedef struct {
 	CWStateTransition currentState;
 	int interfaceIndex;
 	CWSocket socket;
-	char buf[CW_BUFFER_SIZE];
+	unsigned char buf[CW_BUFFER_SIZE];
 	enum {
 		CW_DTLS_HANDSHAKE_IN_PROGRESS,
 		CW_WAITING_REQUEST,
@@ -165,10 +165,10 @@ typedef struct {
 	int tap_fd;
 
 	// IEEE 802.11
-	char RadioInformationABGN;
-	char SuppRates[8];
+	unsigned char RadioInformationABGN;
+	unsigned char SuppRates[8];
 	char MultiDomCapa[6];
-	char RadioMAC[6];
+	unsigned char RadioMAC[6];
 
 } CWWTPManager;
 
