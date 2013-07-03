@@ -161,7 +161,6 @@ CWBool CWSecurityInitSessionClient(CWSocket sock,
 				   CWSafeList packetReceiveList,
 				   CWSecurityContext ctx, CWSecuritySession * sessionPtr, int *PMTUPtr)
 {
-	int i = 0;
 	BIO *sbio = NULL;
 	CWNetworkLev4Address peer;
 	int peerlen = sizeof(peer);
@@ -189,7 +188,6 @@ CWBool CWSecurityInitSessionClient(CWSocket sock,
 		CWSecurityRaiseSystemError(CW_ERROR_GENERAL);
 	}
 
-	i = BIO_ctrl_set_connected(sbio, 1, &peer);
 
 	/* BIO_ctrl(sbio, BIO_CTRL_DGRAM_MTU_DISCOVER, 0, NULL); // TO-DO (pass MTU?) */
 	BIO_ctrl(sbio, BIO_CTRL_DGRAM_MTU_DISCOVER, 0, NULL);

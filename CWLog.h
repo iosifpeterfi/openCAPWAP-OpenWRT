@@ -34,5 +34,5 @@ void CWVLog(const char *format, va_list args);
 void CWLog(const char *format, ...);
 void CWDebugLog(const char *format, ...);
 void CWLogInitFile(char *fileName);
-
+void CWLogCloseFile();
 #endif
