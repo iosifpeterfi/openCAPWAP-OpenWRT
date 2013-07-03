@@ -539,7 +539,7 @@ int get_mac_addr(unsigned char *outBuf, char *eth_name)
  */
 CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket * sockPtr,
 				 void (*CWManageIncomingPacket) (CWSocket,
-								 char *,
+								 unsigned char *,
 								 int,
 								 int, CWNetworkLev4Address *, CWBool), CWBool peekRead)
 {
@@ -555,7 +555,7 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket * sockPtr,
 	int dataSocket = 0;
 	int readBytes;
 	int flags = ((peekRead != CW_FALSE) ? MSG_PEEK : 0);
-	char buf[CW_BUFFER_SIZE];
+	unsigned char buf[CW_BUFFER_SIZE];
 
 	if (sockPtr == NULL || sockPtr->count == 0 || CWManageIncomingPacket == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
