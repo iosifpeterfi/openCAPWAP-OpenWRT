@@ -184,7 +184,7 @@ int CWACGetMaxWTPs(void);
 int CWACGetSecurity(void);
 int CWACGetInterfacesCount(void);
 int CWACGetInterfaceIPv4AddressAtIndex(int i);
-char *CWACGetInterfaceIPv6AddressAtIndex(int i);
+unsigned char *CWACGetInterfaceIPv6AddressAtIndex(int i);
 int CWACGetInterfaceWTPCountAtIndex(int i);
 CWBool CWACGetDiscoveryTimer(int *timer);
 CWBool CWACGetEchoRequestTimer(int *timer);

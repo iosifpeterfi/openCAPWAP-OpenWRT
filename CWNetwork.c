@@ -96,7 +96,7 @@ CWBool CWNetworkSendUnsafeConnected(CWSocket sock, const char *buf, int len)
  * Receive a datagram on an connected UDP socket (blocking).
  * Unsafe means that we don't use DTLS.
  */
-CWBool CWNetworkReceiveUnsafeConnected(CWSocket sock, char *buf, int len, int *readBytesPtr)
+CWBool CWNetworkReceiveUnsafeConnected(CWSocket sock, unsigned char *buf, int len, int *readBytesPtr)
 {
 
 	if (buf == NULL)

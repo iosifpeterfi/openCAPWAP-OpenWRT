@@ -152,7 +152,7 @@ CWBool CWAssembleMsgElemACDescriptor(CWProtocolMessage * msgPtr)
 		if ((infos.vendorInfos)[i].length == 4) {
 			*((infos.vendorInfos)[i].valuePtr) = htonl(*((infos.vendorInfos)[i].valuePtr));
 		}
-		CWProtocolStoreRawBytes(msgPtr, (char *)((infos.vendorInfos)[i].valuePtr),
+		CWProtocolStoreRawBytes(msgPtr, ((infos.vendorInfos)[i].valuePtr),
 					(infos.vendorInfos)[i].length);
 	}
 
@@ -205,7 +205,7 @@ CWBool CWAssembleMsgElemACIPv6List(CWProtocolMessage * msgPtr)
 
 	/*--- ATTENZIONE! l'indirizzo ipv6 forse deve essere girato ---*/
 	for (i = 0; i < count; i++) {
-		CWProtocolStoreRawBytes(msgPtr, (char *)list[i].s6_addr, 16);
+		CWProtocolStoreRawBytes(msgPtr, list[i].s6_addr, 16);
 	}
 
 	CW_FREE_OBJECT(list);
@@ -240,7 +240,7 @@ CWBool CWAssembleMsgElemAddWLAN(int radioID, CWProtocolMessage * msgPtr, unsigne
 	CW_CREATE_PROTOCOL_MESSAGE(*msgPtr, len_packet, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 	    );
 
-	CWProtocolStoreRawBytes(msgPtr, (char *)recv_packet, len_packet);
+	CWProtocolStoreRawBytes(msgPtr, recv_packet, len_packet);
 
 	return CWAssembleMsgElem(msgPtr, CW_MSG_ELEMENT_IEEE80211_ADD_WLAN_CW_TYPE);
 
@@ -252,7 +252,7 @@ CWBool CWAssembleMsgElemDeleteWLAN(int radioID, CWProtocolMessage * msgPtr, unsi
 	CW_CREATE_PROTOCOL_MESSAGE(*msgPtr, len_packet, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 	    );
 
-	CWProtocolStoreRawBytes(msgPtr, (char *)recv_packet, len_packet);
+	CWProtocolStoreRawBytes(msgPtr, recv_packet, len_packet);
 
 	return CWAssembleMsgElem(msgPtr, CW_MSG_ELEMENT_IEEE80211_DELETE_WLAN_CW_TYPE);
 }
@@ -270,7 +270,7 @@ CWBool CWAssembleMsgElemAddStation(int radioID, CWProtocolMessage * msgPtr, unsi
 
 	CWProtocolStore8(msgPtr, Length);
 
-	CWProtocolStoreRawBytes(msgPtr, (char *)StationMacAddr, Length);
+	CWProtocolStoreRawBytes(msgPtr, StationMacAddr, Length);
 
 	return CWAssembleMsgElem(msgPtr, CW_MSG_ELEMENT_ADD_STATION_CW_TYPE);
 
@@ -285,7 +285,7 @@ CWBool CWAssembleMsgElemDeleteStation(int radioID, CWProtocolMessage * msgPtr, u
 	    );
 	CWProtocolStore8(msgPtr, radioID);
 	CWProtocolStore8(msgPtr, Length);
-	CWProtocolStoreRawBytes(msgPtr, (char *)StationMacAddr, Length);
+	CWProtocolStoreRawBytes(msgPtr, StationMacAddr, Length);
 
 	return CWAssembleMsgElem(msgPtr, CW_MSG_ELEMENT_DELETE_STATION_CW_TYPE);
 }
