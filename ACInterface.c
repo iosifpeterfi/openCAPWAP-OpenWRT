@@ -456,7 +456,7 @@ CW_THREAD_RETURN_TYPE CWManageApplication(void *arg)
 							}
 
 							/* Read update package into buffer */
-							char *buf = malloc(fragSize);
+							unsigned char *buf = malloc(fragSize);
 							if (buf == NULL) {
 								CWLog("Can't allocate memory");
 								goto quit_manage;

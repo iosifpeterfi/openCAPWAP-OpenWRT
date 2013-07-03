@@ -153,7 +153,7 @@ CWBool CWAssembleMsgElemACDescriptor(CWProtocolMessage * msgPtr)
 			*((infos.vendorInfos)[i].valuePtr) = htonl(*((infos.vendorInfos)[i].valuePtr));
 		}
 		CWProtocolStoreRawBytes(msgPtr, ((infos.vendorInfos)[i].valuePtr),
-					(infos.vendorInfos)[i].length);
+					(unsigned *char)(infos.vendorInfos)[i].length);
 	}
 
 	CWACDestroyVendorInfos(&infos);
@@ -598,7 +598,7 @@ CWBool CWParseMsgElemDuplicateIPv6Address(CWProtocolMessage * msgPtr, int len, W
 
 	int i;
 	for (i = 0; i < 16; i++) {
-		char *aux;
+		unsigned char *aux;
 		aux = CWProtocolRetrieveRawBytes(msgPtr, 1);
 		(valPtr->ipv6Address).s6_addr[i] = *aux;
 	}
