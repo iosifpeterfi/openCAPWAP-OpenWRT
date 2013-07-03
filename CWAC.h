@@ -270,7 +270,7 @@ void CWACDestroyVendorInfos(CWACVendorInfos * valPtr);
 
 /* in ACMainLoop.c */
 void CWACManageIncomingPacket(CWSocket sock,
-			      char *buf,
+			      unsigned char *buf,
 			      int len, int incomingInterfaceIndex, CWNetworkLev4Address * addrPtr, CWBool dataFlag);
 
 void *CWManageWTP(void *arg);

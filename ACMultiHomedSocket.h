@@ -69,7 +69,7 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket * sockPtr, int por
 					   int multicastGroupsCount);
 void CWNetworkCloseMultiHomedSocket(CWMultiHomedSocket * sockPtr);
 CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket * sockPtr,
-				 void (*CWManageIncomingPacket) (CWSocket, char *, int, int, CWNetworkLev4Address *,
+				 void (*CWManageIncomingPacket) (CWSocket, unsigned char *, int, int, CWNetworkLev4Address *,
 								 CWBool), CWBool peekRead);
 int CWNetworkCountInterfaceAddresses(CWMultiHomedSocket * sockPtr);
 CWBool CWNetworkGetInterfaceAddresses(CWMultiHomedSocket * sockPtr, CWNetworkLev4Address ** addressesPtr,
