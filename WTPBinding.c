@@ -518,7 +518,7 @@ CWBool CWBindingSaveConfigurationUpdateRequest(void *bindingValuesPtr, CWProtoco
 	return CW_TRUE;
 }
 
-CWBool CWBindingParseConfigurationUpdateRequest(char *msg, int len, void **valuesPtr)
+CWBool CWBindingParseConfigurationUpdateRequest(unsigned char *msg, int len, void **valuesPtr)
 {
 	int i;
 	CWProtocolMessage completeMsg;
@@ -535,6 +535,12 @@ CWBool CWBindingParseConfigurationUpdateRequest(char *msg, int len, void **value
 
 	CWBindingConfigurationUpdateRequestValues *auxBindingPtr;
 	CWBindingConfigurationUpdateRequestValuesOFDM *ofdmBindingPtr;
+	CW_CREATE_OBJECT_ERR(auxBindingPtr, CWBindingConfigurationUpdateRequestValues,
+					return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
+				);
+	CW_CREATE_OBJECT_ERR(ofdmBindingPtr, CWBindingConfigurationUpdateRequestValuesOFDM,
+					return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
+				);
 
 	// parse message elements
 	while (completeMsg.offset < len) {
@@ -559,6 +565,8 @@ CWBool CWBindingParseConfigurationUpdateRequest(char *msg, int len, void **value
 		default:
 			if (CWBindingCheckType(elemType)) {
 				CW_FREE_OBJECT(valuesPtr);
+				CW_FREE_OBJECT(auxBindingPtr);
+				CW_FREE_OBJECT(ofdmBindingPtr);
 				return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Unrecognized Message Element");
 			} else {
 				completeMsg.offset += elemLen;
@@ -567,14 +575,15 @@ CWBool CWBindingParseConfigurationUpdateRequest(char *msg, int len, void **value
 		}
 	}
 
-	if (completeMsg.offset != len)
+	if (completeMsg.offset != len){
+		CW_FREE_OBJECT(auxBindingPtr);
+		CW_FREE_OBJECT(ofdmBindingPtr);
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Garbage at the End of the Message");
+	}
 
 	switch (GlobalElemType) {
 	case BINDING_MSG_ELEMENT_TYPE_WTP_QOS:{
-			CW_CREATE_OBJECT_ERR(auxBindingPtr, CWBindingConfigurationUpdateRequestValues,
-					     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
-			    );
+			CW_FREE_OBJECT(ofdmBindingPtr);
 			*valuesPtr = (void *)auxBindingPtr;
 
 			auxBindingPtr->qosCount = qosCount;
@@ -586,9 +595,7 @@ CWBool CWBindingParseConfigurationUpdateRequest(char *msg, int len, void **value
 			break;
 		}
 	case BINDING_MSG_ELEMENT_TYPE_OFDM_CONTROL:
-		CW_CREATE_OBJECT_ERR(ofdmBindingPtr, CWBindingConfigurationUpdateRequestValuesOFDM,
-				     return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
-		    );
+		CW_FREE_OBJECT(auxBindingPtr);
 
 		*valuesPtr = (void *)ofdmBindingPtr;
 

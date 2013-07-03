@@ -75,7 +75,7 @@ CWStateTransition CWWTPEnterSulking()
 			/* there's something to read */
 			{
 				CWNetworkLev4Address addr;
-				char buf[CW_BUFFER_SIZE];
+				unsigned char buf[CW_BUFFER_SIZE];
 				int readBytes;
 
 				/* read and discard */
