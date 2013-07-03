@@ -404,6 +404,8 @@ CWBool CWAssembleVendorMsgElemResultCodeWithPayload(CWProtocolMessage * msgPtr, 
 			payloadSize = sizeof(unsigned char) * 4;
 		break;
 	default:
+		uciPayload = NULL;
+		wumPayload = NULL;
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Invalid vendorPayloadType");
 	}
 
