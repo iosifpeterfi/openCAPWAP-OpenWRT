@@ -387,17 +387,19 @@ CWBool CWAssembleVendorMsgElemResultCodeWithPayload(CWProtocolMessage * msgPtr, 
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
 	int payloadSize = 0;
+        CWVendorUciValues *uciPayload;
+	CWVendorWumValues *wumPayload;
+	uciPayload = (CWVendorUciValues *) payload->payload;
+	wumPayload = (CWVendorWumValues *) payload->payload;
 
 	switch (payload->vendorPayloadType) {
 	case CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_UCI:
-	        CWVendorUciValues *uciPayload;
-		uciPayload = (CWVendorUciValues *) payload->payload;
+		wumPayload = NULL;
 		if (uciPayload->response != NULL)
 			payloadSize = (strlen(uciPayload->response) * sizeof(unsigned char));
 		break;
 	case CW_MSG_ELEMENT_VENDOR_SPEC_PAYLOAD_WUM:
-		CWVendorWumValues *wumPayload;
-		wumPayload = (CWVendorWumValues *) payload->payload;
+		uciPayload = NULL;
 		payloadSize = sizeof(unsigned char);	/* default, only type */
 		if (wumPayload->type == WTP_VERSION_RESPONSE)
 			payloadSize = sizeof(unsigned char) * 4;
