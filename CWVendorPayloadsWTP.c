@@ -85,7 +85,7 @@ CWBool CWParseWUMPayload(CWProtocolMessage * msgPtr, CWVendorWumValues ** payloa
 		wumPayload->_pack_size_ = (unsigned int)CWProtocolRetrieve32(msgPtr);
 	} else if (wumPayload->type == WTP_CUP_FRAGMENT) {
 		wumPayload->_seq_num_ = (unsigned int)CWProtocolRetrieve32(msgPtr);
-		wumPayload->_cup_fragment_size_ = (unsigned char)CWProtocolRetrieve32(msgPtr);
+		wumPayload->_cup_fragment_size_ = (unsigned int)CWProtocolRetrieve32(msgPtr);
 		wumPayload->_cup_ = CWProtocolRetrieveRawBytes(msgPtr, wumPayload->_cup_fragment_size_);
 	}
 

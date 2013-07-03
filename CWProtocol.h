@@ -673,7 +673,7 @@ unsigned char CWProtocolRetrieve8(CWProtocolMessage * msgPtr);
 unsigned short CWProtocolRetrieve16(CWProtocolMessage * msgPtr);
 unsigned int CWProtocolRetrieve32(CWProtocolMessage * msgPtr);
 char *CWProtocolRetrieveStr(CWProtocolMessage * msgPtr, int len);
-char *CWProtocolRetrieveRawBytes(CWProtocolMessage * msgPtr, int len);
+char *CWProtocolRetrieveRawBytes(CWProtocolMessage * msgPtr, unsigned int len);
 
 CWBool CWProtocolParseFragment(unsigned char *buf, int readBytes, CWList * fragmentsListPtr, CWProtocolMessage * reassembledMsg,
 			       CWBool * dataFlag, unsigned char *RadioMAC);

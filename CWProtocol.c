@@ -135,7 +135,7 @@ char *CWProtocolRetrieveStr(CWProtocolMessage * msgPtr, int len)
 }
 
 // retrieves len bytes from the message, increments the current offset in bytes.
-char *CWProtocolRetrieveRawBytes(CWProtocolMessage * msgPtr, int len)
+char *CWProtocolRetrieveRawBytes(CWProtocolMessage * msgPtr, unsined int len)
 {
 	char *bytes;
 
