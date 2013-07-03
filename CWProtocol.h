@@ -374,7 +374,7 @@ typedef struct {
 } CWControlHeaderValues;
 
 typedef struct {
-	unsiged char *data;
+	char *data;
 	int dataLen;
 	CWProtocolTransportHeaderValues transportVal;
 } CWProtocolFragment;
