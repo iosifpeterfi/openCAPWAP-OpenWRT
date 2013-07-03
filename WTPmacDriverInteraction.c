@@ -67,10 +67,10 @@ int get_frag_threshold(int *value)
 
 int set_txq(int code, int cwmin, int cwmax, int aifs, int burst_time)
 {
-	unsigned char str[32];
+	char str[32];
 	sprintf(str, "X%d %d %d %d %d", code, cwmin, cwmax, aifs, burst_time);
 
-	CWWTPsend_command_to_hostapd_SET_TXQ(str, strlen(str));
+	CWWTPsend_command_to_hostapd_SET_TXQ((unsigned char)str, strlen(str));
 	return 1;
 }
 
