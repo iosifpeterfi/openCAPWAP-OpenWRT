@@ -90,7 +90,7 @@ CWBool ACEnterDataCheck(int WTPIndex, CWProtocolMessage * msgPtr)
 	return CW_TRUE;
 }
 
-CWBool CWParseChangeStateEventRequestMessage(char *msg,
+CWBool CWParseChangeStateEventRequestMessage(unsigned char *msg,
 					     int len,
 					     int *seqNumPtr, CWProtocolChangeStateEventRequestValues * valuesPtr)
 {

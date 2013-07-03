@@ -35,10 +35,10 @@ int gCWChangeStatePendingTimer = CW_CHANGE_STATE_INTERVAL_DEFAULT;
 
 CWBool CWAssembleConfigureResponse(CWProtocolMessage ** messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum);
 
-CWBool CWParseConfigureRequestMessage(char *msg,
+CWBool CWParseConfigureRequestMessage(unsigned char *msg,
 				      int len,
 				      int *seqNumPtr,
-				      CWProtocolConfigureRequestValues * valuesPtr, char *, char *, char *);
+				      CWProtocolConfigureRequestValues * valuesPtr, unsigned char *, unsigned char *, char *);
 
 CWBool CWSaveConfigureRequestMessage(CWProtocolConfigureRequestValues * configureRequest,
 				     CWWTPProtocolManager * WTPProtocolManager);
@@ -105,11 +105,11 @@ CWBool ACEnterConfigure(int WTPIndex, CWProtocolMessage * msgPtr)
 	return CW_TRUE;
 }
 
-CWBool CWParseConfigureRequestMessage(char *msg,
+CWBool CWParseConfigureRequestMessage(unsigned char *msg,
 				      int len,
 				      int *seqNumPtr,
 				      CWProtocolConfigureRequestValues * valuesPtr,
-				      char *tmp_RadioInformationABGN, char *tmp_SuppRates, char *tmp_MultiDomCapa)
+				      unsigned char *tmp_RadioInformationABGN, unsigned char *tmp_SuppRates, char *tmp_MultiDomCapa)
 {
 
 	CWControlHeaderValues controlVal;

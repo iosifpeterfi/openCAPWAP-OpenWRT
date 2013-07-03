@@ -54,7 +54,7 @@ typedef struct {
 	char *location;
 	char *name;
 	CWWTPVendorInfos WTPBoardData;
-	char *sessionID;
+	unsigned char *sessionID;
 	CWWTPDescriptor WTPDescriptor;
 	struct sockaddr_in addr;
 	CWframeTunnelMode frameTunnelMode;
@@ -123,7 +123,7 @@ typedef struct {
 
 /*__________________________________________________________*/
 /*  *******************___PROTOTYPES___*******************  */
-CWBool CWParseChangeStateEventRequestMessage(char *msg, int len, int *seqNumPtr,
+CWBool CWParseChangeStateEventRequestMessage(unsigned char *msg, int len, int *seqNumPtr,
 					     CWProtocolChangeStateEventRequestValues * valuesPtr);
 CWBool CWAssembleChangeStateEventResponse(CWProtocolMessage ** messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum);
 

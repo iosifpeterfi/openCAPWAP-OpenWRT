@@ -126,7 +126,7 @@ typedef struct {
  *                  incomingInterfaceIndex is -1.
  */
 void CWACManageIncomingPacket(CWSocket sock,
-			      char *buf,
+			      unsigned char *buf,
 			      int readBytes,
 			      int incomingInterfaceIndex, CWNetworkLev4Address * addrPtr, CWBool dataFlag)
 {

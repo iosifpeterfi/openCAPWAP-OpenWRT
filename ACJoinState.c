@@ -34,7 +34,7 @@
 CWBool CWAssembleJoinResponse(CWProtocolMessage ** messagesPtr,
 			      int *fragmentsNumPtr, int PMTU, int seqNum, CWList msgElemList);
 
-CWBool CWParseJoinRequestMessage(char *msg, int len, int *seqNumPtr, CWProtocolJoinRequestValues * valuesPtr);
+CWBool CWParseJoinRequestMessage(unsigned char *msg, int len, int *seqNumPtr, CWProtocolJoinRequestValues * valuesPtr);
 
 CWBool CWSaveJoinRequestMessage(CWProtocolJoinRequestValues * joinRequest, CWWTPProtocolManager * WTPProtocolManager);
 
@@ -233,7 +233,7 @@ CWBool CWAssembleJoinResponse(CWProtocolMessage ** messagesPtr,
 /*
  * Parses Join Request.
  */
-CWBool CWParseJoinRequestMessage(char *msg, int len, int *seqNumPtr, CWProtocolJoinRequestValues * valuesPtr)
+CWBool CWParseJoinRequestMessage(unsigned char *msg, int len, int *seqNumPtr, CWProtocolJoinRequestValues * valuesPtr)
 {
 
 	CWControlHeaderValues controlVal;

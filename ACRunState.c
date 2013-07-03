@@ -165,7 +165,7 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 			CWDebugLog("Send a Station Configuration Request");
 		} else if (msgPtr->data_msgType == CW_DATA_MSG_KEEP_ALIVE_TYPE) {
 
-			char *valPtr = NULL;
+			unsigned char *valPtr = NULL;
 			CWProtocolMessage *messages = NULL;
 			CWProtocolMessage sessionIDmsgElem;
 			int fragmentsNum = 0;
@@ -1200,13 +1200,13 @@ CWBool CWSaveWTPEventRequestMessage(CWProtocolWTPEventRequestValues * WTPEventRe
 
 		for (i = 0; i < (WTPEventRequest->WTPOperationalStatisticsCount); i++) {
 
-			found = CW_FALSE;
+			//found = CW_FALSE;
 			for (k = 0; k < (WTPProtocolManager->radiosInfo).radioCount; k++) {
 
 				if ((WTPProtocolManager->radiosInfo).radiosInfo[k].radioID ==
 				    (WTPEventRequest->WTPOperationalStatistics[i]).radioID) {
 
-					found = CW_TRUE;
+					//found = CW_TRUE;
 					(WTPProtocolManager->radiosInfo).radiosInfo[k].TxQueueLevel =
 					    (WTPEventRequest->WTPOperationalStatistics[i]).TxQueueLevel;
 					(WTPProtocolManager->radiosInfo).radiosInfo[k].wirelessLinkFramesPerSec =
