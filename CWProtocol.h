@@ -704,6 +704,6 @@ CWBool CWAssembleMsgElemSessionID(CWProtocolMessage * msgPtr, unsigned char *ses
 CWBool CWParseACName(CWProtocolMessage * msgPtr, int len, char **valPtr);
 CWBool CWParseWTPRadioOperationalState(CWProtocolMessage * msgPtr, int len, CWRadioOperationalInfoValues * valPtr);	//30
 CWBool CWParseResultCode(CWProtocolMessage * msgPtr, int len, CWProtocolResultCode * valPtr);	//31
-char *CWParseSessionID(CWProtocolMessage * msgPtr, int len);
+unsigned char *CWParseSessionID(CWProtocolMessage * msgPtr, int len);
 
 #endif
