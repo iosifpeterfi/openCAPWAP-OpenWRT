@@ -57,7 +57,7 @@ CWBool CWReceiveDiscoveryResponse();
 void CWWTPEvaluateAC(CWACInfoValues * ACInfoPtr);
 CWBool CWReadResponses();
 CWBool CWAssembleDiscoveryRequest(CWProtocolMessage ** messagesPtr, int seqNum);
-CWBool CWParseDiscoveryResponseMessage(char *msg, int len, int *seqNumPtr, CWACInfoValues * ACInfoPtr);
+CWBool CWParseDiscoveryResponseMessage(unsigned char *msg, int len, int *seqNumPtr, CWACInfoValues * ACInfoPtr);
 
 /*_________________________________________________________*/
 /*  *******************___FUNCTIONS___*******************  */
@@ -237,7 +237,7 @@ CWBool CWReadResponses()
  */
 CWBool CWReceiveDiscoveryResponse()
 {
-	char buf[CW_BUFFER_SIZE];
+	unsigned char buf[CW_BUFFER_SIZE];
 	int i;
 	CWNetworkLev4Address addr;
 	CWACInfoValues *ACInfoPtr;
@@ -439,7 +439,7 @@ CWBool CWAssembleDiscoveryRequest(CWProtocolMessage ** messagesPtr, int seqNum)
 /*
  *  Parse Discovery Response and return informations in *ACInfoPtr.
  */
-CWBool CWParseDiscoveryResponseMessage(char *msg, int len, int *seqNumPtr, CWACInfoValues * ACInfoPtr)
+CWBool CWParseDiscoveryResponseMessage(unsigned char *msg, int len, int *seqNumPtr, CWACInfoValues * ACInfoPtr)
 {
 
 	CWControlHeaderValues controlVal;

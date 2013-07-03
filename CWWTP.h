@@ -65,7 +65,7 @@ extern pthread_mutex_t gRADIO_MAC_mutex;
 
 extern char *gWTPLocation;
 extern char *gWTPName;
-extern char gWTPSessionID[16];
+extern unsigned char gWTPSessionID[16];
 extern int gIPv4StatusDuplicate;
 extern int gIPv6StatusDuplicate;
 extern char *gWTPForceACAddress;

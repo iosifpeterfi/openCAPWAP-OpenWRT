@@ -35,7 +35,7 @@
 CWBool CWAssembleConfigureRequest(CWProtocolMessage ** messagesPtr,
 				  int *fragmentsNumPtr, int PMTU, int seqNum, CWList msgElemList);
 
-CWBool CWParseConfigureResponseMessage(char *msg, int len, int seqNum, CWProtocolConfigureResponseValues * valuesPtr);
+CWBool CWParseConfigureResponseMessage(unsigned char *msg, int len, int seqNum, CWProtocolConfigureResponseValues * valuesPtr);
 
 CWBool CWSaveConfigureResponseMessage(CWProtocolConfigureResponseValues * configureResponse);
 
@@ -135,7 +135,7 @@ CWBool CWAssembleConfigureRequest(CWProtocolMessage ** messagesPtr,
 	return CW_TRUE;
 }
 
-CWBool CWParseConfigureResponseMessage(char *msg, int len, int seqNum, CWProtocolConfigureResponseValues * valuesPtr)
+CWBool CWParseConfigureResponseMessage(unsigned char *msg, int len, int seqNum, CWProtocolConfigureResponseValues * valuesPtr)
 {
 
 	CWControlHeaderValues controlVal;
