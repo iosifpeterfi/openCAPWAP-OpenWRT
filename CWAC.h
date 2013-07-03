@@ -253,7 +253,7 @@ CWBool CWAssembleClearConfigurationRequest(CWProtocolMessage ** messagesPtr,
 
 /* in ACDiscoveryState.c */
 CWBool CWAssembleDiscoveryResponse(CWProtocolMessage ** messagesPtr, int seqNum);
-CWBool CWParseDiscoveryRequestMessage(char *msg, int len, int *seqNumPtr, CWDiscoveryRequestValues * valuesPtr);
+CWBool CWParseDiscoveryRequestMessage(unsigned char *msg, int len, int *seqNumPtr, CWDiscoveryRequestValues * valuesPtr);
 
 /* in ACRetransmission.c */
 CWBool CWACSendFragments(int WTPIndex);
