@@ -1233,13 +1233,13 @@ CWBool CWSaveWTPEventRequestMessage(CWProtocolWTPEventRequestValues * WTPEventRe
 		int i, k;
 
 		for (i = 0; i < (WTPEventRequest->WTPRadioStatisticsCount); i++) {
-			found = CW_FALSE;
+			//found = CW_FALSE;
 			for (k = 0; k < (WTPProtocolManager->radiosInfo).radioCount; k++) {
 
 				if ((WTPProtocolManager->radiosInfo).radiosInfo[k].radioID ==
 				    (WTPEventRequest->WTPOperationalStatistics[i]).radioID) {
 
-					found = CW_TRUE;
+					//found = CW_TRUE;
 					(WTPProtocolManager->radiosInfo).radiosInfo[k].statistics =
 					    (WTPEventRequest->WTPRadioStatistics[i]).WTPRadioStatistics;
 				}

@@ -33,7 +33,7 @@
 typedef struct {
 	char *locationData;
 	char *name;
-	char *sessionID;
+	unsigned char *sessionID;
 	CWWTPDescriptor descriptor;
 	struct sockaddr_in ipv4Address;
 
