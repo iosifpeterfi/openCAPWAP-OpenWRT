@@ -73,7 +73,7 @@ static CWBool checkResetFile()
 	return 1;
 }
 
-static void CWLogCloseFile()
+void CWLogCloseFile()
 {
 #ifndef CW_SINGLE_THREAD
 	CWDestroyThreadMutex(&gFileMutex);
