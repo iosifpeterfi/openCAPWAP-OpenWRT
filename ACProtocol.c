@@ -152,8 +152,8 @@ CWBool CWAssembleMsgElemACDescriptor(CWProtocolMessage * msgPtr)
 		if ((infos.vendorInfos)[i].length == 4) {
 			*((infos.vendorInfos)[i].valuePtr) = htonl(*((infos.vendorInfos)[i].valuePtr));
 		}
-		CWProtocolStoreRawBytes(msgPtr, ((infos.vendorInfos)[i].valuePtr),
-					(unsigned *char)(infos.vendorInfos)[i].length);
+		CWProtocolStoreRawBytes(msgPtr, (unsigned *char)((infos.vendorInfos)[i].valuePtr),
+					(infos.vendorInfos)[i].length);
 	}
 
 	CWACDestroyVendorInfos(&infos);
