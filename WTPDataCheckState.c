@@ -34,7 +34,7 @@
 CWBool CWAssembleChangeStateEventRequest(CWProtocolMessage ** messagesPtr,
 					 int *fragmentsNumPtr, int PMTU, int seqNum, CWList msgElemList);
 
-CWBool CWParseChangeStateEventResponseMessage(char *msg, int len, int seqNum, void *values);
+CWBool CWParseChangeStateEventResponseMessage(unsigned char *msg, int len, int seqNum, void *values);
 
 CWBool CWSaveChangeStateEventResponseMessage(void *changeStateEventResp);
 
@@ -118,7 +118,7 @@ CWBool CWAssembleChangeStateEventRequest(CWProtocolMessage ** messagesPtr,
 	return CW_TRUE;
 }
 
-CWBool CWParseChangeStateEventResponseMessage(char *msg, int len, int seqNum, void *values)
+CWBool CWParseChangeStateEventResponseMessage(unsigned char *msg, int len, int seqNum, void *values)
 {
 
 	CWControlHeaderValues controlVal;

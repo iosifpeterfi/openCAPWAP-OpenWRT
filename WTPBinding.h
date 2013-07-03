@@ -69,7 +69,7 @@ CWBool CWWTPInitBinding(int radioIndex);
 CWBool CWBindingSaveConfigureResponse(void *bindingValuesPtr, CWProtocolResultCode * resultCode);
 CWBool CWBindingSetQosValues(int qosCount, RadioQosValues * radioQosValues, CWProtocolResultCode * resultCode);
 CWBool CWBindingParseConfigurationUpdateRequest(char *msg, int len, void **valuesPtr);
-CWBool CWBindingParseConfigureResponse(char *msg, int len, void **valuesPtr);
+CWBool CWBindingParseConfigureResponse(unsigned char *msg, int len, void **valuesPtr);
 /****************************************************
  * 2009 Updates: (SaveConfiguration)                *
  *              Prototype Modification (int * added)*

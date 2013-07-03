@@ -664,7 +664,7 @@ CWBool CWBindingSaveConfigureResponse(void *bindingValuesPtr, CWProtocolResultCo
 	return CW_TRUE;
 }
 
-CWBool CWBindingParseConfigureResponse(char *msg, int len, void **valuesPtr)
+CWBool CWBindingParseConfigureResponse(unsigned char *msg, int len, void **valuesPtr)
 {
 	int i;
 	CWProtocolMessage completeMsg;
