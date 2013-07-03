@@ -137,7 +137,7 @@ char *CWProtocolRetrieveStr(CWProtocolMessage * msgPtr, int len)
 // retrieves len bytes from the message, increments the current offset in bytes.
 unsigned char *CWProtocolRetrieveRawBytes(CWProtocolMessage * msgPtr, unsigned int len)
 {
-	char *bytes;
+	unsigned char *bytes;
 
 	CW_CREATE_OBJECT_SIZE_ERR(bytes, len, return NULL;
 	    );
@@ -1094,7 +1094,7 @@ void CWFreeMessageFragments(CWProtocolMessage * messages, int fragmentsNum)
 	}
 }
 
-char *CWParseSessionID(CWProtocolMessage * msgPtr, int len)
+unsigned char *CWParseSessionID(CWProtocolMessage * msgPtr, int len)
 {
 	return CWProtocolRetrieveRawBytes(msgPtr, 16);
 }
