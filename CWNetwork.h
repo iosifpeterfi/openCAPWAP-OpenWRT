@@ -74,7 +74,7 @@ CWBool CWNetworkSendUnsafeConnected(CWSocket sock, const char *buf, int len);
 CWBool CWNetworkSendUnsafeUnconnected(CWSocket sock, CWNetworkLev4Address * addrPtr, unsigned char *buf, int len);
 CWBool CWNetworkReceiveUnsafe(CWSocket sock, unsigned char *buf, int len, int flags, CWNetworkLev4Address * addrPtr,
 			      int *readBytesPtr);
-CWBool CWNetworkReceiveUnsafeConnected(CWSocket sock, char *buf, int len, int *readBytesPtr);
+CWBool CWNetworkReceiveUnsafeConnected(CWSocket sock, unsigned char *buf, int len, int *readBytesPtr);
 CWBool CWNetworkInitSocketClient(CWSocket * sockPtr, CWNetworkLev4Address * addrPtr);
 CWBool CWNetworkInitSocketClientDataChannel(CWSocket * sockPtr, CWNetworkLev4Address * addrPtr);
 CWBool CWNetworkTimedPollRead(CWSocket sock, struct timeval *timeout);

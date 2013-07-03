@@ -116,7 +116,7 @@ CWBool CWNetworkReceiveUnsafeConnected(CWSocket sock, unsigned char *buf, int le
  * Unsafe means that we don't use DTLS.
  */
 CWBool CWNetworkReceiveUnsafe(CWSocket sock,
-			      char *buf, int len, int flags, CWNetworkLev4Address * addrPtr, int *readBytesPtr)
+			      unsigned char *buf, int len, int flags, CWNetworkLev4Address * addrPtr, int *readBytesPtr)
 {
 
 	socklen_t addrLen = sizeof(CWNetworkLev4Address);
