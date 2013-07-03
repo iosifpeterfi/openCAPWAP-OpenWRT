@@ -65,7 +65,7 @@ typedef struct {
 typedef struct {
 	unsigned int seq_num;
 	unsigned int size;
-	char *buf;
+	unsigned char *buf;
 } mess_cup;
 
 typedef struct {

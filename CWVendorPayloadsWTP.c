@@ -101,7 +101,6 @@ CWBool CWParseVendorPayload(CWProtocolMessage * msgPtr, int len, CWProtocolVendo
 	CWVendorUciValues *uciPtr;
 	CWVendorWumValues *wumPtr;
 
-	CWParseMessageElementStart();
 
 	/*...we choose which payload was used (in this case only
 	   uci configuration payloads are used) */

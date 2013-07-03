@@ -239,7 +239,7 @@ CWBool CWParseJoinRequestMessage(char *msg, int len, int *seqNumPtr, CWProtocolJ
 	CWControlHeaderValues controlVal;
 	int offsetTillMessages;
 	CWProtocolMessage completeMsg;
-	unsiged char RadioInfoABGN;
+	unsigned char RadioInfoABGN;
 
 	if (msg == NULL || seqNumPtr == NULL || valuesPtr == NULL)
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
