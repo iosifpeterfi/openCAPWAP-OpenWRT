@@ -5,7 +5,7 @@ apt-get -y purge libnl1 libnl2 hostapd
 apt-get -y autoremove
 rm -rf /tmp/hostapd-linux/
 mkdir -p /tmp/hostapd-linux
-cp -f *.tar.* .patch * /tmp/hostapd-linux
+cp -f *.tar.* *.patch /tmp/hostapd-linux
 cd /tmp/hostapd-linux
 tar zxvf nl-tiny.tar.gz
 mv src nl-tiny
