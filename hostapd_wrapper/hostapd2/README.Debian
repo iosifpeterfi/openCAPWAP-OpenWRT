@@ -3,12 +3,15 @@ Installation steps:
 
 1. Flash a firmware with the hostapd-capwap package on a OpenWRT compatible router.
 2. Setup a Debian box where you want to run AC.
-3. Run the ./debian-install.sh script
-4. On the Debian box edit /etc/hostapd.conf
-5. On the Debian box run: AC; hostapd /etc/hostapd.conf
-6. On the OpenWRT router run: killall -9 hostapd;
-7. On the OpenWRT router edit copy /tmp/hostapd-phy0.conf to /etc/capwap/hostapd.conf and edit the driver and set it to capwap_wtp
-8. On the OpenWRT router run: cd /etc/capwap; WTP; hostapd hostapd.conf
+3. On the Debian box :
+	- Run ./debian-install.sh
+	- Edit /etc/hostapd.conf
+	- Run AC; hostapd /etc/hostapd.conf
+4. On the OpenWRT router :
+	- Run killall -9 hostapd
+	- Copy /tmp/run/hostapd-phy0.conf to /etc/capwap/hostapd.conf
+	- Edit the driver in /etc/capwap/hostapd.conf line and set it to capwap_wtp
+	- Run cd /etc/capwap; WTP; hostapd hostapd.conf
 9. Enjoy the RX_MGMT events flowing trough the radiotap tunnel.
 
 
