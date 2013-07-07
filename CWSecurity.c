@@ -58,6 +58,14 @@ unsigned int CWSecurityPSKServerCB(SSL * ssl, const char *identity, unsigned cha
 
 int psk_key2bn(const char *psk_key, unsigned char *psk, unsigned int max_psk_len);
 
+void SSL_CTX_set_psk_server_callback(SSL_CTX *ctx,
+       unsigned int (*callback)(SSL *ssl, const char *identity,
+       unsigned char *psk, unsigned int max_psk_len));
+void SSL_CTX_set_psk_client_callback(SSL_CTX *ctx,
+        unsigned int (*callback)(SSL *ssl, const char *hint,
+        char *identity, unsigned int max_identity_len,
+        unsigned char *psk, unsigned int max_psk_len));
+
 #define CWSecurityGetErrorStr()             ((const char *) ERR_error_string(ERR_get_error(), NULL))
 #define CWDTLSGetError()                "Err"
 

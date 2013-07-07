@@ -287,5 +287,4 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag);
 
 CW_THREAD_RETURN_TYPE CWInterface(void *arg);
 /* void CWTimerExpiredHandler(int arg); */
-
 #endif

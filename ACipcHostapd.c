@@ -233,7 +233,7 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 
 #if defined(LOCALUDP)
 	struct sockaddr_un server;
-#else
+#elif defined(NETUDP)
 #if defined(USEIPV6)
 	struct sockaddr_in6 server;
 #else
@@ -258,7 +258,8 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 	sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
 #else
 	memset(&server, 0, sizeof(server));
-	sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if ((sock=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
+	CWDebugLog("WTP ipc HOSTAPD: Error listen ");
 #endif
 
 #else
@@ -278,24 +279,25 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 	}
 
 	CWDebugLog("AC ipc HOSTAPD: Trying to connect to hostapd (AC)...");
-
+	
 #if defined(LOCALUDP)
 	server.sun_family = AF_UNIX;
 	strcpy(server.sun_path, gHostapd_unix_path);
 	unlink(server.sun_path);
 	connect_ret = bind(sock, (struct sockaddr *)&server, strlen(server.sun_path) + sizeof(server.sun_family));
 
-#else
+#elif defined(NETUDP)
 #if defined(USEIPV6)
 	server.sin6_family = AF_INET6;
 	server.sin6_port = gHostapd_port;
 	server.sin6_addr = in6addr_any;
 #else
 	server.sin_family = AF_INET;
-	server.sin_port = gHostapd_port;
-	server.sin_addr.s_addr = INADDR_ANY;
+	server.sin_port = htons(gHostapd_port);
+	server.sin_addr.s_addr = htonl(INADDR_ANY);
 #endif
-	connect_ret = bind(sock, (struct sockaddr *)&server, sizeof(server));
+	if ((connect_ret = bind(sock, (struct sockaddr *)&server, sizeof(server)))==-1)
+	CWDebugLog("WTP ipc HOSTAPD: Error listen ");
 
 #endif
 
@@ -323,7 +325,7 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 #if defined(LOCALUDP)
 	struct sockaddr_un client_tmp;
 	client_tmp.sun_family = AF_UNIX;
-#else
+#elif defined(NETUDP)
 #if defined(USEIPV6)
 	struct sockaddr_in6 client_tmp;
 #else
@@ -338,7 +340,7 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 #if defined(LOCALUDP)
 		ch[i].client.sun_family = AF_UNIX;
 		ch[i].address_size = sizeof(struct sockaddr_un);
-#else
+#elif defined(NETUDP)
 #if defined(USEIPV6)
 		ch[i].client.sin6_port = 0;
 #else
@@ -366,7 +368,6 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 #endif
 
 #endif
-
 	CW_REPEAT_FOREVER {
 
 		tmp_WTPIndex = -1;
@@ -393,7 +394,7 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 				tmp_WTPIndex = i;
 				break;
 			}
-#else
+#elif defined(NETUDP)
 #if defined(USEIPV6)
 			if ((client_tmp.sin6_port == ch[i].client.sin6_port) &&
 			    (strncmp(client_tmp.sin6_addr.s6_addr, ch[i].client.sin6_addr.s6_addr, 16) == 0)) {

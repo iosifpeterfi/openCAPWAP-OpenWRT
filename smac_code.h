@@ -23,9 +23,11 @@
  *******************************************************************************************/
 
 #include <linux/types.h>
+#ifndef AC
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+#endif
 
 enum {
 	ERROR = 0,
