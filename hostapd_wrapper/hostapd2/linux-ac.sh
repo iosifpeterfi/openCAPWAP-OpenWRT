@@ -5,8 +5,8 @@ apt-get -y purge libnl1 libnl2 hostapd
 apt-get -y autoremove
 rm -rf /tmp/hostapd-linux/
 mkdir -p /tmp/hostapd-linux
+cp -f *.tar.* .patch * /tmp/hostapd-linux
 cd /tmp/hostapd-linux
-wget http://openwrt.bounceme.net/gre/hostapd-linux/nl-tiny.tar.gz
 tar zxvf nl-tiny.tar.gz
 mv src nl-tiny
 cd nl-tiny/
@@ -17,9 +17,7 @@ cp -rf include/* /usr/include/
 ldconfig -v | grep tiny
 cd ..
 rm -rf nl-tiny
-wget http://openwrt.bounceme.net/gre/hostapd-linux/hostapd-20130302.tar.bz2
 tar jxvf hostapd-20130302.tar.bz2
-wget http://openwrt.bounceme.net/gre/hostapd-linux/hostapd-20130302-linux.patch
 cd hostapd-20130302
 patch -p1 < ../hostapd-20130302-linux.patch
 cd hostapd
