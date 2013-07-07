@@ -31,7 +31,7 @@
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
 
-#define CW_SETTINGS_FILE    "settings.ac.txt"
+#define CW_SETTINGS_FILE    "/etc/capwap/settings.ac.txt"
 
 #define CWMIN_DEFAULT   3
 #define CWMAX_DEFAULT   10

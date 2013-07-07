@@ -31,7 +31,7 @@
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
 
-const char *CW_CONFIG_FILE = "config.ac";
+const char *CW_CONFIG_FILE = "/etc/capwap/config.ac";
 
 CWBool CWConfigFileInitLib()
 {
