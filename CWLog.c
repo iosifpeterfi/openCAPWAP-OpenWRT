@@ -126,7 +126,7 @@ void CWVLog(const char *format, va_list args)
 #endif
 	}
 #ifdef WRITE_STD_OUTPUT
-	vprintf(logStr, args);
+	//vprintf(logStr, args);
 #endif
 
 	CW_FREE_OBJECT(logStr);
