@@ -1,0 +1,24 @@
+
+Installation steps:
+
+1. Flash a firmware with the hostapd-capwap package on a OpenWRT compatible router.
+2. Setup a FC18 box where you want to run AC.
+3. On the FC18 box:
+	- Copy the RPMS and run: rpm -ivh *.rpm
+	- Edit /etc/hostapd/hostapd.conf
+	- Run /etc/init.d/capwap-ac start
+	- Run /etc/init.d/hostapd start
+4. On the OpenWRT router :
+	- Run killall -9 hostapd
+	- Copy /tmp/run/hostapd-phy0.conf to /etc/capwap/hostapd.conf
+	- Edit the driver in /etc/capwap/hostapd.conf line and set it to capwap_wtp
+	- Run cd /etc/capwap; WTP; hostapd hostapd.conf
+9. Enjoy the RX_MGMT events flowing trough the radiotap tunnel.
+
+
+Notes: 
+
+- Always run AC first and WTP after otherwise they might get stuck in join state.
+- When hostapd on AC is closed also the hostapd on WTP needs to be closed.
+- When AC and WTP don't talk to eachother because they are stuck in join state
+  allways kill hostapd, AC and WTP processes.
