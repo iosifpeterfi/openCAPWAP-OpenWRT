@@ -15,6 +15,10 @@ Installation steps:
 	- Run cd /etc/capwap; WTP; hostapd hostapd.conf
 9. Enjoy the RX_MGMT events flowing trough the radiotap tunnel.
 
+Logs:
+
+- on WTP /var/log/wtp.log.txt
+- on AC /var/log/ac.log.txt
 
 Notes: 
 
