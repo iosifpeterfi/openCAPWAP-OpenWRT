@@ -338,6 +338,10 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 	CWDebugLog("Waiting packet from Hostapd_WTP at Port:%d", gHostapd_port);
 #endif
 
+        client.sin_family = AF_INET;
+        client.sin_addr.s_addr = inet_addr("127.0.0.1");
+        client.sin_port = htons(6444);
+
 	address_size = sizeof(client);
 
 	int sig_byte = 1;
@@ -345,6 +349,12 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 #if defined(LOCALUDP)
 	sig_byte += 5;
 #endif
+
+        CWDebugLog("Checking if hostapd is started already");
+        cmd[0] = CONNECT_R;
+        sendto(sock, cmd, 1, 0, (struct sockaddr *)&client, address_size);
+        cmd[0] = WTPRINFO;      //Next info to get
+        sendto(sock, cmd, 1, 0, (struct sockaddr *)&client, address_size);
 
 	CW_REPEAT_FOREVER {
 
