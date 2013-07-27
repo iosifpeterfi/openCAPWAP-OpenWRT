@@ -4,7 +4,7 @@ Installation steps:
 1. Flash a firmware with the hostapd-capwap package on a OpenWRT compatible router.
 2. Setup a FC18 box where you want to run AC.
 3. On the FC18 box:
-	- Copy the RPMS and run: rpm -ivh *.rpm
+	- Copy the RPMS and run: yum -y erase openssl-libs.i686; yum -y install openssl-libs.i686; rpm -ivh --force *.rpm
 	- Edit /etc/hostapd/hostapd.conf
 	- Run /etc/init.d/capwap-ac start
 	- Run /etc/init.d/hostapd start
