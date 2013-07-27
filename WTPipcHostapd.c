@@ -360,7 +360,7 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 		}
 
 		if (connected == 0 && buffer[0] != CONNECT) {
-			CWLog("WTP is not in RUN state");
+			CWLog("IPC packet - WTP is not in RUN state");
 			CWWTPsend_command_to_hostapd_CLOSE(cmd, 10);
 			continue;
 		}

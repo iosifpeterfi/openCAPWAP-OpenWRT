@@ -227,7 +227,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 			continue;
 
 		if (!wtpInRunState) {
-			CWLog("WTP is not in RUN state");
+			CWLog("macframe packet - WTP is not in RUN state");
 			continue;
 		}
 

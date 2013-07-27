@@ -213,7 +213,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 		n = recvfrom(gRawSock, buffer, sizeof(buffer), 0, NULL, NULL);
 
 		if (!wtpInRunState) {
-			CWLog("WTP is not in RUN state");
+			CWLog("frame packet - WTP is not in RUN state");
 			continue;
 		}
 
