@@ -61,7 +61,7 @@ CWBool ACEnterConfigure(int WTPIndex, CWProtocolMessage * msgPtr)
 					     msgPtr->offset,
 					     &seqNum,
 					     &configureRequest,
-					     &tmp_RadioInformationABGN, tmp_SuppRates, tmp_MultiDomCapa))) {
+					     &tmp_RadioInformationABGN, tmp_SuppRates, tmp_MultiDomCapa, int WTPIndex))) {
 		/* note: we can kill our thread in case of out-of-memory
 		 * error to free some space.
 		 * we can see this just calling CWErrorGetLastErrorCode()
@@ -109,7 +109,7 @@ CWBool CWParseConfigureRequestMessage(unsigned char *msg,
 				      int len,
 				      int *seqNumPtr,
 				      CWProtocolConfigureRequestValues * valuesPtr,
-				      unsigned char *tmp_RadioInformationABGN, unsigned char *tmp_SuppRates, char *tmp_MultiDomCapa)
+				      unsigned char *tmp_RadioInformationABGN, unsigned char *tmp_SuppRates, char *tmp_MultiDomCapa, int WTPIndex)
 {
 
 	CWControlHeaderValues controlVal;
@@ -130,7 +130,16 @@ CWBool CWParseConfigureRequestMessage(unsigned char *msg,
 		/* will be handled by the caller */
 		return CW_FALSE;
 
-	/* different type */
+	/* Join Request in Configure state - WTP might have been restarted */
+
+        if (controlVal.messageTypeValue == CW_MSG_TYPE_VALUE_JOIN_REQUEST ){
+		gWTPs[WTPIndex].currentState = CW_ENTER_JOIN;
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
+                                    "Message is Join Request in Configure State - switching state");
+	}
+	
+        /* different type */
+
 	if (controlVal.messageTypeValue != CW_MSG_TYPE_VALUE_CONFIGURE_REQUEST)
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT,
 				    "Message is not Configure Request (maybe it is Image Data Request)");
