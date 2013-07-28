@@ -58,9 +58,14 @@ CWStateTransition CWWTPEnterJoin()
 	int seqNum;
 	CWProtocolJoinResponseValues values;
 	CWStateTransition state = CW_ENTER_DISCOVERY;
-	gRADIO_MAC[0] = '\0';
+	CWDebugLog("Checking if hostapd is connected...");
+	if (gRADIO_MAC[0] == 0xAA){
 	CWDebugLog("Waiting for hostapd to connect...");
-       	while(gRADIO_MAC[0] == '\0') sleep(1);
+       	while(gRADIO_MAC[0] == 0xAA) sleep(1);
+	}
+	else {
+	CWDebugLog("Hostapd is connected...");
+	}
 
 	CWDebugLog("\n");
 	CWDebugLog("######### Join State #########");
