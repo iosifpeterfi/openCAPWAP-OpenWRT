@@ -136,7 +136,8 @@ CWStateTransition CWWTPEnterJoin()
 		gWTPSecurityContext = NULL;
 		gWTPSession = NULL;
 #endif
-		return CW_ENTER_DISCOVERY;
+		if (gWTPForceACAddress != NULL) return CW_ENTER_JOIN;
+		else return CW_ENTER_DISCOVERY;
 	}
 
 	CWThread thread_receiveDataFrame;
