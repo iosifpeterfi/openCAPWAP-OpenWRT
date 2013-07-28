@@ -58,6 +58,9 @@ void CWACEnterMainLoop()
 	struct sigaction act;
 
 	CWLog("AC enters in the MAIN_LOOP");
+        CWDebugLog("Waiting for WTPs to enter join state");
+        sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT);
+
 
 	/* set signals
 	 * all the thread we spawn will inherit these settings
