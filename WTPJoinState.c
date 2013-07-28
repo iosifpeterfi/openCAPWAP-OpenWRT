@@ -57,13 +57,13 @@ CWStateTransition CWWTPEnterJoin()
 	CWTimerID waitJoinTimer;
 	int seqNum;
 	CWProtocolJoinResponseValues values;
-	int state = CW_ENTER_DISCOVERY;
+	CWStateTransition state = CW_ENTER_DISCOVERY;
 	gRADIO_MAC[0] = '\0';
-	CWLog("Waiting for hostapd to connect...");
+	CWDebugLog("Waiting for hostapd to connect...");
        	while(gRADIO_MAC[0] == '\0') sleep(1);
 
-	CWLog("\n");
-	CWLog("######### Join State #########");
+	CWDebugLog("\n");
+	CWDebugLog("######### Join State #########");
 
 	/* reset Join state */
 	CWNetworkCloseSocket(gWTPSocket);
@@ -80,6 +80,7 @@ CWStateTransition CWWTPEnterJoin()
 	gACInfoPtr->ACIPv4ListInfo.ACIPv4List = NULL;
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount = 0;
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6List = NULL;
+        CWDebugLog("State is %d", CW_ENTER_JOIN);
 
         if (gWTPForceACAddress != NULL) {
                 CW_CREATE_OBJECT_ERR(gACInfoPtr, CWACInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
@@ -87,6 +88,7 @@ CWStateTransition CWWTPEnterJoin()
                 CWNetworkGetAddressForHost(gWTPForceACAddress, &(gACInfoPtr->preferredAddress));
                 gACInfoPtr->security = gWTPForceSecurity;
 		state = CW_ENTER_JOIN;
+		CWDebugLog("State is %d", CW_ENTER_JOIN);
         }
 
 	if ((waitJoinTimer = timer_add(gCWWaitJoin, 0, CWWTPWaitJoinExpired, NULL)) == -1) {

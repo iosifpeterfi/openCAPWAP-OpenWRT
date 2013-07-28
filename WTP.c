@@ -498,6 +498,7 @@ int main(int argc, char * const argv[])
 	/* start CAPWAP state machine */
 	CW_REPEAT_FOREVER {
 		switch (nextState) {
+		
 		case CW_ENTER_DISCOVERY:
 			nextState = CWWTPEnterDiscovery();
 			break;
