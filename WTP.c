@@ -359,8 +359,6 @@ void usage(void)
 
 int main(int argc, char * const argv[])
 {
-	fprintf(stderr, "Waiting for WTPs to enter join state\n");
-	sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT);
 	int run_daemon = 1;
 	int c;
 
