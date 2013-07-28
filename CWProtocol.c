@@ -834,10 +834,10 @@ CWBool CWParseTransportHeader(CWProtocolMessage * msgPtr, CWProtocolTransportHea
 		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Wrong Protocol Version");
 
 	version = CWGetField32(val, CW_TRANSPORT_HEADER_VERSION_START, CW_TRANSPORT_HEADER_VERSION_LEN);
-	CWDebugLog("VERSION: %d", version);
+	//CWDebugLog("VERSION: %d", version);
 
 	valuesPtr->payloadType = CWGetField32(val, CW_TRANSPORT_HEADER_TYPE_START, CW_TRANSPORT_HEADER_TYPE_LEN);
-	CWDebugLog("PAYLOAD TYPE: %d", valuesPtr->payloadType);
+	//CWDebugLog("PAYLOAD TYPE: %d", valuesPtr->payloadType);
 
 	transport4BytesLen = CWGetField32(val, CW_TRANSPORT_HEADER_HLEN_START, CW_TRANSPORT_HEADER_HLEN_LEN);
 	CWDebugLog("HLEN: %d", transport4BytesLen);
