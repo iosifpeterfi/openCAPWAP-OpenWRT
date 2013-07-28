@@ -57,7 +57,7 @@ CWStateTransition CWWTPEnterJoin()
 	CWTimerID waitJoinTimer;
 	int seqNum;
 	CWProtocolJoinResponseValues values;
-
+	int state = CW_ENTER_DISCOVERY;
 	gRADIO_MAC[0] = '\0';
 	CWLog("Waiting for hostapd to connect...");
        	while(gRADIO_MAC[0] == '\0') sleep(1);
@@ -81,25 +81,27 @@ CWStateTransition CWWTPEnterJoin()
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount = 0;
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6List = NULL;
 
+        if (gWTPForceACAddress != NULL) {
+                CW_CREATE_OBJECT_ERR(gACInfoPtr, CWACInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
+                    );
+                CWNetworkGetAddressForHost(gWTPForceACAddress, &(gACInfoPtr->preferredAddress));
+                gACInfoPtr->security = gWTPForceSecurity;
+		state = CW_ENTER_JOIN;
+        }
+
 	if ((waitJoinTimer = timer_add(gCWWaitJoin, 0, CWWTPWaitJoinExpired, NULL)) == -1) {
-		return CW_ENTER_DISCOVERY;
+		return state;
 	}
 
-	if (gWTPForceACAddress != NULL) {
-		CW_CREATE_OBJECT_ERR(gACInfoPtr, CWACInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
-		    );
-		CWNetworkGetAddressForHost(gWTPForceACAddress, &(gACInfoPtr->preferredAddress));
-		gACInfoPtr->security = gWTPForceSecurity;
-	}
 
 	/* Init DTLS session */
 	if (!CWErr(CWNetworkInitSocketClient(&gWTPSocket, &(gACInfoPtr->preferredAddress)))) {
 
 		timer_rem(waitJoinTimer, NULL);
-		return CW_ENTER_DISCOVERY;
+		return state;
 	}
 	if (!CWErr(CWNetworkInitSocketClientDataChannel(&gWTPDataSocket, &(gACInfoPtr->preferredAddress)))) {
-		return CW_ENTER_DISCOVERY;
+		return state;
 	}
 	CWLog("Initiate Data Channel");
 	CWDebugLog("gWTPSocket:%d, gWTPDataSocket:%d", gWTPSocket, gWTPDataSocket);
@@ -112,7 +114,7 @@ CWStateTransition CWWTPEnterJoin()
 			timer_rem(waitJoinTimer, NULL);
 			CWNetworkCloseSocket(gWTPSocket);
 			gWTPSecurityContext = NULL;
-			return CW_ENTER_DISCOVERY;
+			return state;
 		}
 	} else {
 		/* pre-shared keys */
@@ -121,7 +123,8 @@ CWStateTransition CWWTPEnterJoin()
 			timer_rem(waitJoinTimer, NULL);
 			CWNetworkCloseSocket(gWTPSocket);
 			gWTPSecurityContext = NULL;
-			return CW_ENTER_DISCOVERY;
+       		        return state;
+
 		}
 	}
 #endif
@@ -137,14 +140,14 @@ CWStateTransition CWWTPEnterJoin()
 		gWTPSession = NULL;
 #endif
 		if (gWTPForceACAddress != NULL) return CW_ENTER_JOIN;
-		else return CW_ENTER_DISCOVERY;
+		else return state;
 	}
 
 	CWThread thread_receiveDataFrame;
 	if (!CWErr(CWCreateThread(&thread_receiveDataFrame, CWWTPReceiveDataPacket, (void *)gWTPDataSocket))) {
 
 		CWLog("Error starting Thread that receive data packet");
-		return CW_ENTER_DISCOVERY;
+		return state;
 	}
 #ifndef CW_NO_DTLS
 
@@ -158,7 +161,7 @@ CWStateTransition CWWTPEnterJoin()
 		CWSecurityDestroyContext(gWTPSecurityContext);
 		gWTPSecurityContext = NULL;
 		gWTPSession = NULL;
-		return CW_ENTER_DISCOVERY;
+		return state;
 	}
 #endif
 	if (gCWForceMTU > 0) {
@@ -184,7 +187,7 @@ CWStateTransition CWWTPEnterJoin()
 		gWTPSecurityContext = NULL;
 		gWTPSession = NULL;
 #endif
-		return CW_ENTER_DISCOVERY;
+		return state;
 	}
 
 	timer_rem(waitJoinTimer, NULL);
