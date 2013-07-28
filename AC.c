@@ -174,22 +174,28 @@ void CWACInit()
 	CWErrorHandlingInitLib();
 
 	if (!CWParseSettingsFile()) {
-		CWDebugLog("Can't load AC config");
+		fprintf(stderr,"Can't load AC settings file\n");
 		exit(1);
 	}
 
-	CWDebugLog("Starting AC");
-
-        CWDebugLog("Waiting for WTPs to enter join state");
-        sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT+CW_ECHO_INTERVAL_DEFAULT);
 
 	CWThreadSetSignals(SIG_BLOCK, 1, SIGALRM);
 	if (timer_init() == 0) {
-		CWLog("Can't init timer module");
+		fprintf(stderr,"Can't init timer module\n");
 		exit(1);
 	}
 
-	if (!CWErr(CWParseConfigFile()) ||
+        if (!CWErr(CWParseConfigFile())) {
+                /* error starting */
+                fprintf(stderr,"Can't load AC config file\n");
+                exit(1);
+        }
+
+        CWDebugLog("Starting AC");
+        CWDebugLog("Waiting for WTPs to enter join state");
+        sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT+CW_ECHO_INTERVAL_DEFAULT);
+
+	if (
 #ifndef CW_NO_DTLS
 	    !CWErr(CWSecurityInitLib()) ||
 #endif
