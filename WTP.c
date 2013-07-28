@@ -359,7 +359,8 @@ void usage(void)
 
 int main(int argc, char * const argv[])
 {
-	fprintf(stderr, "main()\n");
+	fprintf(stderr, "Waiting for WTPs to enter join state\n");
+	sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT);
 	int run_daemon = 1;
 	int c;
 
@@ -530,7 +531,10 @@ int main(int argc, char * const argv[])
 			 * gWTPSecurityContext = NULL;
 			 * gWTPSession = NULL;
 			 */
-			nextState = CW_ENTER_DISCOVERY;
+			if (gWTPForceACAddress != NULL)
+				nextState = CW_ENTER_JOIN;
+			else
+				nextState = CW_ENTER_DISCOVERY;
 			break;
 		case CW_QUIT:
 			CWWTPDestroy();

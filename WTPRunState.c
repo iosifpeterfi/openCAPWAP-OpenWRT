@@ -348,7 +348,11 @@ CWStateTransition CWWTPEnterRun()
 		CWBool bReveiveBinding = CW_FALSE;
 
 		/* Wait packet */
-		timenow.tv_sec = time(0) + CW_NEIGHBORDEAD_RESTART_DISCOVERY_DELTA_DEFAULT;	/* greater than NeighborDeadInterval */
+		if (gWTPForceACAddress != NULL) 
+			timenow.tv_sec = time(0) + CW_NEIGHBORDEAD_INTERVAL_DEFAULT;
+		else
+			timenow.tv_sec = time(0) + CW_NEIGHBORDEAD_RESTART_DISCOVERY_DELTA_DEFAULT;	/* greater than NeighborDeadInterval */
+
 		timenow.tv_nsec = 0;
 
 		CWThreadMutexLock(&gInterfaceMutex);
