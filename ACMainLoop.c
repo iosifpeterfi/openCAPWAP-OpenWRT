@@ -59,7 +59,7 @@ void CWACEnterMainLoop()
 
 	CWLog("AC enters in the MAIN_LOOP");
         CWDebugLog("Waiting for WTPs to enter join state");
-        sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT);
+        sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT+CW_ECHO_INTERVAL_DEFAULT);
 
 
 	/* set signals
