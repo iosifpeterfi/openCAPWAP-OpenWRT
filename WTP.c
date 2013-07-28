@@ -495,6 +495,9 @@ int main(int argc, char * const argv[])
 	if (gWTPForceACAddress != NULL)
 		nextState = CW_ENTER_JOIN;
 
+	/* Setting hostapd default MAC char for checking in join state */
+	gRADIO_MAC[0] = 0xAA;
+
 	/* start CAPWAP state machine */
 	CW_REPEAT_FOREVER {
 		switch (nextState) {
