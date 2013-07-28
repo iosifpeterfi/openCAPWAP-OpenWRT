@@ -338,6 +338,10 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 	CWDebugLog("Waiting packet from Hostapd_WTP at Port:%d", gHostapd_port);
 #endif
 
+        client.sin_family = AF_INET;
+        client.sin_addr.s_addr = inet_addr("127.0.0.1");
+        client.sin_port = htons(6444);
+
 	address_size = sizeof(client);
 
 	int sig_byte = 1;
@@ -345,6 +349,12 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 #if defined(LOCALUDP)
 	sig_byte += 5;
 #endif
+
+        CWDebugLog("Checking if hostapd is started already");
+        cmd[0] = CONNECT_R;
+        sendto(sock, cmd, 1, 0, (struct sockaddr *)&client, address_size);
+        cmd[0] = WTPRINFO;      //Next info to get
+        sendto(sock, cmd, 1, 0, (struct sockaddr *)&client, address_size);
 
 	CW_REPEAT_FOREVER {
 
@@ -359,8 +369,8 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 			EXIT_FRAME_THREAD(sock)
 		}
 
-		if (connected == 0 && buffer[0] != CONNECT) {
-			CWLog("WTP is not in RUN state");
+		if (connected == 0 && buffer[0] != CONNECT && buffer[0] != WTPRINFO_R) {
+			CWDebugLog("IPC packet - WTP is not in RUN state");
 			CWWTPsend_command_to_hostapd_CLOSE(cmd, 10);
 			continue;
 		}
@@ -394,20 +404,21 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 			cmd[0] = CONNECT_R;
 			sendto(sock, cmd, 1, 0, (struct sockaddr *)&client, address_size);
 
-#if defined(LOCALUDP)
-			CWDebugLog("Hostapd_wtp Unix Domain Connect: %s", client.sun_path);
-#else
-#if defined(USEIPV6)
-			CWDebugLog("Hostapd_wtp (v6) Connect: %d", client.sin6_port);
-#else
-			CWDebugLog("Hostapd_wtp (v4) Connect: %s:%d", inet_ntoa(client.sin_addr), client.sin_port);
-#endif
-#endif
-
 			cmd[0] = WTPRINFO;	//Next info to get
 			sendto(sock, cmd, 1, 0, (struct sockaddr *)&client, address_size);
 
 		} else if (buffer[0] == WTPRINFO_R) {
+			connected = 1;
+
+#if defined(LOCALUDP)
+                        CWDebugLog("Hostapd_wtp Unix Domain Connect: %s", client.sun_path);
+#else
+#if defined(USEIPV6)
+                        CWDebugLog("Hostapd_wtp (v6) Connect: %d", client.sin6_port);
+#else
+                        CWDebugLog("Hostapd_wtp (v4) Connect: %s:%d", inet_ntoa(client.sin_addr), client.sin_port);
+#endif
+#endif
 
 			CWThreadMutexLock(&mutext_info);
 			memcpy(&WTP_Radio_Information, buffer + sig_byte, 1);
