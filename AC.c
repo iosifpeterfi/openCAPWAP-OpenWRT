@@ -126,8 +126,6 @@ int main(int argc, char * const argv[])
 			exit(1);
 
 		}
-        CWDebugLog("Waiting for WTPs to enter join state");
-        sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT+CW_ECHO_INTERVAL_DEFAULT);
 
 	CWACInit();
 	CWCreateConnectionWithHostapdAC();
@@ -176,11 +174,14 @@ void CWACInit()
 	CWErrorHandlingInitLib();
 
 	if (!CWParseSettingsFile()) {
-		CWLog("Can't start AC");
+		CWDebugLog("Can't load AC config");
 		exit(1);
 	}
 
-	CWLog("Starting AC");
+	CWDebugLog("Starting AC");
+
+        CWDebugLog("Waiting for WTPs to enter join state");
+        sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT+CW_ECHO_INTERVAL_DEFAULT);
 
 	CWThreadSetSignals(SIG_BLOCK, 1, SIGALRM);
 	if (timer_init() == 0) {
