@@ -80,7 +80,7 @@ CWStateTransition CWWTPEnterJoin()
 	gACInfoPtr->ACIPv4ListInfo.ACIPv4List = NULL;
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6ListCount = 0;
 	gACInfoPtr->ACIPv6ListInfo.ACIPv6List = NULL;
-        CWDebugLog("State is %d", CW_ENTER_JOIN);
+        CWDebugLog("State is %d", state);
 
         if (gWTPForceACAddress != NULL) {
                 CW_CREATE_OBJECT_ERR(gACInfoPtr, CWACInfoValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
@@ -88,7 +88,7 @@ CWStateTransition CWWTPEnterJoin()
                 CWNetworkGetAddressForHost(gWTPForceACAddress, &(gACInfoPtr->preferredAddress));
                 gACInfoPtr->security = gWTPForceSecurity;
 		state = CW_ENTER_JOIN;
-		CWDebugLog("State is %d", CW_ENTER_JOIN);
+		CWDebugLog("State is %d", state);
         }
 
 	if ((waitJoinTimer = timer_add(gCWWaitJoin, 0, CWWTPWaitJoinExpired, NULL)) == -1) {
