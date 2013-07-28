@@ -38,7 +38,7 @@ CWBool CWAssembleConfigureResponse(CWProtocolMessage ** messagesPtr, int *fragme
 CWBool CWParseConfigureRequestMessage(unsigned char *msg,
 				      int len,
 				      int *seqNumPtr,
-				      CWProtocolConfigureRequestValues * valuesPtr, unsigned char *, unsigned char *, char *);
+				      CWProtocolConfigureRequestValues * valuesPtr, unsigned char *, unsigned char *, char *, int);
 
 CWBool CWSaveConfigureRequestMessage(CWProtocolConfigureRequestValues * configureRequest,
 				     CWWTPProtocolManager * WTPProtocolManager);
@@ -61,7 +61,7 @@ CWBool ACEnterConfigure(int WTPIndex, CWProtocolMessage * msgPtr)
 					     msgPtr->offset,
 					     &seqNum,
 					     &configureRequest,
-					     &tmp_RadioInformationABGN, tmp_SuppRates, tmp_MultiDomCapa, int WTPIndex))) {
+					     &tmp_RadioInformationABGN, tmp_SuppRates, tmp_MultiDomCapa, WTPIndex))) {
 		/* note: we can kill our thread in case of out-of-memory
 		 * error to free some space.
 		 * we can see this just calling CWErrorGetLastErrorCode()
