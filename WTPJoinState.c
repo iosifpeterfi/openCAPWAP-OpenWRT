@@ -194,7 +194,6 @@ CWStateTransition CWWTPEnterJoin()
 		gWTPSecurityContext = NULL;
 		gWTPSession = NULL;
 #endif
-		sleep(10);
 		return state;
 	}
 

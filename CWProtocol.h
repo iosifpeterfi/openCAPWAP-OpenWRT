@@ -256,7 +256,7 @@
 #define     CW_MSG_ELEMENT_IEEE80211_WTP_RADIO_INFORMATION_CW_TYPE          1048
 
 // CAPWAP Protocol Variables
-#define     CW_MAX_RETRANSMIT_DEFAULT       5
+#define     CW_MAX_RETRANSMIT_DEFAULT       1
 #define     CW_WAIT_JOIN_DEFAULT            60
 #define     CW_REPORT_INTERVAL_DEFAULT      120
 #define     CW_STATISTIC_TIMER_DEFAULT      120
