@@ -274,9 +274,9 @@
 #endif
 
 #ifdef CW_DEBUGGING
-#define     CW_RETRANSMIT_INTERVAL_DEFAULT      1
+#define     CW_RETRANSMIT_INTERVAL_DEFAULT      10 
 #else
-#define     CW_RETRANSMIT_INTERVAL_DEFAULT      3
+#define     CW_RETRANSMIT_INTERVAL_DEFAULT      10 
 #endif
 
 #ifdef CW_DEBUGGING
