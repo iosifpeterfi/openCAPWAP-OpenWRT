@@ -128,6 +128,8 @@ int main(int argc, char * const argv[])
 		}
 
 	CWACInit();
+        CWDebugLog("Waiting for WTPs to enter join state");
+        sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT+CW_ECHO_INTERVAL_DEFAULT);
 	CWCreateConnectionWithHostapdAC();
 	CWACEnterMainLoop();
 	CWACDestroy();
