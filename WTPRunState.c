@@ -903,6 +903,7 @@ CWBool CWAssembleEchoRequest(CWProtocolMessage ** messagesPtr,
 	return CW_TRUE;
 }
 
+
 CWBool CWAssembleWTPDataTransferRequest(CWProtocolMessage ** messagesPtr, int *fragmentsNumPtr, int PMTU, int seqNum,
 					CWList msgElemList)
 {

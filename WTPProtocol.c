@@ -1180,6 +1180,7 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 	memcpy(tmp_buf + 20 + keyLength, ssid, len - 19 - keyLength);
 
 	CWDebugLog("CWParseAddWLAN() 7");
+	
 	CWWTPsend_command_to_hostapd_ADD_WLAN(tmp_buf, len + 1);
 
 	CWParseMessageElementEnd();

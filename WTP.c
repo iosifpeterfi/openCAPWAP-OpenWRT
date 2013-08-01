@@ -460,7 +460,7 @@ int main(int argc, char * const argv[])
 	}
 #ifdef SOFTMAC
 	CWThread thread_ipc_with_wtp_hostapd;
-	if (!CWErr(CWCreateThread(&thread_ipc_with_wtp_hostapd, CWWTPThread_read_data_from_hostapd, NULL))) {
+	if (!CWErr(CWCreateThread(&thread_ipc_with_wtp_hostapd, CWWTPThread_read_data_from_hostapd, (void *)nextState))) {
 		CWLog("Error starting Thread that receive command and 802.11 frame from hostapd (WTP side)");
 		exit(1);
 	}
