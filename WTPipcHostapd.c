@@ -242,7 +242,6 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 	   CWThreadMutexUnlock(&gRADIO_MAC_mutex);
 	*/
 	int len;
-	CWStateTransition * nextState = arg;
 
 
 #if defined(LOCALUDP)
@@ -410,7 +409,6 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 
 		} else if (buffer[0] == WTPRINFO_R) {
 			connected = 1;
-			*(nextState) = CW_ENTER_RESET;
 
 #if defined(LOCALUDP)
                         CWDebugLog("Hostapd_wtp Unix Domain Connect: %s", client.sun_path);
