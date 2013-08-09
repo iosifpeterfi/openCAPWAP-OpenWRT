@@ -599,6 +599,7 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket * sockPtr,
 	 */
 
 	for (i = 0; i < gMaxWTPs; i++) {
+		// CWDebugLog("Parsing TAP %d", gWTPs[i].tap_fd);
 
 		if (FD_ISSET(gWTPs[i].tap_fd, &fset)) {
 

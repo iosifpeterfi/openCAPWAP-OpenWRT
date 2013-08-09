@@ -238,6 +238,7 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 			u16 fc;
 			hdr = (struct ieee80211_hdr *)msgPtr->msg;
 			fc = le_to_host16(hdr->frame_control);
+			CWDebugLog("Received 802.11 Frame type: %d", WLAN_FC_GET_TYPE(fc));
 
 			if (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT || isEAPOL_Frame(msgPtr->msg, msglen)) {
 
@@ -245,12 +246,13 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 
 			} else if (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_DATA) {
 
-				if (WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_NULLFUNC) {
+				if (WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_NULLFUNC || WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_AUTH || WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_ASSOC_REQ) {
+					CWDebugLog("Received 802.11 WLAN_FC_STYPE_NULLFUNC or WLAN_FC_STYPE_ASSOC_REQ");
 
 					CWACsend_data_to_hostapd(WTPIndex, msgPtr->msg, msglen);
 
 				} else {
-
+					CWDebugLog("Sending 802.11 frame subtype %d to TAP[%d]", WLAN_FC_GET_STYPE(fc), gWTPs[WTPIndex].tap_fd);
 					int write_bytes =
 					    write(gWTPs[WTPIndex].tap_fd, msgPtr->msg + HLEN_80211,
 						  msglen - HLEN_80211);

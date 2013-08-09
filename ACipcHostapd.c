@@ -59,7 +59,8 @@ extern int wtpInRunState;
 
 void CWACsend_data_to_hostapd(int WTPIndex, unsigned char *buf, int len)
 {
-
+	CWDebugLog("CWACsend_data_to_hostapd() ");
+	
 	unsigned char tmp_buf[3000];
 	tmp_buf[0] = DATE_TO_AC;
 	memcpy(tmp_buf + 1, buf, len);

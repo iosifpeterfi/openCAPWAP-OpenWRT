@@ -5051,6 +5051,7 @@ static void handle_monitor_read(int sock, void *eloop_ctx, void *sock_ctx){
 
 	struct wpa_driver_capwap_data *drv = eloop_ctx;
 	int len;
+        int close = 0;
 	unsigned char buf[3000];
 	struct ieee80211_radiotap_iterator iter;
 	int ret;
