@@ -1199,7 +1199,7 @@ CWBool CWParseAddStation(CWProtocolMessage * msgPtr, int len)
 	oldOffset = msgPtr->offset;
 	/*----------------------------------------------------------------------------------*/
 
-	//radioID = CWProtocolRetrieve8(msgPtr);
+	radioID = CWProtocolRetrieve8(msgPtr);
 	//CWDebugLog("radio ID %d",radioID);
 	Length = CWProtocolRetrieve8(msgPtr);
 	//CWDebugLog("Length of mac address field %d",Length);

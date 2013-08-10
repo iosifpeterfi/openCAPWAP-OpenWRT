@@ -1672,6 +1672,7 @@ CWBool CWAssembleStationConfigurationRequest(CWProtocolMessage ** messagesPtr, i
 		return CWErrorRaise(CW_ERROR_WRONG_ARG, NULL);
 
 	CWLog("Assembling Station Configuration Request...");
+        CWLog("StationMacAddr = %02X %02X %02X %02X %02X %02X", StationMacAddr[0], StationMacAddr[1], StationMacAddr[2], StationMacAddr[3], StationMacAddr[4], StationMacAddr[5]);
 
 	CW_CREATE_PROTOCOL_MSG_ARRAY_ERR(msgElems, msgElemCount, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL);
 	    );

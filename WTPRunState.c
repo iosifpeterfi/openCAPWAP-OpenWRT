@@ -1489,7 +1489,7 @@ CWBool CWParseStationConfigurationRequest(unsigned char *msg, int len)
 
 		CWParseFormatMsgElem(&completeMsg, &elemType, &elemLen);
 
-		//CWDebugLog("Parsing Message Element: %u, elemLen: %u", elemType, elemLen);
+		CWDebugLog("Parsing Message Element: %u, elemLen: %u", elemType, elemLen);
 
 		/*if(CWBindingCheckType(elemType))
 		   {
