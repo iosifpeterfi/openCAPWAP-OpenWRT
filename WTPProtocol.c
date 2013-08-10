@@ -1055,6 +1055,7 @@ CWBool CWParseACIPv6List(CWProtocolMessage * msgPtr, int len, ACIPv6ListValues *
 CWBool CWParseDeleteStation(CWProtocolMessage * msgPtr, int len)
 {
 	int Length = 0;
+	int radioID = 0;
 	unsigned char *StationMacAddress;
 
 	//CWParseMessageElementStart();  sostituire al posto delle righe successive quando passerò valPtr alla funzione CWarseAddStation
@@ -1065,7 +1066,7 @@ CWBool CWParseDeleteStation(CWProtocolMessage * msgPtr, int len)
 	oldOffset = msgPtr->offset;
 	/*----------------------------------------------------------------------------------*/
 
-	//radioID = CWProtocolRetrieve8(msgPtr);
+	radioID = CWProtocolRetrieve8(msgPtr);
 	//CWDebugLog("radio ID %d",radioID);
 	Length = CWProtocolRetrieve8(msgPtr);
 	//CWDebugLog("Length of mac address field %d",Length);
@@ -1189,6 +1190,7 @@ CWBool CWParseAddWLAN(CWProtocolMessage * msgPtr, int len)
 CWBool CWParseAddStation(CWProtocolMessage * msgPtr, int len)
 {
 	int Length;
+	int radioID;
 	unsigned char *StationMacAddress;
 
 	//CWParseMessageElementStart();  sostituire al posto delle righe successive quando passerò valPtr alla funzione CWarseAddStation
@@ -1200,9 +1202,9 @@ CWBool CWParseAddStation(CWProtocolMessage * msgPtr, int len)
 	/*----------------------------------------------------------------------------------*/
 
 	radioID = CWProtocolRetrieve8(msgPtr);
-	//CWDebugLog("radio ID %d",radioID);
+	CWDebugLog("radio ID %d",radioID);
 	Length = CWProtocolRetrieve8(msgPtr);
-	//CWDebugLog("Length of mac address field %d",Length);
+	CWDebugLog("Length of mac address field %d",Length);
 	StationMacAddress = (unsigned char *)CWProtocolRetrieveRawBytes(msgPtr, Length);
 
 	CWDebugLog("ADD MAC: %02X:%02X:%02X:%02X:%02X:%02X", (unsigned char)StationMacAddress[0],
