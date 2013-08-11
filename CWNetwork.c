@@ -227,7 +227,7 @@ CWBool CWNetworkInitSocketClientDataChannel(CWSocket * sockPtr, CWNetworkLev4Add
 	sockaddr.sin6_family = (gNetworkPreferredFamily == CW_IPv4) ? AF_INET : AF_INET6;
 #else
 	sockaddr.sin_family = AF_INET;
-	sockaddr.sin_port = htons(CW_DATA_PORT);
+	//sockaddr.sin_port = htons(CW_DATA_PORT);
 #endif
 	if (bind(*sockPtr, (const struct sockaddr *)&sockaddr, addrlen) < 0) {
 		close(*sockPtr);
