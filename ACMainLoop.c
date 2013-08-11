@@ -50,7 +50,7 @@ void CWACManageIncomingPacket(CWSocket sock,
 void _CWCloseThread(int i);
 void CWResetWTPProtocolManager(CWWTPProtocolManager * WTPProtocolManager);
 CWWTPManager *CWWTPByName(const char *addr);
-CWWTPManager *CWWTPByAddress(CWNetworkLev4Address * addressPtr, CWSocket sock);
+int CWWTPByAddress(CWNetworkLev4Address * addressPtr, CWSocket sock);
 
 void CWACEnterMainLoop()
 {
@@ -132,13 +132,13 @@ void CWACManageIncomingPacket(CWSocket sock,
 			      int incomingInterfaceIndex, CWNetworkLev4Address * addrPtr, CWBool dataFlag)
 {
 
-	CWWTPManager *wtpPtr = NULL;
+	int WTPIndex = 0;
 	char *pData;
 
 	/* check if sender address is known */
-	wtpPtr = CWWTPByAddress(addrPtr, sock);
+	WTPIndex = CWWTPByAddress(addrPtr, sock);
 
-	if (wtpPtr != NULL) {
+	if (WTPIndex >= 0) {
 		/* known WTP */
 		/* Clone data packet */
 		CW_CREATE_OBJECT_SIZE_ERR(pData, readBytes, {
@@ -148,9 +148,13 @@ void CWACManageIncomingPacket(CWSocket sock,
 		);
 		memcpy(pData, buf, readBytes);
 
-		CWLockSafeList(wtpPtr->packetReceiveList);
-		CWAddElementToSafeListTailwitDataFlag(wtpPtr->packetReceiveList, pData, readBytes, dataFlag);
-		CWUnlockSafeList(wtpPtr->packetReceiveList);
+		CWLockSafeList(gWTPs[WTPIndex].packetReceiveList);
+		CWAddElementToSafeListTailwitDataFlag(gWTPs[WTPIndex].packetReceiveList, pData, readBytes, dataFlag);
+		CWUnlockSafeList(gWTPs[WTPIndex].packetReceiveList);
+		if (dataFlag)
+			CW_COPY_NET_ADDR_PTR(&(gWTPs[WTPIndex].dataAddress), addrPtr);
+
+			
 	} else {
 		/* unknown WTP */
 		int seqNum;
@@ -222,6 +226,9 @@ void CWACManageIncomingPacket(CWSocket sock,
 			for (i = 0; i < gMaxWTPs && gWTPs[i].isNotFree; i++) ;
 
 			CW_COPY_NET_ADDR_PTR(&(gWTPs[i].address), addrPtr);
+	                if (dataFlag)
+                        CW_COPY_NET_ADDR_PTR(&(gWTPs[i].dataAddress), addrPtr);
+
 			gWTPs[i].isNotFree = CW_TRUE;
 			gWTPs[i].isRequestClose = CW_FALSE;
 			CWThreadMutexUnlock(&gWTPsMutex);
@@ -300,12 +307,12 @@ void CWACManageIncomingPacket(CWSocket sock,
 /*
  * Simple job: see if we have a thread that is serving address *addressPtr
  */
-__inline__ CWWTPManager *CWWTPByAddress(CWNetworkLev4Address * addressPtr, CWSocket sock)
+__inline__ int CWWTPByAddress(CWNetworkLev4Address * addressPtr, CWSocket sock)
 {
 
 	int i;
 	if (addressPtr == NULL)
-		return NULL;
+		return -1; 
 
 	CWThreadMutexLock(&gWTPsMutex);
 	for (i = 0; i < gMaxWTPs; i++) {
@@ -319,13 +326,13 @@ __inline__ CWWTPManager *CWWTPByAddress(CWNetworkLev4Address * addressPtr, CWSoc
 			 * AC's interface as a new WTP
 			 */
 			CWThreadMutexUnlock(&gWTPsMutex);
-			return &(gWTPs[i]);
+			return i;
 		}
 	}
 
 	CWThreadMutexUnlock(&gWTPsMutex);
 
-	return NULL;
+	return -1;
 }
 
 /*

@@ -501,7 +501,7 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 					for (k = 0; k < sockPtr->count; k++) {
 						if (sockPtr->interfaces[k].sock == gWTPs[tmp_WTPIndex].socket) {
 							dataSocket = sockPtr->interfaces[k].dataSock;
-							CW_COPY_NET_ADDR_PTR(&address, &(gWTPs[tmp_WTPIndex].address));
+							CW_COPY_NET_ADDR_PTR(&address, &(gWTPs[tmp_WTPIndex].dataAddress));
 							break;
 						}
 					}
@@ -512,7 +512,7 @@ CW_THREAD_RETURN_TYPE CWACipc_with_ac_hostapd(void *arg)
 					}
 
 					/* Set port and address of data tunnel */
-					sock_set_port_cw((struct sockaddr *)&(address), htons(CW_DATA_PORT));
+					//sock_set_port_cw((struct sockaddr *)&(address), htons(CW_DATA_PORT));
 					for (k = 0; k < fragmentsNum; k++) {
 						if (!CWNetworkSendUnsafeUnconnected
 						    (dataSocket, &(address), completeMsgPtr[k].msg,

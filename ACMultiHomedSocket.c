@@ -646,7 +646,7 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket * sockPtr,
 				for (k = 0; k < sockPtr->count; k++) {
 					if (sockPtr->interfaces[k].sock == gWTPs[i].socket) {
 						dataSocket = sockPtr->interfaces[k].dataSock;
-						CW_COPY_NET_ADDR_PTR(&address, &(gWTPs[i].address));
+						CW_COPY_NET_ADDR_PTR(&address, &(gWTPs[i].dataAddress));
 						break;
 					}
 				}
@@ -657,7 +657,7 @@ CWBool CWNetworkUnsafeMultiHomed(CWMultiHomedSocket * sockPtr,
 				}
 
 				/* Set port and address of data tunnel */
-				sock_set_port_cw((struct sockaddr *)&(address), htons(CW_DATA_PORT));
+				//sock_set_port_cw((struct sockaddr *)&(address), htons(CW_DATA_PORT));
 
 				for (k = 0; k < fragmentsNum; k++) {
 					if (!CWNetworkSendUnsafeUnconnected(dataSocket,

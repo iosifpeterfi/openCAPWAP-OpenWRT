@@ -225,6 +225,8 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 
 		if (n < 0)
 			continue;
+	 	//disabling data tunnel	
+		continue;
 
 		if (!wtpInRunState) {
 			CWLog("macframe packet - WTP is not in RUN state");
@@ -245,6 +247,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveFrame(void *arg)
 			listElement->frame->data_msgType = CW_IEEE_802_11_FRAME_TYPE;
 
 			CWDebugLog("Recv 802.11 data(len:%d) from %s", encaps_len, gRadioInterfaceName_0);
+		
 		} else {
 			if (!extract802_11_Frame(&listElement->frame, buffer, n)) {
 				CWDebugLog("THR FRAME: Error extracting a frame");

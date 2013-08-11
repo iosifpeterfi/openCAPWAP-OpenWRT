@@ -195,7 +195,7 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 			for (i = 0; i < gACSocket.count; i++) {
 				if (gACSocket.interfaces[i].sock == gWTPs[WTPIndex].socket) {
 					dataSocket = gACSocket.interfaces[i].dataSock;
-					CW_COPY_NET_ADDR_PTR(&address, &(gWTPs[WTPIndex].address));
+					CW_COPY_NET_ADDR_PTR(&address, &(gWTPs[WTPIndex].dataAddress));
 					break;
 				}
 			}
@@ -206,7 +206,7 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 			}
 
 			/* Set port and address of data tunnel */
-			sock_set_port_cw((struct sockaddr *)&(address), htons(CW_DATA_PORT));
+			//sock_set_port_cw((struct sockaddr *)&(address), htons(CW_DATA_PORT));
 
 			for (i = 0; i < fragmentsNum; i++) {
 				if (!CWNetworkSendUnsafeUnconnected(dataSocket,
@@ -239,6 +239,7 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 			hdr = (struct ieee80211_hdr *)msgPtr->msg;
 			fc = le_to_host16(hdr->frame_control);
 			CWDebugLog("Received 802.11 Frame type: %d", WLAN_FC_GET_TYPE(fc));
+			CWDebugLog("Received 802.11 Frame sybtype: %d", WLAN_FC_GET_STYPE(fc));
 
 			if (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_MGMT || isEAPOL_Frame(msgPtr->msg, msglen)) {
 

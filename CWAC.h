@@ -98,6 +98,7 @@ applicationsManager appsManager;
  */
 typedef struct {
 	CWNetworkLev4Address address;
+	CWNetworkLev4Address dataAddress;
 	CWThread thread;
 	CWSecuritySession session;
 	CWBool isNotFree;
