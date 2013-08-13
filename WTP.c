@@ -95,6 +95,7 @@ unsigned char gWTPMACMode = CW_SPLIT_MAC;
 unsigned char gWTPTunnelMode = CW_TUNNEL_MODE_802_DOT_11_TUNNEL;
 
 int gWTPRetransmissionCount;
+extern CWStateTransition nextState;
 
 CWPendingRequestMessage gPendingRequestMsgs[MAX_PENDING_REQUEST_MSGS];
 
@@ -398,7 +399,6 @@ int main(int argc, char * const argv[])
 
 		}
 
-	CWStateTransition nextState = CW_ENTER_DISCOVERY;
 	CWLogInitFile(WTP_LOG_FILE_NAME);
         fprintf(stderr, "log init done\n");
 

@@ -86,6 +86,7 @@ CWBool ACEnterDataCheck(int WTPIndex, CWProtocolMessage * msgPtr)
 
 	gWTPs[WTPIndex].currentState = CW_ENTER_RUN;
 	gWTPs[WTPIndex].subState = CW_WAITING_REQUEST;
+        CWACsend_command_to_hostapd_SEND_WLAN(WTPIndex);
 
 	return CW_TRUE;
 }
