@@ -321,7 +321,7 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg)
 
 extern int gRawSock;
 int wtpInRunState = 0;
-
+extern int nextState;
 CWStateTransition CWWTPEnterRun()
 {
 
@@ -343,6 +343,12 @@ CWStateTransition CWWTPEnterRun()
 	wtpInRunState = 1;
 
 	CW_REPEAT_FOREVER {
+		if ( nextState != CW_ENTER_RUN ) {
+        		wtpInRunState = 0;
+        		CWStopHeartbeatTimer();
+        		return CW_ENTER_RESET;
+		}
+
 		struct timespec timenow;
 		CWBool bReceivePacket = CW_FALSE;
 		CWBool bReveiveBinding = CW_FALSE;

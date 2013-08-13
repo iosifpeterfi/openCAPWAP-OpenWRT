@@ -471,7 +471,6 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 								 &messagesCount,
 								 gWTPs[WTPIndex].pathMTU, controlVal.seqNum)))
 				return CW_FALSE;
-
 			toSend = CW_TRUE;
 			break;
 		}

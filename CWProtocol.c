@@ -1049,7 +1049,7 @@ CWBool CWParseWTPRadioOperationalState(CWProtocolMessage * msgPtr, int len, CWRa
 	valPtr->state = CWProtocolRetrieve8(msgPtr);
 	valPtr->cause = CWProtocolRetrieve8(msgPtr);
 
-//  CWDebugLog("WTP Radio Operational State: %d - %d - %d", valPtr->ID, valPtr->state, valPtr->cause);
+        CWDebugLog("WTP Radio Operational State: %d - %d - %d", valPtr->ID, valPtr->state, valPtr->cause);
 
 	CWParseMessageElementEnd();
 }

@@ -33,7 +33,9 @@ struct config_ac con_ac;
 unsigned char wlan0_capa[21];
 
 int fd_con;
-
+int tot_len;
+int max_len=256;
+char wlanbuf[max_len];
 
 #if defined(LOCALUDP)
 	struct sockaddr_un addr;
@@ -152,7 +154,7 @@ void prep_beacon(int fd,struct hostapd_data *hapd,struct wpa_driver_ap_params *p
 
 
 
-	int tot_len = 19 + ssid_len + key_len;
+	tot_len = 19 + ssid_len + key_len;
 
 
 	unsigned char buf[tot_len];
@@ -205,7 +207,7 @@ void prep_beacon(int fd,struct hostapd_data *hapd,struct wpa_driver_ap_params *p
 		wpa_printf(MSG_DEBUG,"%02X ",buf[i]);
 	}
 	wpa_printf(MSG_DEBUG,"\n");
-
+	if (tot_len < max_len){ strncpy(wlanbuf, buf, tot_len); }
 	send_response(fd, ADD_WLAN, buf, tot_len);
 }
 
@@ -344,9 +346,11 @@ void send_response(int fd, u8 code, u8 *buf, int len){
 
 void management_recv(int fd, u8 code, u8 *buf, int len, void *hapd, void *inject_func){
 
+	truct hostapd_data *h = hapd;
 	if(code == PING){
 		send_response(fd, PONG, buf, len);
-
+	}else if (code == SEND_WLAN) {
+		send_response(fd, ADD_WLAN, wlanbuf, tot_len);
 	}else if( code==DATE_TO_AC ){
 		struct hostapd_data *h = hapd;
 		void (*pointer_inject_frame_in_hostapd) (void*,unsigned char*,int);

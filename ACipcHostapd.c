@@ -159,6 +159,19 @@ void CWACsend_command_to_hostapd_HAVE_TO_WAIT(int WTPIndex)
 
 }
 
+void CWACsend_command_to_hostapd_SEND_WLAN(int WTPIndex)
+{
+
+        char buf[1];
+
+        buf[0] = SEND_WLAN_TO_WTP;
+        if (sendto(sock, buf, 1, 0, (struct sockaddr *)&ch[WTPIndex].client, ch[WTPIndex].address_size) < 0) {
+                CWDebugLog("Error to send command frame on socket");
+                return;
+        }
+
+}
+
 #if defined(LOCALUDP)
 void send_close_cmd(struct sockaddr_un cli, int as)
 {
