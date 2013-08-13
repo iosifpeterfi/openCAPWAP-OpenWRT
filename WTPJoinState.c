@@ -492,6 +492,6 @@ CWBool CWSaveJoinResponseMessage(CWProtocolJoinResponseValues * joinResponse)
 		return CW_TRUE;
 	} else {
 		CWDebugLog("Join Response said \"Failure\"");
-		return CW_FALSE;
+		return CWErrorRaise(CW_ERROR_INVALID_FORMAT, "Message is not Join Response as Expected");
 	}
 }
