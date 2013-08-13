@@ -34,8 +34,7 @@ unsigned char wlan0_capa[21];
 
 int fd_con;
 int tot_len;
-int max_len=256;
-char wlanbuf[max_len];
+char wlanbuf[MAX_BUF];
 
 #if defined(LOCALUDP)
 	struct sockaddr_un addr;
@@ -207,7 +206,7 @@ void prep_beacon(int fd,struct hostapd_data *hapd,struct wpa_driver_ap_params *p
 		wpa_printf(MSG_DEBUG,"%02X ",buf[i]);
 	}
 	wpa_printf(MSG_DEBUG,"\n");
-	if (tot_len < max_len){ strncpy(wlanbuf, buf, tot_len); }
+	if (tot_len < MAX_BUF){ strncpy(wlanbuf, buf, tot_len); }
 	send_response(fd, ADD_WLAN, buf, tot_len);
 }
 

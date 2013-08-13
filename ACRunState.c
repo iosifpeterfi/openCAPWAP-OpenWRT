@@ -230,7 +230,7 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 		} else if (msgPtr->data_msgType == CW_IEEE_802_3_FRAME_TYPE) {
 
 			CWDebugLog("Write 802.3 data to TAP[%d], len:%d", gWTPs[WTPIndex].tap_fd, msglen);
-			write(gWTPs[WTPIndex].tap_fd, msgPtr->msg, msglen);
+			//write(gWTPs[WTPIndex].tap_fd, msgPtr->msg, msglen);
 
 		} else if (msgPtr->data_msgType == CW_IEEE_802_11_FRAME_TYPE) {
 
@@ -245,7 +245,7 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 
 				CWACsend_data_to_hostapd(WTPIndex, msgPtr->msg, msglen);
 
-			} else if (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_DATA) {
+			} /* else if (WLAN_FC_GET_TYPE(fc) == WLAN_FC_TYPE_DATA) {
 
 				if (WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_NULLFUNC || WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_AUTH || WLAN_FC_GET_STYPE(fc) == WLAN_FC_STYPE_ASSOC_REQ) {
 					CWDebugLog("Received 802.11 WLAN_FC_STYPE_NULLFUNC or WLAN_FC_STYPE_ASSOC_REQ");
@@ -268,10 +268,11 @@ CWBool ACEnterRun(int WTPIndex, CWProtocolMessage * msgPtr, CWBool dataFlag)
 
 				}
 
-			} else {
+			 } else {
 				write(gWTPs[WTPIndex].tap_fd, msgPtr->msg + HLEN_80211, msglen - HLEN_80211);
 				CWDebugLog("Control Frame !!!\n");
 			}
+			*/
 
 			//flush_pcap(msgPtr->msg, msglen, "cap_wtp_to_ac.txt");
 
