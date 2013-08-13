@@ -489,7 +489,7 @@ CW_THREAD_RETURN_TYPE CWWTPThread_read_data_from_hostapd(void *arg)
 		} else if (buffer[0] == GOWAITWLAN_R) {
 
 			CWDebugLog("Hostapd WTP in WAIT \"ADD WLAN\" Command\n");
-			gWTPNextState = CW_RESET_STATE;
+			gWTPNextState = CW_ENTER_RESET;
 
 		} else {
 
