@@ -321,7 +321,6 @@ CW_THREAD_RETURN_TYPE CWWTPReceiveDataPacket(void *arg)
 
 extern int gRawSock;
 int wtpInRunState = 0;
-
 CWStateTransition CWWTPEnterRun()
 {
 
@@ -343,10 +342,15 @@ CWStateTransition CWWTPEnterRun()
 	wtpInRunState = 1;
 
 	CW_REPEAT_FOREVER {
+
 		struct timespec timenow;
 		CWBool bReceivePacket = CW_FALSE;
 		CWBool bReveiveBinding = CW_FALSE;
-
+		if (gWTPNextState == CW_ENTER_RESET) {
+        		wtpInRunState = 0;
+        		CWStopHeartbeatTimer();
+        		return CW_ENTER_RESET;
+		}		
 		/* Wait packet */
 		if (gWTPForceACAddress != NULL) 
 			timenow.tv_sec = time(0) + CW_NEIGHBORDEAD_INTERVAL_DEFAULT;

@@ -95,7 +95,7 @@ unsigned char gWTPMACMode = CW_SPLIT_MAC;
 unsigned char gWTPTunnelMode = CW_TUNNEL_MODE_802_DOT_11_TUNNEL;
 
 int gWTPRetransmissionCount;
-extern CWStateTransition nextState;
+CWStateTransition gWTPNextState;
 
 CWPendingRequestMessage gPendingRequestMsgs[MAX_PENDING_REQUEST_MSGS];
 
@@ -492,32 +492,32 @@ int main(int argc, char * const argv[])
 
 	/* if AC address is given jump Discovery and use this address for Joining */
 	if (gWTPForceACAddress != NULL)
-		nextState = CW_ENTER_JOIN;
+		gWTPNextState = CW_ENTER_JOIN;
 
 	/* Setting hostapd default MAC char for checking in join state */
 	gRADIO_MAC[0] = 0xAA;
 
 	/* start CAPWAP state machine */
 	CW_REPEAT_FOREVER {
-		switch (nextState) {
-		CWDebugLog("nextState is %d", nextState);
+                CWDebugLog("nextState is %d", gWTPNextState);
+		switch (gWTPNextState) {
 		case CW_ENTER_DISCOVERY:
-			nextState = CWWTPEnterDiscovery();
+			gWTPNextState = CWWTPEnterDiscovery();
 			break;
 		case CW_ENTER_SULKING:
-			nextState = CWWTPEnterSulking();
+			gWTPNextState = CWWTPEnterSulking();
 			break;
 		case CW_ENTER_JOIN:
-			nextState = CWWTPEnterJoin();
+			gWTPNextState = CWWTPEnterJoin();
 			break;
 		case CW_ENTER_CONFIGURE:
-			nextState = CWWTPEnterConfigure();
+			gWTPNextState = CWWTPEnterConfigure();
 			break;
 		case CW_ENTER_DATA_CHECK:
-			nextState = CWWTPEnterDataCheck();
+			gWTPNextState = CWWTPEnterDataCheck();
 			break;
 		case CW_ENTER_RUN:
-			nextState = CWWTPEnterRun();
+			gWTPNextState = CWWTPEnterRun();
 			break;
 		case CW_ENTER_RESET:
 			/*
@@ -530,9 +530,9 @@ int main(int argc, char * const argv[])
 			 * gWTPSession = NULL;
 			 */
 			if (gWTPForceACAddress != NULL)
-				nextState = CW_ENTER_JOIN;
+				gWTPNextState = CW_ENTER_JOIN;
 			else
-				nextState = CW_ENTER_DISCOVERY;
+				gWTPNextState = CW_ENTER_DISCOVERY;
 			break;
 		case CW_QUIT:
 			CWWTPDestroy();

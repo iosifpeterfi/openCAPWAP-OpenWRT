@@ -81,7 +81,7 @@ extern unsigned char gWTPTunnelMode;
 
 extern CWACDescriptor *gCWACList;
 extern CWACInfoValues *gACInfoPtr;
-
+extern CWStateTransition gWTPNextState;
 extern int gEchoInterval;
 extern int gWTPStatisticsTimer;
 extern WTPRebootStatisticsInfo gWTPRebootStatistics;
