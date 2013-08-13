@@ -176,6 +176,8 @@ CWStateTransition CWWTPEnterJoin()
 	}
 
 	CWDebugLog("Path MTU for this Session: %d", gWTPPathMTU);
+	CWDebugLog("Waiting for previous threads to be closed on AC");
+	sleep(CW_NEIGHBORDEAD_INTERVAL_DEFAULT*2);
 
 	/* send Join Request */
 	seqNum = CWGetSeqNum();
