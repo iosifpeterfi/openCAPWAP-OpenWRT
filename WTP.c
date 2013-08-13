@@ -499,8 +499,8 @@ int main(int argc, char * const argv[])
 
 	/* start CAPWAP state machine */
 	CW_REPEAT_FOREVER {
+                CWDebugLog("nextState is %d", gWTPNextState);
 		switch (gWTPNextState) {
-		CWDebugLog("nextState is %d", gWTPNextState);
 		case CW_ENTER_DISCOVERY:
 			gWTPNextState = CWWTPEnterDiscovery();
 			break;
